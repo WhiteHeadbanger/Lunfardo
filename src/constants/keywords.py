@@ -1,0 +1,3 @@
+KEYWORDS = [
+    'cualca' # variable
+]
