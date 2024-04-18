@@ -1,10 +1,12 @@
 from tokens import *
-from errors import InvalidSyntaxError
+from errors import InvalidSyntaxError, RunTimeError
 
 class NumberNode:
 
     def __init__(self, tok):
         self.tok = tok
+        self.pos_start = self.tok.pos_start
+        self.pos_end = self.tok.pos_end
 
     def __repr__(self):
         return f'{self.tok}'
@@ -15,6 +17,8 @@ class BinOpNode:
         self.left_node = left_node
         self.op_tok = op_tok
         self.right_node = right_node
+        self.pos_start = self.left_node.pos_start
+        self.pos_end = self.right_node.pos_end
 
     def __repr__(self):
         return f'({self.left_node}, {self.op_tok}, {self.right_node})'
@@ -24,9 +28,73 @@ class UnaryOpNode:
     def __init__(self, op_tok, node):
         self.op_tok = op_tok
         self.node = node
+        self.pos_start = self.op_tok.pos_start
+        self.pos_end = node.pos_end
 
     def __repr__(self):
         return f'({self.op_tok}, {self.node})'
+    
+class Number:
+
+    def __init__(self, value):
+        self.value = value
+        self.set_pos()
+        self.set_context()
+
+    def set_pos(self, pos_start = None, pos_end = None):
+        self.pos_start = pos_start
+        self.pos_end = pos_end
+        return self
+    
+    def set_context(self, context = None):
+        self.context = context
+        return self
+    
+    def added_to(self, other):
+        if isinstance(other, Number):
+            return Number(self.value + other.value).set_context(self.context), None
+    
+    def subtracted_by(self, other):
+        if isinstance(other, Number):
+            return Number(self.value - other.value).set_context(self.context), None
+    
+    def multiplied_by(self, other):
+        if isinstance(other, Number):
+            return Number(self.value * other.value).set_context(self.context), None
+    
+    def divided_by(self, other):
+        if isinstance(other, Number):
+            if other.value == 0:
+                return None, RunTimeError(
+                    other.pos_start,
+                    other.pos_end,
+                    'Division by zero',
+                    self.context
+                )
+            return Number(self.value / other.value).set_context(self.context), None 
+        
+    def __repr__(self):
+        return str(self.value)
+
+# Run Time Result
+class RTResult:
+
+    def __init__(self):
+        self.value = None
+        self.error = None
+
+    def register(self, res):
+        if res.error:
+            self.error = res.error
+        return res.value
+    
+    def success(self, value):
+        self.value = value
+        return self
+    
+    def failure(self, error):
+        self.error = error
+        return self
 
 class Parser:
 
