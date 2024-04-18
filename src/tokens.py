@@ -1,3 +1,8 @@
+import string
+
+TT_IDENTIFIER = 'IDENTIFIER'
+TT_KEYWORD = 'KEYWORD'
+TT_EQ = 'EQ'
 TT_INT = 'INT'
 TT_FLOAT = 'FLOAT'
 TT_PLUS = 'PLUS'
@@ -10,3 +15,9 @@ TT_RPAREN = 'RPAREN'
 TT_EOF = 'EOF'
 
 DIGITS = '0123456789'
+LETTERS = string.ascii_letters
+LETTERS_DIGITS = LETTERS + DIGITS
+
+KEYWORDS = [
+    'cualca' # variable
+]

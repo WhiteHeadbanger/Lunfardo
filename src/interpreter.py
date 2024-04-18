@@ -1,6 +1,26 @@
 from lunfardo_parser import Number, RTResult
 from tokens import *
 
+class SymbolTable:
+
+    def __init__(self):
+        self.symbols = {}
+        self.parent = None
+
+    #TODO: capaz implementar getters y setters pythonicos.
+    def get(self, name):
+        value = self.symbols.get(name, None)
+        if value is None and self.parent is not None:
+            return self.parent.get(name)
+        
+        return value
+    
+    def set(self, name, value):
+        self.symbols[name] = value
+
+    def remove(self, name):
+        del self.symbols[name]
+
 class Interpreter:
 
     def visit(self, node, context):
@@ -15,6 +35,31 @@ class Interpreter:
         return RTResult().success(
             Number(node.tok.value).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
+    
+    def visit_VarAccessNode(self, node, context):
+        res = RTResult()
+        var_name = node.var_name_tok.value
+        value = context.symbol_table.get(var_name)
+
+        if not value:
+            return res.failure(RuntimeError(
+                node.pos_start, node.pos_end,
+                f"'{var_name}' is not defined",
+                context
+            ))
+        
+        return res.success(value)
+    
+    def visit_VarAssignNode(self, node, context):
+        res = RTResult()
+        var_name = node.var_name_tok.value
+        value = res.register(self.visit(node.value_node, context))
+        
+        if res.error:
+            return res
+        
+        context.symbol_table.set(var_name, value)
+        return res.success(value)
 
     def visit_BinOpNode(self, node, context):
         res = RTResult()
