@@ -12,6 +12,8 @@ def execute(fn, text):
     # Generate AST
     parser = Parser(tokens)
     ast = parser.parse()
+    if ast.error:
+        return None, ast.error
 
     # Run
     interpreter = Interpreter()
