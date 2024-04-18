@@ -1,4 +1,4 @@
-from error_markings import string_with_arrows
+from . import string_with_arrows
 
 class Error:
 
@@ -24,7 +24,8 @@ class InvalidSyntaxError(Error):
     def __init__(self, pos_start, pos_end, details):
         super().__init__(pos_start, pos_end, 'Invalid Syntax', details)
 
-class RunTimeError(Error):
+# Run time error
+class RTError(Error):
 
     def __init__(self, pos_start, pos_end, details, context):
         super().__init__(pos_start, pos_end, 'Runtime Error', details)

@@ -1,5 +1,7 @@
-from lunfardo_parser import Number, RTResult
-from tokens import *
+from lunfardo_parser import RTResult
+from constants.tokens import *
+from lunfardo_types.number import Number
+from errors.errors import RTError
 
 class SymbolTable:
 
@@ -42,7 +44,7 @@ class Interpreter:
         value = context.symbol_table.get(var_name)
 
         if not value:
-            return res.failure(RuntimeError(
+            return res.failure(RTError(
                 node.pos_start, node.pos_end,
                 f"'{var_name}' is not defined",
                 context

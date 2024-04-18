@@ -1,5 +1,6 @@
-from lunfardo import Lexer
-from lunfardo_parser import Parser, Number
+from lexer import Lexer
+from lunfardo_parser import Parser
+from lunfardo_types import Number
 from interpreter import Interpreter, SymbolTable
 from context import Context
 
