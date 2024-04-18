@@ -1,7 +1,11 @@
 from lunfardo import Lexer
-from lunfardo_parser import Parser
-from interpreter import Interpreter
+from lunfardo_parser import Parser, Number
+from interpreter import Interpreter, SymbolTable
 from context import Context
+
+global_symbol_table = SymbolTable()
+global_symbol_table.set("null", Number(0))
+
 
 def execute(fn, text):
     lexer = Lexer(fn, text)
@@ -18,6 +22,7 @@ def execute(fn, text):
     # Run
     interpreter = Interpreter()
     context = Context('<program>')
+    context.symbol_table = global_symbol_table
     result = interpreter.visit(ast.node, context)
 
     return result.value, result.error
