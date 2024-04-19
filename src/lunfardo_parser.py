@@ -87,12 +87,12 @@ class Parser:
             
             return res.success(for_expr)
         
-        """ if tok.matches(TT_KEYWORD, 'mientras'):
+        if tok.matches(TT_KEYWORD, 'mientras'):
             while_expr = res.register(self.while_expr())
             if res.error:
                 return res
             
-            return res.success(while_expr) """
+            return res.success(while_expr)
         
 
         
@@ -294,14 +294,14 @@ class Parser:
         
         return res.success(ForNode(var_name, start_value, end_value, step_value, body))
 
-    """ def while_expr(self):
+    def while_expr(self):
         res = ParseResult()
 
         if not self.current_tok.matches(TT_KEYWORD, 'mientras'):
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start,
                 self.current_tok.pos_end,
-                "Expected'mientras'"
+                "Expected 'mientras'"
             ))
         
         res.register_advance()
@@ -325,7 +325,7 @@ class Parser:
         if res.error:
             return res
         
-        return res.success(WhileNode(condition, body)) """
+        return res.success(WhileNode(condition, body))
 
     def expr(self):
         res = ParseResult()
