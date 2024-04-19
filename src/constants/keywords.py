@@ -1,3 +1,6 @@
 KEYWORDS = [
-    'cualca' # variable
+    'cualca', # variable
+    'y', # and
+    'o', # or
+    'truchar' # not
 ]

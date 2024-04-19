@@ -5,7 +5,9 @@ from interpreter import Interpreter, SymbolTable
 from context import Context
 
 global_symbol_table = SymbolTable()
-global_symbol_table.set("null", Number(0))
+global_symbol_table.set("nada", Number(0)) #null, none
+global_symbol_table.set("posta", Number(1)) #true
+global_symbol_table.set("trucho", Number(0)) #false
 
 
 def execute(fn, text):
