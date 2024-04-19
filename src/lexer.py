@@ -28,6 +28,9 @@ class Lexer:
             elif self.current_char in LETTERS:
                 tokens.append(self.make_identifier())
             
+            elif self.current_char == '"':
+                tokens.append(self.make_string())
+            
             elif self.current_char == '+':
                 tokens.append(Token(TT_PLUS, pos_start=self.pos))
                 self.advance()
@@ -110,6 +113,31 @@ class Lexer:
             return Token(TT_INT, int(num_str), pos_start, self.pos)
         
         return Token(TT_FLOAT, float(num_str), pos_start, self.pos)
+    
+    def make_string(self):
+        string = ''
+        pos_start = self.pos.copy()
+        escape_char = False
+        self.advance()
+
+        escape_characters = {
+            'n': '\n',
+            't': '\t'
+        }
+
+        while self.current_char is not None and (self.current_char != '"' or escape_char):
+            if escape_char:
+                string += escape_characters.get(self.current_char, self.current_char)
+                escape_char	= False
+            else:
+                if self.current_char == '\\':
+                    escape_char = True
+                else:
+                    string += self.current_char
+            self.advance()
+
+        self.advance()
+        return Token(TT_STRING, string, pos_start, self.pos)
     
     def make_identifier(self):
         id_str = ''

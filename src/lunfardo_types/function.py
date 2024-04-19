@@ -12,11 +12,6 @@ class Function(Value):
         self.name = name or "<anonymous>"
         self.body_node = body_node
         self.arg_names = arg_names
-        #self.interpreter = None
-
-    def set_interpreter(self, interpreter):
-        self.interpreter = interpreter
-        return self
 
     def execute(self, args, current_context):
         res = RTResult()
