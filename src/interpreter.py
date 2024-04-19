@@ -198,7 +198,7 @@ class Interpreter:
             
         return res.success(None)
     
-    """ def visit_WhileNode(self, node, context):
+    def visit_WhileNode(self, node, context):
         res = RTResult()
 
         while True:
@@ -214,4 +214,4 @@ class Interpreter:
             if res.error:
                 return res
         
-        return res.success(None) """
+        return res.success(None)
