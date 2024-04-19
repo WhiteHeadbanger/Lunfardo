@@ -73,6 +73,13 @@ class Parser:
                 "Expected ')'"
             ))
         
+        if tok.matches(TT_KEYWORD, 'si'):
+            if_expr = res.register(self.if_expr())
+            if res.error:
+                return res
+            
+            return res.success(if_expr)
+        
         return res.failure(InvalidSyntaxError(
             tok.pos_start,
             tok.pos_end,
@@ -129,6 +136,71 @@ class Parser:
     
     def arith_expr(self):
         return self.bin_op(self.term, (TT_PLUS, TT_MINUS))
+    
+    def if_expr(self):
+        res = ParseResult()
+        cases = []
+        else_case = None
+
+        if not self.current_tok.matches(TT_KEYWORD, 'si'):
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start,
+                self.current_tok.pos_end,
+                "Expected 'si'"
+            ))
+        
+        res.register_advance()
+        self.advance()
+
+        condition = res.register(self.expr())
+        if res.error:
+            return res
+        
+        if not self.current_tok.matches(TT_KEYWORD, 'entonces'):
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start,
+                self.current_tok.pos_end,
+                "Expected 'entonces'"
+            ))
+        
+        res.register_advance()
+        self.advance()
+
+        expr = res.register(self.expr())
+        if res.error:
+            return res
+        
+        cases.append((condition, expr))
+
+        while self.current_tok.matches(TT_KEYWORD, 'osi'):
+            res.register_advance()
+            self.advance()
+
+            condition = res.register(self.expr())
+            if res.error:
+                return res
+            
+            if not self.current_tok.matches(TT_KEYWORD, 'entonces'):
+                return res.failure(InvalidSyntaxError(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Expected 'entonces'"
+                ))
+            
+            res.register_advance()
+            self.advance()
+
+            expr = res.register(self.expr())
+        
+        if self.current_tok.matches(TT_KEYWORD, 'otro'):
+            res.register_advance()
+            self.advance()
+
+            else_case = res.register(self.expr())
+            if res.error:
+                return res
+
+        return res.success(IfNode(cases, else_case))
 
     def expr(self):
         res = ParseResult()

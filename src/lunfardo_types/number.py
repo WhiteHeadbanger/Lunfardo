@@ -80,6 +80,10 @@ class Number:
             return Number(1 if self.value == 0 else 0).set_context(self.context), None
             #return Number(not self.value).set_context(self.context), None
     
+    def is_true(self):
+        if isinstance(self, Number):
+            return self.value != 0
+    
     def copy(self):
         copy = Number(self.value)
         copy.set_pos(self.pos_start, self.pos_end)
