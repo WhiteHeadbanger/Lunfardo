@@ -37,7 +37,7 @@ def run():
 
         if error:
             print(error.as_string())
-        else:
+        elif result:
             print(result)
 
 if __name__ == '__main__':
