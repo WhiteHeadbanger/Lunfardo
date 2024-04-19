@@ -80,6 +80,22 @@ class Parser:
             
             return res.success(if_expr)
         
+        if tok.matches(TT_KEYWORD, 'para'):
+            for_expr = res.register(self.for_expr())
+            if res.error:
+                return res
+            
+            return res.success(for_expr)
+        
+        """ if tok.matches(TT_KEYWORD, 'mientras'):
+            while_expr = res.register(self.while_expr())
+            if res.error:
+                return res
+            
+            return res.success(while_expr) """
+        
+
+        
         return res.failure(InvalidSyntaxError(
             tok.pos_start,
             tok.pos_end,
@@ -201,6 +217,115 @@ class Parser:
                 return res
 
         return res.success(IfNode(cases, else_case))
+    
+    def for_expr(self):
+        res = ParseResult()
+
+        if not self.current_tok.matches(TT_KEYWORD, 'para'):
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start,
+                self.current_tok.pos_end,
+                "Expected 'para'"
+            ))
+        
+        res.register_advance()
+        self.advance()
+
+        if self.current_tok.type != TT_IDENTIFIER:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                "Expected identifier"
+            ))
+        
+        var_name = self.current_tok
+        res.register_advance()
+        self.advance()
+
+        if self.current_tok.type != TT_EQ:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                "Expected '='"
+            ))
+        
+        res.register_advance()
+        self.advance()
+
+        start_value = res.register(self.expr())
+        if res.error:
+            return res
+        
+        if not self.current_tok.matches(TT_KEYWORD, 'hasta'):
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start,
+                self.current_tok.pos_end,
+                "Expected 'hasta'"
+            ))
+        
+        res.register_advance()
+        self.advance()
+
+        end_value = res.register(self.expr())
+        if res.error:
+            return res
+        
+        if self.current_tok.matches(TT_KEYWORD, 'entre'):
+            res.register_advance()
+            self.advance()
+
+            step_value = res.register(self.expr())
+            if res.error:
+                return res
+        else:
+            step_value = None
+
+        if not self.current_tok.matches(TT_KEYWORD, 'entonces'):
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start,
+                self.current_tok.pos_end,
+                "Expected 'entonces'"
+            ))
+        
+        res.register_advance()
+        self.advance()
+
+        body = res.register(self.expr())
+        if res.error:
+            return res
+        
+        return res.success(ForNode(var_name, start_value, end_value, step_value, body))
+
+    """ def while_expr(self):
+        res = ParseResult()
+
+        if not self.current_tok.matches(TT_KEYWORD, 'mientras'):
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start,
+                self.current_tok.pos_end,
+                "Expected'mientras'"
+            ))
+        
+        res.register_advance()
+        self.advance()
+
+        condition = res.register(self.expr())
+        if res.error:
+            return res
+        
+        if not self.current_tok.matches(TT_KEYWORD, 'entonces'):
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start,
+                self.current_tok.pos_end,
+                "Expected 'entonces'"
+            ))
+        
+        res.register_advance()
+        self.advance()
+
+        body = res.register(self.expr())
+        if res.error:
+            return res
+        
+        return res.success(WhileNode(condition, body)) """
 
     def expr(self):
         res = ParseResult()

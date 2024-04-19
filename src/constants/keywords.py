@@ -5,6 +5,10 @@ KEYWORDS = [
     'truchar', # not
     'si', # if
     'entonces', # then
-    'osi', #elif
-    'otro' #else
+    'osi', # elif
+    'otro', # else
+    'para', # for
+    'hasta', # to
+    'entre', # step
+    'mientras' # while
 ]
