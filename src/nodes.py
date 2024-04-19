@@ -57,3 +57,30 @@ class IfNode:
 
     def __repr__(self):
         return f'({self.cases}, {self.else_case})'
+    
+class ForNode:
+
+    def __init__(self, var_name_tok, start_value_node, end_value_node, step_value_node, body_node):
+        self.var_name_tok = var_name_tok
+        self.start_value_node = start_value_node
+        self.end_value_node = end_value_node
+        self.step_value_node = step_value_node
+        self.body_node = body_node
+
+        self.pos_start = self.var_name_tok.pos_start
+        self.pos_end = self.body_node.pos_end
+
+    def __repr__(self):
+        return f'({self.var_name_tok}, {self.start_value_node}, {self.end_value_node}, {self.step_value_node}, {self.body_node})'
+
+class WhileNode:
+
+    def __init__(self, condition_node, body_node):
+        self.condition_node = condition_node
+        self.body_node = body_node
+
+        self.pos_start = self.condition_node.pos_start
+        self.pos_end = self.body_node.pos_end
+
+    def __repr__(self):
+        return f'({self.condition_node}, {self.body_node})'
