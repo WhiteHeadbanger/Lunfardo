@@ -10,5 +10,6 @@ KEYWORDS = [
     'para', # for
     'hasta', # to
     'entre', # step
-    'mientras' # while
+    'mientras', # while
+    'laburo' # def, func, function
 ]
