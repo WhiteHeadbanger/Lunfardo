@@ -37,7 +37,7 @@ class LList(Value):
     
     def subtracted_by(self, other):
         """
-            - with int -> remove by index. Returns new list
+            - with int -> remove by index (positive or negative). Returns new list
             - with list -> remove first element encountered. Returns new list
             - with function -> not supported (must use index) TODO
         """
