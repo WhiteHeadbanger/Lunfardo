@@ -13,7 +13,7 @@ class LList(Value):
         self.elements = elements
 
     def added_to(self, other):
-        """ Extend a list by providing another list"""
+        """  with list -> extend original list. Returns new list"""
         if isinstance(other, LList):
             new_list = self.copy()
             new_list.elements.extend(other.elements)
@@ -23,7 +23,7 @@ class LList(Value):
         return None, Value.illegal_operation(self, other)
 
     def multiplied_by(self, other):
-        """ Multiply the values in a list by a number. """
+        """ with int -> multiply by <int> the occurrences of element, sorted by original list. Returns new list."""
         if isinstance(other, Number):
             if other.value < 0:
                 return None, Value.illegal_operation(self, other)
@@ -36,6 +36,11 @@ class LList(Value):
         return None, Value.illegal_operation(self, other)
     
     def subtracted_by(self, other):
+        """
+            - with int -> remove by index. Returns new list
+            - with list -> remove first element encountered. Returns new list
+            - with function -> not supported (must use index) TODO
+        """
         if isinstance(other, Number):
             new_list = self.copy()
             try:
@@ -83,6 +88,7 @@ class LList(Value):
             return None, Value.illegal_operation(self, other)
     
     def divided_by(self, other):
+        """  with int -> return element at index <int> """
         if isinstance(other, Number):
             try:
                 return self.elements[other.value], None
