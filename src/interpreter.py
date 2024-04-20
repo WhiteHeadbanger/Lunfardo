@@ -171,7 +171,9 @@ class Interpreter:
         return res.success(None)
     
     def visit_ForNode(self, node, context):
+        from lunfardo_types import LList
         res = RTResult()
+        elements = []
         
         start_value = res.register(self.visit(node.start_value_node, context))
         if res.error:
@@ -199,14 +201,18 @@ class Interpreter:
             context.symbol_table.set(node.var_name_tok.value, Number(i))
             i += step_value.value
 
-            res.register(self.visit(node.body_node, context))
+            elements.append(res.register(self.visit(node.body_node, context)))
             if res.error:
                 return res
             
-        return res.success(None)
+        return res.success(
+            LList(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
+        )
     
     def visit_WhileNode(self, node, context):
+        from lunfardo_types import LList
         res = RTResult()
+        elements = []
 
         while True:
             condition = res.register(self.visit(node.condition_node, context))
@@ -217,11 +223,13 @@ class Interpreter:
             if not condition.is_true():
                 break
 
-            res.register(self.visit(node.body_node, context))
+            elements.append(res.register(self.visit(node.body_node, context)))
             if res.error:
                 return res
         
-        return res.success(None)
+        return res.success(
+            LList(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
+        )
     
     def visit_FuncDefNode(self, node, context):
         from lunfardo_types import Function
@@ -232,7 +240,6 @@ class Interpreter:
         body_node = node.body_node
         arg_names = [arg_name.value for arg_name in node.arg_name_toks]
         func_value = Function(func_name, body_node, arg_names).set_context(context).set_pos(node.pos_start, node.pos_end)
-        #func_value = Function(func_name, body_node, arg_names).set_interpreter(Interpreter).set_context(context).set_pos(node.pos_start, node.pos_end)
 
         if node.var_name_tok:
             context.symbol_table.set(func_name, func_value)
@@ -259,4 +266,23 @@ class Interpreter:
             return res
         
         return res.success(return_value)
+    
+    def visit_ListNode(self, node, context):
+        from lunfardo_types import LList
+        res = RTResult()
+        
+        """ elements = []
+        for element_node in node.element_nodes:
+            elements.append(res.register(self.visit(element_node, context))) """
+        elements = [res.register(self.visit(element_node, context)) for element_node in node.element_nodes]
+        if res.error:
+            return res
+
+        return res.success(
+            LList(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
+        )
+
+
+
+
 

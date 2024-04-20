@@ -11,6 +11,8 @@ TT_DIV          = 'DIV'
 TT_POW          = 'POW'
 TT_LPAREN       = 'LPAREN'
 TT_RPAREN       = 'RPAREN'
+TT_LSQUARE      = 'LSQUARE'
+TT_RSQUARE      = 'RSQUARE'
 TT_EE           = 'EE' # ==
 TT_NE           = 'NE' # !=
 TT_LT           = 'LT' # <

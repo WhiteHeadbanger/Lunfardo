@@ -62,7 +62,7 @@ class Parser:
                     return res.failure(InvalidSyntaxError(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
-                        "Expected ')', 'cualca', 'si', 'para', 'mientras', 'laburo', int, float, identifier"
+                        "Expected ')', 'cualca', 'si', 'para', 'mientras', 'laburo', int, float, identifier, '+', '-', '(', '[' or 'truchar'"
                     ))
                 
                 while self.current_tok.type == TT_COMMA:
@@ -124,6 +124,13 @@ class Parser:
                 "Expected ')'"
             ))
         
+        if tok.type == TT_LSQUARE:
+            list_expr = res.register(self.list_expr())
+            if res.error:
+                return res
+            
+            return res.success(list_expr)
+        
         if tok.matches(TT_KEYWORD, 'si'):
             if_expr = res.register(self.if_expr())
             if res.error:
@@ -155,7 +162,7 @@ class Parser:
         return res.failure(InvalidSyntaxError(
             tok.pos_start,
             tok.pos_end,
-            "Expected int, float, identifier, '+', '-', '(', 'si', 'para', 'mientras', 'laburo'"
+            "Expected int, float, identifier, '+', '-', '(', '[', 'si', 'para', 'mientras', 'laburo'"
         ))
     
     def power(self):
@@ -201,13 +208,69 @@ class Parser:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start,
                 self.current_tok.pos_end,
-                "Expected int, float, identifier, '+', '-' or '(', 'truchar'"
+                "Expected int, float, identifier, '+', '-', '(', '[' or truchar'"
             ))
         
         return res.success(node)
     
     def arith_expr(self):
         return self.bin_op(self.term, (TT_PLUS, TT_MINUS))
+    
+    def list_expr(self):
+        res = ParseResult()
+        element_nodes = []
+        pos_start = self.current_tok.pos_start.copy()
+
+        if self.current_tok.type != TT_LSQUARE:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start,
+                self.current_tok.pos_end,
+                "Expected '['"
+            ))
+        
+        res.register_advance()
+        self.advance()
+
+        # Empty list
+        if self.current_tok.type == TT_RSQUARE:
+            res.register_advance()
+            self.advance()
+
+        else:
+            element_nodes.append(res.register(self.expr()))
+            
+            if res.error:
+                return res.failure(InvalidSyntaxError(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Expected ']', 'cualca', 'si', 'para', 'mientras', 'laburo', int, float, identifier, '+', '-', '(', '[' or 'truchar'"
+                ))
+            
+            while self.current_tok.type == TT_COMMA:
+                res.register_advance()
+                self.advance()
+
+                element_nodes.append(res.register(self.expr()))
+                if res.error:
+                    return res
+            
+            if self.current_tok.type != TT_RSQUARE:
+                return res.failure(InvalidSyntaxError(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Expected ',' or ']'"
+                ))
+            
+            res.register_advance()
+            self.advance()
+            
+
+        return res.success(ListNode(
+            element_nodes,
+            pos_start,
+            self.current_tok.pos_end.copy()
+        ))
+
     
     def if_expr(self):
         res = ParseResult()
@@ -510,7 +573,7 @@ class Parser:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start,
                 self.current_tok.pos_end,
-                "Expected 'cualca', 'si', 'para', 'mientras', 'laburo', int, float, identifier, '+', '-', '(' or 'truchar'"
+                "Expected 'cualca', 'si', 'para', 'mientras', 'laburo', int, float, identifier, '+', '-', '(', '[' or 'truchar'"
             ))
         
         return res.success(node)
