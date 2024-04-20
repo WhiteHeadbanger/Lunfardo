@@ -6,7 +6,7 @@ class NumberNode:
         self.pos_end = self.tok.pos_end
 
     def __repr__(self):
-        return f'{self.tok}'
+        return f'({self.tok})'
 
 class StringNode:
 
@@ -16,7 +16,17 @@ class StringNode:
         self.pos_end = self.tok.pos_end
 
     def __repr__(self):
-        return f'{self.tok}'
+        return f'({self.tok})'
+    
+class ListNode:
+
+    def __init__(self, element_nodes, pos_start, pos_end):
+        self.element_nodes = element_nodes
+        self.pos_start = pos_start
+        self.pos_end = pos_end
+
+    def __repr__(self):
+        return f'({self.element_nodes})'
     
 class VarAccessNode:
 
@@ -25,6 +35,9 @@ class VarAccessNode:
         self.pos_start = self.var_name_tok.pos_start
         self.pos_end = self.var_name_tok.pos_end
 
+    def __repr__(self):
+        return f'({self.var_name_tok})'
+
 class VarAssignNode:
 
     def __init__(self, var_name_tok, value_node):
@@ -32,6 +45,9 @@ class VarAssignNode:
         self.value_node = value_node
         self.pos_start = self.var_name_tok.pos_start
         self.pos_end = self.value_node.pos_end
+
+    def __repr__(self):
+        return f'({self.var_name_tok}, {self.value_node})'
 
     
 class BinOpNode:
