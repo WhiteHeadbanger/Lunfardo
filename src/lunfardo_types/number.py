@@ -108,3 +108,8 @@ class Number(Value):
     
     def __repr__(self):
         return str(self.value)
+
+#TODO hacer esto de una mejor forma 
+Number.null = Number(0)
+Number.false = Number(0)
+Number.true = Number(1)

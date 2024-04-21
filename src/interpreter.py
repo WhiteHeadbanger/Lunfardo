@@ -57,7 +57,7 @@ class Interpreter:
                 context
             ))
         
-        value = value.copy().set_pos(node.pos_start, node.pos_end)
+        value = value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
         return res.success(value)
     
     def visit_VarAssignNode(self, node, context):
@@ -265,15 +265,14 @@ class Interpreter:
         if res.error:
             return res
         
+        return_value = return_value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
+        
         return res.success(return_value)
     
     def visit_ListNode(self, node, context):
         from lunfardo_types import LList
         res = RTResult()
-        
-        """ elements = []
-        for element_node in node.element_nodes:
-            elements.append(res.register(self.visit(element_node, context))) """
+
         elements = [res.register(self.visit(element_node, context)) for element_node in node.element_nodes]
         if res.error:
             return res
