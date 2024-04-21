@@ -1,27 +1,27 @@
 from lexer import Lexer
 from lunfardo_parser import Parser
-from lunfardo_types import Number, BuiltInFunction
+from lunfardo_types import Numero, Curro
 from interpreter import Interpreter, SymbolTable
 from context import Context
 
 global_symbol_table = SymbolTable()
-global_symbol_table.set("nada", Number.null) #null, none
-global_symbol_table.set("posta", Number.true) #true
-global_symbol_table.set("trucho", Number.false) #false
-global_symbol_table.set("matear", BuiltInFunction.matear)
-global_symbol_table.set("morfar", BuiltInFunction.morfar)
-global_symbol_table.set("linpiavidrios", BuiltInFunction.limpiavidrios)
-global_symbol_table.set("winpiavidrios", BuiltInFunction.limpiavidrios)
-global_symbol_table.set("es_num", BuiltInFunction.es_num)
-global_symbol_table.set("es_chamu", BuiltInFunction.es_chamu)
-global_symbol_table.set("es_coso", BuiltInFunction.es_coso)
-global_symbol_table.set("es_laburo", BuiltInFunction.es_laburo)
-global_symbol_table.set("guardar", BuiltInFunction.guardar)
-global_symbol_table.set("sacar", BuiltInFunction.sacar)
-global_symbol_table.set("extender", BuiltInFunction.extender)
+global_symbol_table.set("nada", Numero.null) #null, none
+global_symbol_table.set("posta", Numero.true) #true
+global_symbol_table.set("trucho", Numero.false) #false
+global_symbol_table.set("matear", Curro.matear)
+global_symbol_table.set("morfar", Curro.morfar)
+global_symbol_table.set("linpiavidrios", Curro.limpiavidrios)
+global_symbol_table.set("winpiavidrios", Curro.limpiavidrios)
+global_symbol_table.set("es_num", Curro.es_num)
+global_symbol_table.set("es_chamu", Curro.es_chamu)
+global_symbol_table.set("es_coso", Curro.es_coso)
+global_symbol_table.set("es_laburo", Curro.es_laburo)
+global_symbol_table.set("guardar", Curro.guardar)
+global_symbol_table.set("sacar", Curro.sacar)
+global_symbol_table.set("extender", Curro.extender)
 
-global_symbol_table.set("chamu", BuiltInFunction.chamu)
-global_symbol_table.set("num", BuiltInFunction.chamu)
+global_symbol_table.set("chamu", Curro.chamu)
+global_symbol_table.set("num", Curro.chamu)
 
 
 

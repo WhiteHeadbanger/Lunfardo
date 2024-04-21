@@ -5,7 +5,7 @@ from context import Context
 from errors import RTError
 import os
 
-class BaseFunction(Value):
+class BaseLaburo(Value):
     def __init__(self, name):
         super().__init__()
         self.name = name or "<anonymous>"
@@ -56,7 +56,7 @@ class BaseFunction(Value):
 
         return res.success(None)
 
-class Function(BaseFunction):
+class Laburo(BaseLaburo):
 
     def __init__(self, name, body_node, arg_names):
         super().__init__(name)
@@ -81,7 +81,7 @@ class Function(BaseFunction):
         return res.success(value)
     
     def copy(self):
-        copy = Function(self.name, self.body_node, self.arg_names)
+        copy = Laburo(self.name, self.body_node, self.arg_names)
         copy.set_context(self.context)
         copy.set_pos(self.pos_start, self.pos_end)
         return copy
@@ -92,7 +92,7 @@ class Function(BaseFunction):
     def __repr__(self):
         return f"<laburo {self.name}>"
 
-class BuiltInFunction(BaseFunction):
+class Curro(BaseLaburo):
 
     def __init__(self, name):
         super().__init__(name)
@@ -119,7 +119,7 @@ class BuiltInFunction(BaseFunction):
         raise Exception(f'No exec_{self.name} method defined.')
     
     def copy(self):
-        copy = BuiltInFunction(self.name)
+        copy = Curro(self.name)
         copy.set_context(self.context)
         copy.set_pos(self.pos_start, self.pos_end)
         return copy
@@ -132,7 +132,7 @@ class BuiltInFunction(BaseFunction):
     #########################################
 
     def exec_chamu(self, exec_ctx):
-        from . import String, Number
+        from . import Chamuyo, Numero
         value = exec_ctx.symbol_table.get('value')
         
         if not value:
@@ -143,19 +143,19 @@ class BuiltInFunction(BaseFunction):
                 exec_ctx
             ))
         
-        if isinstance(value, Number):
-            return RTResult().success(String(value.value))
+        if isinstance(value, Numero):
+            return RTResult().success(Chamuyo(value.value))
         
-        if isinstance(value, String):
+        if isinstance(value, Chamuyo):
             return RTResult().success(value)
         
-        if isinstance(value, BaseFunction):
-            return RTResult().success(String(str(value)))
+        if isinstance(value, BaseLaburo):
+            return RTResult().success(Chamuyo(str(value)))
     
     exec_chamu.arg_names = ['value']
     
     def exec_num(self, exec_ctx):
-        from . import String, Number
+        from . import Chamuyo, Numero
         value = exec_ctx.symbol_table.get('value')
         
         if not value:
@@ -166,10 +166,10 @@ class BuiltInFunction(BaseFunction):
                 exec_ctx
             ))
         
-        if isinstance(value, Number):
+        if isinstance(value, Numero):
             return RTResult().success(value)
         
-        if isinstance(value, String):
+        if isinstance(value, Chamuyo):
             # check if string is a valid string
             try:
                 new_value = int(value.value)
@@ -181,9 +181,9 @@ class BuiltInFunction(BaseFunction):
                     exec_ctx
                 ))
             
-            return RTResult().success(Number(new_value))
+            return RTResult().success(Numero(new_value))
         
-        if isinstance(value, BaseFunction):
+        if isinstance(value, BaseLaburo):
             return RTResult().failure(RTError(
                 self.pos_start,
                 self.pos_end,
@@ -194,68 +194,68 @@ class BuiltInFunction(BaseFunction):
     exec_num.arg_names = ['value']
     
     def exec_matear(self, exec_ctx):
-        from . import Number
+        from . import Numero
         value = exec_ctx.symbol_table.get('value')
         if value is not None: 
             print(value)
         else:
             print()
-        return RTResult().success(Number.null)
+        return RTResult().success(Numero.null)
     
     exec_matear.arg_names = ['value']
     
     def exec_morfar(self, exec_ctx):
-        from . import String
+        from . import Chamuyo
         _prefix = exec_ctx.symbol_table.get('value')
         if _prefix is not None:
             text = input(_prefix)
         else:
             text = input()
-        return RTResult().success(String(text))
+        return RTResult().success(Chamuyo(text))
     
     exec_morfar.arg_names = ['value']
 
     def exec_limpiavidrios(self, exec_ctx):
-        from . import Number
+        from . import Numero
         os.system('cls' if os.name == 'nt' else 'clear')
-        return RTResult().success(Number.null)
+        return RTResult().success(Numero.null)
     
     exec_limpiavidrios.arg_names = []
     
     def exec_es_num(self, exec_ctx):
-        from . import Number
-        is_number = isinstance(exec_ctx.symbol_table.get('value'), Number)
-        return RTResult().success(Number.true if is_number else Number.false)
+        from . import Numero
+        is_number = isinstance(exec_ctx.symbol_table.get('value'), Numero)
+        return RTResult().success(Numero.true if is_number else Numero.false)
     
     exec_es_num.arg_names = ['value']
     
     def exec_es_chamu(self, exec_ctx):
-        from . import Number, String
-        is_string = isinstance(exec_ctx.symbol_table.get('value'), String)
-        return RTResult().success(Number.true if is_string else Number.false)
+        from . import Numero, Chamuyo
+        is_string = isinstance(exec_ctx.symbol_table.get('value'), Chamuyo)
+        return RTResult().success(Numero.true if is_string else Numero.false)
     
     exec_es_chamu.arg_names = ['value']
     
     def exec_es_coso(self, exec_ctx):
-        from . import Number, LList
-        is_list = isinstance(exec_ctx.symbol_table.get('value'), LList)
-        return RTResult().success(Number.true if is_list else Number.false)
+        from . import Numero, Coso
+        is_list = isinstance(exec_ctx.symbol_table.get('value'), Coso)
+        return RTResult().success(Numero.true if is_list else Numero.false)
     
     exec_es_coso.arg_names = ['value']
     
     def exec_es_laburo(self, exec_ctx):
-        from . import Number
-        is_func = isinstance(exec_ctx.symbol_table.get('value'), BaseFunction)
-        return RTResult().success(Number.true if is_func else Number.false)
+        from . import Numero
+        is_func = isinstance(exec_ctx.symbol_table.get('value'), BaseLaburo)
+        return RTResult().success(Numero.true if is_func else Numero.false)
     
     exec_es_laburo.arg_names = ['value']
     
     def exec_guardar(self, exec_ctx):
-        from . import Number, LList
+        from . import Numero, Coso
         list_ = exec_ctx.symbol_table.get('list')
         value = exec_ctx.symbol_table.get('value')
 
-        if not isinstance(list_, LList):
+        if not isinstance(list_, Coso):
             return RTResult().failure(RTError(
                 self.pos_start,
                 self.pos_end,
@@ -264,16 +264,16 @@ class BuiltInFunction(BaseFunction):
             ))
         
         list_.elements.append(value)
-        return RTResult().success(Number.null)
+        return RTResult().success(Numero.null)
     
     exec_guardar.arg_names = ['list', 'value']
     
     def exec_sacar(self, exec_ctx):
-        from . import Number, LList
+        from . import Numero, Coso
         list_ = exec_ctx.symbol_table.get('list')
         index = exec_ctx.symbol_table.get('index')
 
-        if not isinstance(list_, LList):
+        if not isinstance(list_, Coso):
             return RTResult().failure(RTError(
                 self.pos_start,
                 self.pos_end,
@@ -281,7 +281,7 @@ class BuiltInFunction(BaseFunction):
                 exec_ctx
             ))
         
-        if not isinstance(index, Number):
+        if not isinstance(index, Numero):
             return RTResult().failure(RTError(
                 self.pos_start,
                 self.pos_end,
@@ -304,11 +304,11 @@ class BuiltInFunction(BaseFunction):
     exec_sacar.arg_names = ['list', 'index']
 
     def exec_extender(self, exec_ctx):
-        from . import Number, LList
+        from . import Numero, Coso
         listA = exec_ctx.symbol_table.get('listA')
         listB = exec_ctx.symbol_table.get('listB')
 
-        if not isinstance(listA, LList):
+        if not isinstance(listA, Coso):
             return RTResult().failure(RTError(
                 self.pos_start,
                 self.pos_end,
@@ -316,7 +316,7 @@ class BuiltInFunction(BaseFunction):
                 exec_ctx
             ))
 
-        if not isinstance(listB, LList):
+        if not isinstance(listB, Coso):
             return RTResult().failure(RTError(
                 self.pos_start,
                 self.pos_end,
@@ -326,22 +326,22 @@ class BuiltInFunction(BaseFunction):
         
         listA.elements.extend(listB.elements)
 
-        return RTResult().success(Number.null)
+        return RTResult().success(Numero.null)
 
     exec_extender.arg_names = ['listA', 'listB']
 
-BuiltInFunction.matear          = BuiltInFunction('matear')
-BuiltInFunction.morfar          = BuiltInFunction('morfar')
-BuiltInFunction.limpiavidrios   = BuiltInFunction('limpiavidrios')
-BuiltInFunction.es_num          = BuiltInFunction('es_num')
-BuiltInFunction.es_chamu        = BuiltInFunction('es_chamu')
-BuiltInFunction.es_coso         = BuiltInFunction('es_coso')
-BuiltInFunction.es_laburo       = BuiltInFunction('es_laburo')
-BuiltInFunction.guardar         = BuiltInFunction('guardar')
-BuiltInFunction.sacar           = BuiltInFunction('sacar')
-BuiltInFunction.extender        = BuiltInFunction('extender')
-BuiltInFunction.chamu           = BuiltInFunction('chamu')
-BuiltInFunction.num             = BuiltInFunction('num')
+Curro.matear          = Curro('matear')
+Curro.morfar          = Curro('morfar')
+Curro.limpiavidrios   = Curro('limpiavidrios')
+Curro.es_num          = Curro('es_num')
+Curro.es_chamu        = Curro('es_chamu')
+Curro.es_coso         = Curro('es_coso')
+Curro.es_laburo       = Curro('es_laburo')
+Curro.guardar         = Curro('guardar')
+Curro.sacar           = Curro('sacar')
+Curro.extender        = Curro('extender')
+Curro.chamu           = Curro('chamu')
+Curro.num             = Curro('num')
 
 
 

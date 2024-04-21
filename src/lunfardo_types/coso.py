@@ -1,12 +1,12 @@
 from .value import Value
-from .number import Number
-from .string import String
+from .numero import Numero
+from .chamuyo import Chamuyo
 from errors import RTError
 
 from typing import List
 
 # to avoid override List python type
-class LList(Value):
+class Coso(Value):
 
     def __init__(self, elements: List):
         super().__init__()
@@ -14,7 +14,7 @@ class LList(Value):
 
     def added_to(self, other):
         """  with list -> extend original list. Returns new list"""
-        if isinstance(other, LList):
+        if isinstance(other, Coso):
             new_list = self.copy()
             new_list.elements.extend(other.elements)
 
@@ -24,7 +24,7 @@ class LList(Value):
 
     def multiplied_by(self, other):
         """ with int -> multiply by <int> the occurrences of element, sorted by original list. Returns new list."""
-        if isinstance(other, Number):
+        if isinstance(other, Numero):
             if other.value < 0:
                 return None, Value.illegal_operation(self, other)
             new_list = self.copy()
@@ -41,7 +41,7 @@ class LList(Value):
             - with list -> remove first element encountered. Returns new list
             - with function -> not supported (must use index) TODO
         """
-        if isinstance(other, Number):
+        if isinstance(other, Numero):
             new_list = self.copy()
             try:
                 new_list.elements.pop(other.value)
@@ -54,7 +54,7 @@ class LList(Value):
                     self.context
                 )
         
-        if isinstance(other, LList):
+        if isinstance(other, Coso):
             new_list = self.copy()
 
             if not other.elements:
@@ -89,7 +89,7 @@ class LList(Value):
     
     def divided_by(self, other):
         """  with int -> return element at index <int> """
-        if isinstance(other, Number):
+        if isinstance(other, Numero):
             try:
                 return self.elements[other.value], None
             except IndexError:
@@ -104,7 +104,7 @@ class LList(Value):
             return None, Value.illegal_operation(self, other)
         
     def copy(self):
-        copy = LList(self.elements)
+        copy = Coso(self.elements)
         copy.set_pos(self.pos_start, self.pos_end)
         copy.set_context(self.context)
         return copy
