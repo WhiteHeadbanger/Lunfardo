@@ -10,7 +10,6 @@ global_symbol_table.set("posta", Number.true) #true
 global_symbol_table.set("trucho", Number.false) #false
 global_symbol_table.set("matear", BuiltInFunction.print)
 global_symbol_table.set("morfar", BuiltInFunction.input)
-global_symbol_table.set("morfar_int", BuiltInFunction.input_int)
 global_symbol_table.set("linpiavidrios", BuiltInFunction.clear)
 global_symbol_table.set("winpiavidrios", BuiltInFunction.clear)
 global_symbol_table.set("es_num", BuiltInFunction.is_number)
@@ -20,6 +19,9 @@ global_symbol_table.set("es_laburo", BuiltInFunction.is_function)
 global_symbol_table.set("guardar", BuiltInFunction.append)
 global_symbol_table.set("sacar", BuiltInFunction.pop)
 global_symbol_table.set("extender", BuiltInFunction.extend)
+
+global_symbol_table.set("str", BuiltInFunction.str)
+global_symbol_table.set("int", BuiltInFunction.int)
 
 
 

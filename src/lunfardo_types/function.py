@@ -18,24 +18,28 @@ class BaseFunction(Value):
     def check_args(self, arg_names, args):
         res = RTResult()
 
-        if len(args) > len(arg_names):
-            return res.failure(RTError(
-                self.pos_start, self.pos_end,
-                f"too many args passed into '{self.name}' (expected {len(arg_names)}, got {len(args)})",
-                self.context
-            ))
+        if args:
+            if len(args) > len(arg_names):
+                return res.failure(RTError(
+                    self.pos_start, self.pos_end,
+                    f"too many args passed into '{self.name}'() (expected {len(arg_names)}, got {len(args)})",
+                    self.context
+                ))
         
-        if len(args) < len(arg_names):
-            return res.failure(RTError(
-                self.pos_start,
-                self.pos_end,
-                f"too few args passed into '{self.name}' (expected {len(arg_names)}, got {len(args)})",
-                self.context
-            ))
+        
+            if len(args) < len(arg_names):
+                return res.failure(RTError(
+                    self.pos_start,
+                    self.pos_end,
+                    f"too few args passed into '{self.name}'() (expected {len(arg_names)}, got {len(args)})",
+                    self.context
+                ))
         
         return res.success(None)
     
     def populate_args(self, arg_names, args, exec_ctx):
+        if not args:
+            return
         for i, arg_name in enumerate(arg_names):
             arg_value = args[i]
             arg_value.set_context(exec_ctx)
@@ -82,6 +86,9 @@ class Function(BaseFunction):
         copy.set_pos(self.pos_start, self.pos_end)
         return copy
     
+    def __str__(self):
+        return f"<laburo {self.name}>"
+
     def __repr__(self):
         return f"<laburo {self.name}>"
 
@@ -123,10 +130,76 @@ class BuiltInFunction(BaseFunction):
     #########################################
     # MARK:CURROS (BUILT-INT FUNCTIONS)
     #########################################
+
+    def exec_str(self, exec_ctx):
+        from . import String, Number
+        value = exec_ctx.symbol_table.get('value')
+        
+        if not value:
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                f"too few args passed into '{self.name}'() (expected 1, got 0)",
+                exec_ctx
+            ))
+        
+        if isinstance(value, Number):
+            return RTResult().success(String(value.value))
+        
+        if isinstance(value, String):
+            return RTResult().success(value)
+        
+        if isinstance(value, BaseFunction):
+            return RTResult().success(String(str(value)))
+    
+    exec_str.arg_names = ['value']
+    
+    def exec_int(self, exec_ctx):
+        from . import String, Number
+        value = exec_ctx.symbol_table.get('value')
+        
+        if not value:
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                f"too few args passed into '{self.name}'() (expected 1, got 0)",
+                exec_ctx
+            ))
+        
+        if isinstance(value, Number):
+            return RTResult().success(value)
+        
+        if isinstance(value, String):
+            # check if string is a valid string
+            try:
+                new_value = int(value.value)
+            except ValueError:
+                return RTResult().failure(RTError(
+                    self.pos_start,
+                    self.pos_end,
+                    f"invalid literal for '{self.name}()' with base 10: '{value.value}'",
+                    exec_ctx
+                ))
+            
+            return RTResult().success(Number(new_value))
+        
+        if isinstance(value, BaseFunction):
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                f"{self.name}() argument must be a string or a number, not 'function'",
+                exec_ctx
+            ))
+    
+    exec_int.arg_names = ['value']
     
     def exec_print(self, exec_ctx):
         from . import Number
-        print(exec_ctx.symbol_table.get('value'))
+        value = exec_ctx.symbol_table.get('value')
+        if value is not None: 
+            print(value)
+        else:
+            print()
         return RTResult().success(Number.null)
     
     exec_print.arg_names = ['value']
@@ -134,25 +207,13 @@ class BuiltInFunction(BaseFunction):
     def exec_input(self, exec_ctx):
         from . import String
         _prefix = exec_ctx.symbol_table.get('value')
-        text = input(_prefix)
+        if _prefix is not None:
+            text = input(_prefix)
+        else:
+            text = input()
         return RTResult().success(String(text))
     
     exec_input.arg_names = ['value']
-    
-    def exec_input_int(self, exec_ctx):
-        from . import Number
-        while True:
-            text = input()
-            
-            try:
-                number = int(text)
-                break
-            except ValueError:
-                print(f"Value Error: '{text}' must be an integer.")
-        
-        return RTResult().success(Number(number))
-    
-    exec_input_int.arg_names = []
 
     def exec_clear(self, exec_ctx):
         from . import Number
@@ -271,7 +332,6 @@ class BuiltInFunction(BaseFunction):
 
 BuiltInFunction.print       = BuiltInFunction('print')
 BuiltInFunction.input       = BuiltInFunction('input')
-BuiltInFunction.input_int   = BuiltInFunction('input_int')
 BuiltInFunction.clear       = BuiltInFunction('clear')
 BuiltInFunction.is_number   = BuiltInFunction('is_number')
 BuiltInFunction.is_string   = BuiltInFunction('is_string')
@@ -280,6 +340,8 @@ BuiltInFunction.is_function = BuiltInFunction('is_function')
 BuiltInFunction.append      = BuiltInFunction('append')
 BuiltInFunction.pop         = BuiltInFunction('pop')
 BuiltInFunction.extend      = BuiltInFunction('extend')
+BuiltInFunction.str         = BuiltInFunction('str')
+BuiltInFunction.int         = BuiltInFunction('int')
 
 
 
