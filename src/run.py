@@ -8,20 +8,20 @@ global_symbol_table = SymbolTable()
 global_symbol_table.set("nada", Number.null) #null, none
 global_symbol_table.set("posta", Number.true) #true
 global_symbol_table.set("trucho", Number.false) #false
-global_symbol_table.set("matear", BuiltInFunction.print)
-global_symbol_table.set("morfar", BuiltInFunction.input)
-global_symbol_table.set("linpiavidrios", BuiltInFunction.clear)
-global_symbol_table.set("winpiavidrios", BuiltInFunction.clear)
-global_symbol_table.set("es_num", BuiltInFunction.is_number)
-global_symbol_table.set("es_chamu", BuiltInFunction.is_string)
-global_symbol_table.set("es_coso", BuiltInFunction.is_list)
-global_symbol_table.set("es_laburo", BuiltInFunction.is_function)
-global_symbol_table.set("guardar", BuiltInFunction.append)
-global_symbol_table.set("sacar", BuiltInFunction.pop)
-global_symbol_table.set("extender", BuiltInFunction.extend)
+global_symbol_table.set("matear", BuiltInFunction.matear)
+global_symbol_table.set("morfar", BuiltInFunction.morfar)
+global_symbol_table.set("linpiavidrios", BuiltInFunction.limpiavidrios)
+global_symbol_table.set("winpiavidrios", BuiltInFunction.limpiavidrios)
+global_symbol_table.set("es_num", BuiltInFunction.es_num)
+global_symbol_table.set("es_chamu", BuiltInFunction.es_chamu)
+global_symbol_table.set("es_coso", BuiltInFunction.es_coso)
+global_symbol_table.set("es_laburo", BuiltInFunction.es_laburo)
+global_symbol_table.set("guardar", BuiltInFunction.guardar)
+global_symbol_table.set("sacar", BuiltInFunction.sacar)
+global_symbol_table.set("extender", BuiltInFunction.extender)
 
-global_symbol_table.set("str", BuiltInFunction.str)
-global_symbol_table.set("int", BuiltInFunction.int)
+global_symbol_table.set("chamu", BuiltInFunction.chamu)
+global_symbol_table.set("num", BuiltInFunction.chamu)
 
 
 

@@ -131,7 +131,7 @@ class BuiltInFunction(BaseFunction):
     # MARK:CURROS (BUILT-INT FUNCTIONS)
     #########################################
 
-    def exec_str(self, exec_ctx):
+    def exec_chamu(self, exec_ctx):
         from . import String, Number
         value = exec_ctx.symbol_table.get('value')
         
@@ -139,7 +139,7 @@ class BuiltInFunction(BaseFunction):
             return RTResult().failure(RTError(
                 self.pos_start,
                 self.pos_end,
-                f"too few args passed into '{self.name}'() (expected 1, got 0)",
+                f"pocos argumentos pasados en '{self.name}'() (se espera 1, se obtuvo 0)",
                 exec_ctx
             ))
         
@@ -152,9 +152,9 @@ class BuiltInFunction(BaseFunction):
         if isinstance(value, BaseFunction):
             return RTResult().success(String(str(value)))
     
-    exec_str.arg_names = ['value']
+    exec_chamu.arg_names = ['value']
     
-    def exec_int(self, exec_ctx):
+    def exec_num(self, exec_ctx):
         from . import String, Number
         value = exec_ctx.symbol_table.get('value')
         
@@ -162,7 +162,7 @@ class BuiltInFunction(BaseFunction):
             return RTResult().failure(RTError(
                 self.pos_start,
                 self.pos_end,
-                f"too few args passed into '{self.name}'() (expected 1, got 0)",
+                f"pocos argumentos pasados en '{self.name}'() (se espera 1, se obtuvo 0)",
                 exec_ctx
             ))
         
@@ -177,7 +177,7 @@ class BuiltInFunction(BaseFunction):
                 return RTResult().failure(RTError(
                     self.pos_start,
                     self.pos_end,
-                    f"invalid literal for '{self.name}()' with base 10: '{value.value}'",
+                    f"Literal invalido para '{self.name}()' con base 10: '{value.value}'",
                     exec_ctx
                 ))
             
@@ -187,13 +187,13 @@ class BuiltInFunction(BaseFunction):
             return RTResult().failure(RTError(
                 self.pos_start,
                 self.pos_end,
-                f"{self.name}() argument must be a string or a number, not 'function'",
+                f"El argumento de {self.name}() debe ser un chamuyo o un número, no un 'laburo'",
                 exec_ctx
             ))
     
-    exec_int.arg_names = ['value']
+    exec_num.arg_names = ['value']
     
-    def exec_print(self, exec_ctx):
+    def exec_matear(self, exec_ctx):
         from . import Number
         value = exec_ctx.symbol_table.get('value')
         if value is not None: 
@@ -202,9 +202,9 @@ class BuiltInFunction(BaseFunction):
             print()
         return RTResult().success(Number.null)
     
-    exec_print.arg_names = ['value']
+    exec_matear.arg_names = ['value']
     
-    def exec_input(self, exec_ctx):
+    def exec_morfar(self, exec_ctx):
         from . import String
         _prefix = exec_ctx.symbol_table.get('value')
         if _prefix is not None:
@@ -213,44 +213,44 @@ class BuiltInFunction(BaseFunction):
             text = input()
         return RTResult().success(String(text))
     
-    exec_input.arg_names = ['value']
+    exec_morfar.arg_names = ['value']
 
-    def exec_clear(self, exec_ctx):
+    def exec_limpiavidrios(self, exec_ctx):
         from . import Number
         os.system('cls' if os.name == 'nt' else 'clear')
         return RTResult().success(Number.null)
     
-    exec_clear.arg_names = []
+    exec_limpiavidrios.arg_names = []
     
-    def exec_is_number(self, exec_ctx):
+    def exec_es_num(self, exec_ctx):
         from . import Number
         is_number = isinstance(exec_ctx.symbol_table.get('value'), Number)
         return RTResult().success(Number.true if is_number else Number.false)
     
-    exec_is_number.arg_names = ['value']
+    exec_es_num.arg_names = ['value']
     
-    def exec_is_string(self, exec_ctx):
+    def exec_es_chamu(self, exec_ctx):
         from . import Number, String
         is_string = isinstance(exec_ctx.symbol_table.get('value'), String)
         return RTResult().success(Number.true if is_string else Number.false)
     
-    exec_is_string.arg_names = ['value']
+    exec_es_chamu.arg_names = ['value']
     
-    def exec_is_list(self, exec_ctx):
+    def exec_es_coso(self, exec_ctx):
         from . import Number, LList
         is_list = isinstance(exec_ctx.symbol_table.get('value'), LList)
         return RTResult().success(Number.true if is_list else Number.false)
     
-    exec_is_list.arg_names = ['value']
+    exec_es_coso.arg_names = ['value']
     
-    def exec_is_function(self, exec_ctx):
+    def exec_es_laburo(self, exec_ctx):
         from . import Number
         is_func = isinstance(exec_ctx.symbol_table.get('value'), BaseFunction)
         return RTResult().success(Number.true if is_func else Number.false)
     
-    exec_is_function.arg_names = ['value']
+    exec_es_laburo.arg_names = ['value']
     
-    def exec_append(self, exec_ctx):
+    def exec_guardar(self, exec_ctx):
         from . import Number, LList
         list_ = exec_ctx.symbol_table.get('list')
         value = exec_ctx.symbol_table.get('value')
@@ -266,9 +266,9 @@ class BuiltInFunction(BaseFunction):
         list_.elements.append(value)
         return RTResult().success(Number.null)
     
-    exec_append.arg_names = ['list', 'value']
+    exec_guardar.arg_names = ['list', 'value']
     
-    def exec_pop(self, exec_ctx):
+    def exec_sacar(self, exec_ctx):
         from . import Number, LList
         list_ = exec_ctx.symbol_table.get('list')
         index = exec_ctx.symbol_table.get('index')
@@ -301,9 +301,9 @@ class BuiltInFunction(BaseFunction):
         
         return RTResult().success(popped)
     
-    exec_pop.arg_names = ['list', 'index']
+    exec_sacar.arg_names = ['list', 'index']
 
-    def exec_extend(self, exec_ctx):
+    def exec_extender(self, exec_ctx):
         from . import Number, LList
         listA = exec_ctx.symbol_table.get('listA')
         listB = exec_ctx.symbol_table.get('listB')
@@ -328,20 +328,20 @@ class BuiltInFunction(BaseFunction):
 
         return RTResult().success(Number.null)
 
-    exec_extend.arg_names = ['listA', 'listB']
+    exec_extender.arg_names = ['listA', 'listB']
 
-BuiltInFunction.print       = BuiltInFunction('print')
-BuiltInFunction.input       = BuiltInFunction('input')
-BuiltInFunction.clear       = BuiltInFunction('clear')
-BuiltInFunction.is_number   = BuiltInFunction('is_number')
-BuiltInFunction.is_string   = BuiltInFunction('is_string')
-BuiltInFunction.is_list     = BuiltInFunction('is_list')
-BuiltInFunction.is_function = BuiltInFunction('is_function')
-BuiltInFunction.append      = BuiltInFunction('append')
-BuiltInFunction.pop         = BuiltInFunction('pop')
-BuiltInFunction.extend      = BuiltInFunction('extend')
-BuiltInFunction.str         = BuiltInFunction('str')
-BuiltInFunction.int         = BuiltInFunction('int')
+BuiltInFunction.matear          = BuiltInFunction('matear')
+BuiltInFunction.morfar          = BuiltInFunction('morfar')
+BuiltInFunction.limpiavidrios   = BuiltInFunction('limpiavidrios')
+BuiltInFunction.es_num          = BuiltInFunction('es_num')
+BuiltInFunction.es_chamu        = BuiltInFunction('es_chamu')
+BuiltInFunction.es_coso         = BuiltInFunction('es_coso')
+BuiltInFunction.es_laburo       = BuiltInFunction('es_laburo')
+BuiltInFunction.guardar         = BuiltInFunction('guardar')
+BuiltInFunction.sacar           = BuiltInFunction('sacar')
+BuiltInFunction.extender        = BuiltInFunction('extender')
+BuiltInFunction.chamu           = BuiltInFunction('chamu')
+BuiltInFunction.num             = BuiltInFunction('num')
 
 
 
