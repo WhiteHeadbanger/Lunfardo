@@ -133,10 +133,11 @@ class BuiltInFunction(BaseFunction):
     
     def exec_input(self, exec_ctx):
         from . import String
-        text = input()
+        _prefix = exec_ctx.symbol_table.get('value')
+        text = input(_prefix)
         return RTResult().success(String(text))
     
-    exec_input.arg_names = []
+    exec_input.arg_names = ['value']
     
     def exec_input_int(self, exec_ctx):
         from . import Number
