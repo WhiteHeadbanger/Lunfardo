@@ -1,6 +1,6 @@
 from lunfardo_parser import RTResult
 from constants.tokens import *
-from lunfardo_types import Number
+from lunfardo_types import Numero
 from errors.errors import RTError
 
 class SymbolTable:
@@ -35,14 +35,14 @@ class Interpreter:
     
     def visit_NumberNode(self, node, context):
         return RTResult().success(
-            Number(node.tok.value).set_context(context).set_pos(node.pos_start, node.pos_end)
+            Numero(node.tok.value).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
     
     def visit_StringNode(self, node, context):
-        from lunfardo_types import String
+        from lunfardo_types import Chamuyo
         
         return RTResult().success(
-            String(node.tok.value).set_context(context).set_pos(node.pos_start, node.pos_end)
+            Chamuyo(node.tok.value).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
     
     def visit_VarAccessNode(self, node, context):
@@ -57,7 +57,7 @@ class Interpreter:
                 context
             ))
         
-        value = value.copy().set_pos(node.pos_start, node.pos_end)
+        value = value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
         return res.success(value)
     
     def visit_VarAssignNode(self, node, context):
@@ -134,7 +134,7 @@ class Interpreter:
         error = None
 
         if node.op_tok.type == TT_MINUS:
-            number, error = number.multiplied_by(Number(-1))
+            number, error = number.multiplied_by(Numero(-1))
         elif node.op_tok.matches(TT_KEYWORD, 'truchar'):
             number, error = number.notted()
 
@@ -171,7 +171,7 @@ class Interpreter:
         return res.success(None)
     
     def visit_ForNode(self, node, context):
-        from lunfardo_types import LList
+        from lunfardo_types import Coso
         res = RTResult()
         elements = []
         
@@ -188,7 +188,7 @@ class Interpreter:
             if res.error:
                 return res
         else:
-            step_value = Number(1)
+            step_value = Numero(1)
 
         i = start_value.value
 
@@ -198,7 +198,7 @@ class Interpreter:
             condition = lambda: i > end_value.value
 
         while condition():
-            context.symbol_table.set(node.var_name_tok.value, Number(i))
+            context.symbol_table.set(node.var_name_tok.value, Numero(i))
             i += step_value.value
 
             elements.append(res.register(self.visit(node.body_node, context)))
@@ -206,11 +206,11 @@ class Interpreter:
                 return res
             
         return res.success(
-            LList(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
+            Coso(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
     
     def visit_WhileNode(self, node, context):
-        from lunfardo_types import LList
+        from lunfardo_types import Coso
         res = RTResult()
         elements = []
 
@@ -228,18 +228,18 @@ class Interpreter:
                 return res
         
         return res.success(
-            LList(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
+            Coso(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
     
     def visit_FuncDefNode(self, node, context):
-        from lunfardo_types import Function
+        from lunfardo_types import Laburo
         res = RTResult()
 
         # si la funcion es anonima, func_name = None
         func_name = node.var_name_tok.value if node.var_name_tok else None
         body_node = node.body_node
         arg_names = [arg_name.value for arg_name in node.arg_name_toks]
-        func_value = Function(func_name, body_node, arg_names).set_context(context).set_pos(node.pos_start, node.pos_end)
+        func_value = Laburo(func_name, body_node, arg_names).set_context(context).set_pos(node.pos_start, node.pos_end)
 
         if node.var_name_tok:
             context.symbol_table.set(func_name, func_value)
@@ -265,21 +265,20 @@ class Interpreter:
         if res.error:
             return res
         
+        return_value = return_value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
+        
         return res.success(return_value)
     
     def visit_ListNode(self, node, context):
-        from lunfardo_types import LList
+        from lunfardo_types import Coso
         res = RTResult()
-        
-        """ elements = []
-        for element_node in node.element_nodes:
-            elements.append(res.register(self.visit(element_node, context))) """
+
         elements = [res.register(self.visit(element_node, context)) for element_node in node.element_nodes]
         if res.error:
             return res
 
         return res.success(
-            LList(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
+            Coso(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
 
 

@@ -1,21 +1,21 @@
 from .value import Value
-from .number import Number
+from .numero import Numero
 
-class String(Value):
+class Chamuyo(Value):
 
     def __init__(self, value):
         super().__init__()
         self.value = value
 
     def added_to(self, other):
-        if isinstance(other, String):
-            return String(self.value + other.value).set_context(self.context), None
+        if isinstance(other, Chamuyo):
+            return Chamuyo(self.value + other.value).set_context(self.context), None
         
         return None, Value.illegal_operation(self, other)
     
     def multiplied_by(self, other):
-        if isinstance(other, Number):
-            return String(self.value * other.value).set_context(self.context), None
+        if isinstance(other, Numero):
+            return Chamuyo(self.value * other.value).set_context(self.context), None
         
         return None, Value.illegal_operation(self, other)
     
@@ -23,10 +23,13 @@ class String(Value):
         return len(self.value) > 0
     
     def copy(self):
-        copy = String(self.value)
+        copy = Chamuyo(self.value)
         copy.set_pos(self.pos_start, self.pos_end)
         copy.set_context(self.context)
         return copy
     
+    def __str__(self):
+        return self.value
+
     def __repr__(self):
         return f'"{self.value}"'

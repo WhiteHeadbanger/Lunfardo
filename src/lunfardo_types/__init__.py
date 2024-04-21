@@ -1,4 +1,4 @@
-from .number import Number
-from .function import Function
-from .string import String
-from .list import LList
+from .numero import Numero
+from .laburo import Laburo, Curro
+from .chamuyo import Chamuyo
+from .coso import Coso
