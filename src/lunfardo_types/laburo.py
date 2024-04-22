@@ -58,12 +58,14 @@ class BaseLaburo(Value):
 
 class Laburo(BaseLaburo):
 
-    def __init__(self, name, body_node, arg_names):
+    def __init__(self, name, body_node, arg_names, should_auto_return):
         super().__init__(name)
         self.body_node = body_node
         self.arg_names = arg_names
+        self.should_auto_return = should_auto_return
 
     def execute(self, args, current_context):
+        from .numero import Numero
         res = RTResult()
         # Cada vez que creamos una nueva funcion, es necesario crear un nuevo contexto con una nueva symbol table, que son destruidos una vez que la funcion retorna.
         interpreter = Interpreter()
@@ -78,10 +80,10 @@ class Laburo(BaseLaburo):
         if res.error:
             return res
         
-        return res.success(value)
+        return res.success(Numero.nada if self.should_auto_return else value)
     
     def copy(self):
-        copy = Laburo(self.name, self.body_node, self.arg_names)
+        copy = Laburo(self.name, self.body_node, self.arg_names, self.should_auto_return)
         copy.set_context(self.context)
         copy.set_pos(self.pos_start, self.pos_end)
         return copy
@@ -200,7 +202,7 @@ class Curro(BaseLaburo):
             print(value)
         else:
             print()
-        return RTResult().success(Numero.null)
+        return RTResult().success(Numero.nada)
     
     exec_matear.arg_names = ['value']
     
@@ -218,7 +220,7 @@ class Curro(BaseLaburo):
     def exec_limpiavidrios(self, exec_ctx):
         from . import Numero
         os.system('cls' if os.name == 'nt' else 'clear')
-        return RTResult().success(Numero.null)
+        return RTResult().success(Numero.nada)
     
     exec_limpiavidrios.arg_names = []
     
@@ -264,7 +266,7 @@ class Curro(BaseLaburo):
             ))
         
         list_.elements.append(value)
-        return RTResult().success(Numero.null)
+        return RTResult().success(Numero.nada)
     
     exec_guardar.arg_names = ['list', 'value']
     
@@ -326,7 +328,7 @@ class Curro(BaseLaburo):
         
         listA.elements.extend(listB.elements)
 
-        return RTResult().success(Numero.null)
+        return RTResult().success(Numero.nada)
 
     exec_extender.arg_names = ['listA', 'listB']
 

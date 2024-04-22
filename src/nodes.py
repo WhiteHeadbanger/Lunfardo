@@ -1,4 +1,4 @@
-class NumberNode:
+class NumeroNode:
 
     def __init__(self, tok):
         self.tok = tok
@@ -8,7 +8,7 @@ class NumberNode:
     def __repr__(self):
         return f'({self.tok})'
 
-class StringNode:
+class ChamuyoNode:
 
     def __init__(self, tok):
         self.tok = tok
@@ -18,7 +18,7 @@ class StringNode:
     def __repr__(self):
         return f'({self.tok})'
     
-class ListNode:
+class CosoNode:
 
     def __init__(self, element_nodes, pos_start, pos_end):
         self.element_nodes = element_nodes
@@ -28,7 +28,7 @@ class ListNode:
     def __repr__(self):
         return f'({self.element_nodes})'
     
-class VarAccessNode:
+class CualcaAccessNode:
 
     def __init__(self, var_name_tok):
         self.var_name_tok = var_name_tok
@@ -38,7 +38,7 @@ class VarAccessNode:
     def __repr__(self):
         return f'({self.var_name_tok})'
 
-class VarAssignNode:
+class CualcaAssignNode:
 
     def __init__(self, var_name_tok, value_node):
         self.var_name_tok = var_name_tok
@@ -73,25 +73,26 @@ class UnaryOpNode:
     def __repr__(self):
         return f'({self.op_tok}, {self.node})'
     
-class IfNode:
+class SiNode:
 
     def __init__(self, cases, else_case):
         self.cases = cases
         self.else_case = else_case
         self.pos_start = self.cases[0][0].pos_start
-        self.pos_end = (self.else_case or self.cases[len(self.cases) -1][0]).pos_end
+        self.pos_end = (self.else_case or self.cases[len(self.cases) -1])[0].pos_end
 
     def __repr__(self):
         return f'({self.cases}, {self.else_case})'
     
-class ForNode:
+class ParaNode:
 
-    def __init__(self, var_name_tok, start_value_node, end_value_node, step_value_node, body_node):
+    def __init__(self, var_name_tok, start_value_node, end_value_node, step_value_node, body_node, should_return_null):
         self.var_name_tok = var_name_tok
         self.start_value_node = start_value_node
         self.end_value_node = end_value_node
         self.step_value_node = step_value_node
         self.body_node = body_node
+        self.should_return_null = should_return_null
 
         self.pos_start = self.var_name_tok.pos_start
         self.pos_end = self.body_node.pos_end
@@ -99,11 +100,12 @@ class ForNode:
     def __repr__(self):
         return f'({self.var_name_tok}, {self.start_value_node}, {self.end_value_node}, {self.step_value_node}, {self.body_node})'
 
-class WhileNode:
+class MientrasNode:
 
-    def __init__(self, condition_node, body_node):
+    def __init__(self, condition_node, body_node, should_return_nul):
         self.condition_node = condition_node
         self.body_node = body_node
+        self.should_return_nul = should_return_nul
 
         self.pos_start = self.condition_node.pos_start
         self.pos_end = self.body_node.pos_end
@@ -111,12 +113,13 @@ class WhileNode:
     def __repr__(self):
         return f'({self.condition_node}, {self.body_node})'
     
-class FuncDefNode:
+class LaburoDefNode:
 
-    def __init__(self, var_name_tok, arg_name_toks, body_node):
+    def __init__(self, var_name_tok, arg_name_toks, body_node, should_return_nul):
         self.var_name_tok = var_name_tok
         self.arg_name_toks = arg_name_toks
         self.body_node = body_node
+        self.should_return_nul = should_return_nul
 
         if self.var_name_tok:
             self.pos_start = self.var_name_tok.pos_start

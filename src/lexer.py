@@ -21,6 +21,10 @@ class Lexer:
         while self.current_char is not None:
             if self.current_char in '\t' or self.current_char in '\n' or self.current_char in ' ':
                 self.advance()
+
+            elif self.current_char in ';\n':
+                tokens.append(Token(TT_NEWLINE, pos_start = self.pos))
+                self.advance()
             
             elif self.current_char in DIGITS:
                 tokens.append(self.make_number())
@@ -32,47 +36,47 @@ class Lexer:
                 tokens.append(self.make_string())
             
             elif self.current_char == '+':
-                tokens.append(Token(TT_PLUS, pos_start=self.pos))
+                tokens.append(Token(TT_PLUS, pos_start = self.pos))
                 self.advance()
             
             elif self.current_char == '-':
-                tokens.append(Token(TT_MINUS, pos_start=self.pos))
+                tokens.append(Token(TT_MINUS, pos_start = self.pos))
                 self.advance()
             
             elif self.current_char == '*':
-                tokens.append(Token(TT_MUL, pos_start=self.pos))
+                tokens.append(Token(TT_MUL, pos_start = self.pos))
                 self.advance()
             
             elif self.current_char == '/':
-                tokens.append(Token(TT_DIV, pos_start=self.pos))
+                tokens.append(Token(TT_DIV, pos_start = self.pos))
                 self.advance()
             
             elif self.current_char == '^':
-                tokens.append(Token(TT_POW, pos_start=self.pos))
+                tokens.append(Token(TT_POW, pos_start = self.pos))
                 self.advance()
             
             elif self.current_char == '(':
-                tokens.append(Token(TT_LPAREN, pos_start=self.pos))
+                tokens.append(Token(TT_LPAREN, pos_start = self.pos))
                 self.advance()
             
             elif self.current_char == ')':
-                tokens.append(Token(TT_RPAREN, pos_start=self.pos))
+                tokens.append(Token(TT_RPAREN, pos_start = self.pos))
                 self.advance()
             
             elif self.current_char == '[':
-                tokens.append(Token(TT_LSQUARE, pos_start=self.pos))
+                tokens.append(Token(TT_LSQUARE, pos_start = self.pos))
                 self.advance()
             
             elif self.current_char == ']':
-                tokens.append(Token(TT_RSQUARE, pos_start=self.pos))
+                tokens.append(Token(TT_RSQUARE, pos_start = self.pos))
                 self.advance()
             
             elif self.current_char == ',':
-                tokens.append(Token(TT_COMMA, pos_start=self.pos))
+                tokens.append(Token(TT_COMMA, pos_start = self.pos))
                 self.advance()
             
             elif self.current_char == ':':
-                tokens.append(Token(TT_COLON, pos_start=self.pos))
+                tokens.append(Token(TT_COLON, pos_start = self.pos))
                 self.advance()
             
             elif self.current_char == '!':
@@ -96,7 +100,7 @@ class Lexer:
                 self.advance()
                 return [], IllegalCharError(pos_start, self.pos, "'" + char + "'")
 
-        tokens.append(Token(TT_EOF, pos_start=self.pos))
+        tokens.append(Token(TT_EOF, pos_start = self.pos))
         return tokens, None
     
     def make_number(self):
