@@ -21,4 +21,5 @@ TT_LTE          = 'LTE' # <=
 TT_GTE          = 'GTE' # >=
 TT_COMMA        = 'COMMA'
 TT_COLON        = 'COLON'
+TT_NEWLINE      = 'NEWLINE'
 TT_EOF          = 'EOF'

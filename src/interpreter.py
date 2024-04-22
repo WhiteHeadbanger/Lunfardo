@@ -33,19 +33,19 @@ class Interpreter:
     def no_visit_method(self, node, context):
         raise Exception(f'No visit_{type(node).__name__} method defined')
     
-    def visit_NumberNode(self, node, context):
+    def visit_NumeroNode(self, node, context):
         return RTResult().success(
             Numero(node.tok.value).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
     
-    def visit_StringNode(self, node, context):
+    def visit_ChamuyoNode(self, node, context):
         from lunfardo_types import Chamuyo
         
         return RTResult().success(
             Chamuyo(node.tok.value).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
     
-    def visit_VarAccessNode(self, node, context):
+    def visit_CualcaAccessNode(self, node, context):
         res = RTResult()
         var_name = node.var_name_tok.value
         value = context.symbol_table.get(var_name)
@@ -60,7 +60,7 @@ class Interpreter:
         value = value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
         return res.success(value)
     
-    def visit_VarAssignNode(self, node, context):
+    def visit_CualcaAssignNode(self, node, context):
         res = RTResult()
         var_name = node.var_name_tok.value
         value = res.register(self.visit(node.value_node, context))
@@ -143,10 +143,10 @@ class Interpreter:
         
         return res.success(number.set_pos(node.pos_start, node.pos_end))
     
-    def visit_IfNode(self, node, context):
+    def visit_SiNode(self, node, context):
         res = RTResult()
 
-        for condition, expr in node.cases:
+        for condition, expr, should_return_null in node.cases:
             condition_value = res.register(self.visit(condition, context))
             
             if res.error:
@@ -158,19 +158,20 @@ class Interpreter:
                 if res.error:
                     return res
                 
-                return res.success(expr_value)
+                return res.success(Numero.nada if should_return_null else expr_value)
         
         if node.else_case:
-            else_value = res.register(self.visit(node.else_case, context))
+            expr, should_return_null = node.else_case
+            else_value = res.register(self.visit(expr, context))
 
             if res.error:
                 return res
             
-            return res.success(else_value)
+            return res.success(Numero.nada if should_return_null else else_value)
         
-        return res.success(None)
+        return res.success(Numero.nada)
     
-    def visit_ForNode(self, node, context):
+    def visit_ParaNode(self, node, context):
         from lunfardo_types import Coso
         res = RTResult()
         elements = []
@@ -206,10 +207,11 @@ class Interpreter:
                 return res
             
         return res.success(
+            Numero.nada if node.should_return_null else
             Coso(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
     
-    def visit_WhileNode(self, node, context):
+    def visit_MientrasNode(self, node, context):
         from lunfardo_types import Coso
         res = RTResult()
         elements = []
@@ -228,10 +230,11 @@ class Interpreter:
                 return res
         
         return res.success(
+            Numero.nada if node.should_return_null else
             Coso(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
     
-    def visit_FuncDefNode(self, node, context):
+    def visit_LaburoDefNode(self, node, context):
         from lunfardo_types import Laburo
         res = RTResult()
 
@@ -239,7 +242,7 @@ class Interpreter:
         func_name = node.var_name_tok.value if node.var_name_tok else None
         body_node = node.body_node
         arg_names = [arg_name.value for arg_name in node.arg_name_toks]
-        func_value = Laburo(func_name, body_node, arg_names).set_context(context).set_pos(node.pos_start, node.pos_end)
+        func_value = Laburo(func_name, body_node, arg_names, node.should_return_null).set_context(context).set_pos(node.pos_start, node.pos_end)
 
         if node.var_name_tok:
             context.symbol_table.set(func_name, func_value)
@@ -269,7 +272,7 @@ class Interpreter:
         
         return res.success(return_value)
     
-    def visit_ListNode(self, node, context):
+    def visit_CosoNode(self, node, context):
         from lunfardo_types import Coso
         res = RTResult()
 

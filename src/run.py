@@ -5,9 +5,9 @@ from interpreter import Interpreter, SymbolTable
 from context import Context
 
 global_symbol_table = SymbolTable()
-global_symbol_table.set("nada", Numero.null) #null, none
-global_symbol_table.set("posta", Numero.true) #true
-global_symbol_table.set("trucho", Numero.false) #false
+global_symbol_table.set("nada", Numero.nada) #null, none
+global_symbol_table.set("posta", Numero.posta) #true
+global_symbol_table.set("trucho", Numero.trucho) #false
 global_symbol_table.set("matear", Curro.matear)
 global_symbol_table.set("morfar", Curro.morfar)
 global_symbol_table.set("linpiavidrios", Curro.limpiavidrios)
@@ -48,12 +48,18 @@ def execute(fn, text):
 def run():
     while True:
         text = input('Lunfardo > ')
+        if text.strip() == "":
+            continue
+        
         result, error = execute('<stdin>', text)
 
         if error:
             print(error.as_string())
         elif result:
-            print(repr(result))
+            if len(result.elements) == 1:
+                print(repr(result.elements[0]))
+            else:
+                print(repr(result))
 
 if __name__ == '__main__':
     run()

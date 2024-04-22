@@ -110,6 +110,6 @@ class Numero(Value):
         return str(self.value)
 
 #TODO hacer esto de una mejor forma 
-Numero.null = Numero(0)
-Numero.false = Numero(0)
-Numero.true = Numero(1)
+Numero.nada = Numero(0)
+Numero.trucho = Numero(0)
+Numero.posta = Numero(1)
