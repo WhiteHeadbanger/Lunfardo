@@ -19,9 +19,12 @@ global_symbol_table.set("es_laburo", Curro.es_laburo)
 global_symbol_table.set("guardar", Curro.guardar)
 global_symbol_table.set("sacar", Curro.sacar)
 global_symbol_table.set("extender", Curro.extender)
+global_symbol_table.set("longitud", Curro.longitud)
 
 global_symbol_table.set("chamu", Curro.chamu)
 global_symbol_table.set("num", Curro.chamu)
+
+global_symbol_table.set("run", Curro.run)
 
 
 
