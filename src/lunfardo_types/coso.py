@@ -109,6 +109,9 @@ class Coso(Value):
         copy.set_context(self.context)
         return copy
     
+    def is_true(self):
+        return len(self.elements) > 0
+    
     def __str__(self):
         return f'{self.elements}'
                 

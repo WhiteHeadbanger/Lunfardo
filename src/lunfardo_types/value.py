@@ -1,5 +1,6 @@
 #TODO: implentar Value como una abstract class
 from errors import RTError
+from lunfardo_parser import RTResult
 
 class Value:
 
@@ -71,5 +72,11 @@ class Value:
         )
     
     def execute(self):
-        return None, self.illegal_operation()
+        return RTResult().failure(self.illegal_operation())
+    
+    def copy(self):
+        return Exception('No copy method defined')
+    
+    def is_true(self):
+        return False
     

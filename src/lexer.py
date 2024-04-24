@@ -19,7 +19,7 @@ class Lexer:
         tokens = []
 
         while self.current_char is not None:
-            if self.current_char in '\t' or self.current_char in '\n' or self.current_char in ' ':
+            if self.current_char in ' \t':
                 self.advance()
 
             elif self.current_char in ';\n':
