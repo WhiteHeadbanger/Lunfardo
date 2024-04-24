@@ -21,7 +21,8 @@ class BaseLaburo(Value):
         if args:
             if len(args) > len(arg_names):
                 return res.failure(RTError(
-                    self.pos_start, self.pos_end,
+                    self.pos_start, 
+                    self.pos_end,
                     f"too many args passed into '{self.name}'() (expected {len(arg_names)}, got {len(args)})",
                     self.context
                 ))
@@ -40,6 +41,7 @@ class BaseLaburo(Value):
     def populate_args(self, arg_names, args, exec_ctx):
         if not args:
             return
+        
         for i, arg_name in enumerate(arg_names):
             arg_value = args[i]
             arg_value.set_context(exec_ctx)
@@ -49,7 +51,7 @@ class BaseLaburo(Value):
         res = RTResult()
         res.register(self.check_args(arg_names, args))
         
-        if res.error:
+        if res.should_return():
             return res
         
         self.populate_args(arg_names, args, exec_ctx)
@@ -73,14 +75,15 @@ class Laburo(BaseLaburo):
 
         res.register(self.check_and_populate_args(self.arg_names, args, execution_context))
         
-        if res.error:
+        if res.should_return():
             return res
 
         value = res.register(interpreter.visit(self.body_node, execution_context))
-        if res.error:
+        if res.should_return() and res.func_return_value is None:
             return res
         
-        return res.success(Numero.nada if self.should_auto_return else value)
+        return_value = (value if self.should_auto_return else None) or res.func_return_value or Numero.nada
+        return res.success(return_value)
     
     def copy(self):
         copy = Laburo(self.name, self.body_node, self.arg_names, self.should_auto_return)
@@ -99,7 +102,6 @@ class Curro(BaseLaburo):
     def __init__(self, name):
         super().__init__(name)
 
-
     def execute(self, args, current_context):
         res = RTResult()
         execution_context = self.generate_new_context()
@@ -108,11 +110,11 @@ class Curro(BaseLaburo):
         method = getattr(self, method_name, self.no_visit_method)
 
         res.register(self.check_and_populate_args(method.arg_names, args, execution_context))
-        if res.error:
+        if res.should_return():
             return res
         
         return_value = res.register(method(execution_context))
-        if res.error:
+        if res.should_return():
             return res
         
         return res.success(return_value)
@@ -127,6 +129,9 @@ class Curro(BaseLaburo):
         return copy
     
     def __repr__(self):
+        return f"<curro {self.name}>"
+    
+    def __str__(self):
         return f"<curro {self.name}>"
     
     #########################################
@@ -227,28 +232,28 @@ class Curro(BaseLaburo):
     def exec_es_num(self, exec_ctx):
         from . import Numero
         is_number = isinstance(exec_ctx.symbol_table.get('value'), Numero)
-        return RTResult().success(Numero.true if is_number else Numero.false)
+        return RTResult().success(Numero.posta if is_number else Numero.trucho)
     
     exec_es_num.arg_names = ['value']
     
     def exec_es_chamu(self, exec_ctx):
         from . import Numero, Chamuyo
         is_string = isinstance(exec_ctx.symbol_table.get('value'), Chamuyo)
-        return RTResult().success(Numero.true if is_string else Numero.false)
+        return RTResult().success(Numero.posta if is_string else Numero.trucho)
     
     exec_es_chamu.arg_names = ['value']
     
     def exec_es_coso(self, exec_ctx):
         from . import Numero, Coso
         is_list = isinstance(exec_ctx.symbol_table.get('value'), Coso)
-        return RTResult().success(Numero.true if is_list else Numero.false)
+        return RTResult().success(Numero.posta if is_list else Numero.trucho)
     
     exec_es_coso.arg_names = ['value']
     
     def exec_es_laburo(self, exec_ctx):
         from . import Numero
         is_func = isinstance(exec_ctx.symbol_table.get('value'), BaseLaburo)
-        return RTResult().success(Numero.true if is_func else Numero.false)
+        return RTResult().success(Numero.posta if is_func else Numero.trucho)
     
     exec_es_laburo.arg_names = ['value']
     

@@ -106,6 +106,9 @@ class Numero(Value):
         copy.set_context(self.context)
         return copy
     
+    def __str__(self):
+        return str(self.value)
+    
     def __repr__(self):
         return str(self.value)
 

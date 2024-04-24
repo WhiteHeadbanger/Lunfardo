@@ -3,6 +3,8 @@ from constants.tokens import *
 from lunfardo_types import Numero
 from errors.errors import RTError
 
+#TODO RTResult deberia estar acá en vez de en el parser.
+
 class SymbolTable:
 
     def __init__(self, parent = None):
@@ -52,7 +54,8 @@ class Interpreter:
 
         if not value:
             return res.failure(RTError(
-                node.pos_start, node.pos_end,
+                node.pos_start, 
+                node.pos_end,
                 f"'{var_name}' is not defined",
                 context
             ))
@@ -65,7 +68,7 @@ class Interpreter:
         var_name = node.var_name_tok.value
         value = res.register(self.visit(node.value_node, context))
         
-        if res.error:
+        if res.should_return():
             return res
         
         context.symbol_table.set(var_name, value)
@@ -74,11 +77,11 @@ class Interpreter:
     def visit_BinOpNode(self, node, context):
         res = RTResult()
         left = res.register(self.visit(node.left_node, context))
-        if res.error:
+        if res.should_return():
             return res
         
         right = res.register(self.visit(node.right_node, context))
-        if res.error:
+        if res.should_return():
             return res
 
         if node.op_tok.type == TT_PLUS:
@@ -123,12 +126,12 @@ class Interpreter:
         if error:
             return res.failure(error)
         
-        return res.success(result.set_pos(node.pos_start, node.pos_end))
+        return res.success(result.set_pos(node.pos_start, node.pos_end).set_context(context))
 
     def visit_UnaryOpNode(self, node, context):
         res = RTResult()
         number = res.register(self.visit(node.node, context))
-        if res.error:
+        if res.should_return():
             return res
         
         error = None
@@ -141,7 +144,7 @@ class Interpreter:
         if error:
             return res.failure(error)
         
-        return res.success(number.set_pos(node.pos_start, node.pos_end))
+        return res.success(number.set_pos(node.pos_start, node.pos_end).set_context(context))
     
     def visit_SiNode(self, node, context):
         res = RTResult()
@@ -149,25 +152,25 @@ class Interpreter:
         for condition, expr, should_return_null in node.cases:
             condition_value = res.register(self.visit(condition, context))
             
-            if res.error:
+            if res.should_return():
                 return res
             
             if condition_value.is_true():
                 expr_value = res.register(self.visit(expr, context))
 
-                if res.error:
+                if res.should_return():
                     return res
                 
                 return res.success(Numero.nada if should_return_null else expr_value)
         
         if node.else_case:
             expr, should_return_null = node.else_case
-            else_value = res.register(self.visit(expr, context))
+            expr_value = res.register(self.visit(expr, context))
 
-            if res.error:
+            if res.should_return():
                 return res
             
-            return res.success(Numero.nada if should_return_null else else_value)
+            return res.success(Numero.nada if should_return_null else expr_value)
         
         return res.success(Numero.nada)
     
@@ -177,16 +180,16 @@ class Interpreter:
         elements = []
         
         start_value = res.register(self.visit(node.start_value_node, context))
-        if res.error:
+        if res.should_return():
             return res
         
         end_value = res.register(self.visit(node.end_value_node, context))
-        if res.error:
+        if res.should_return():
             return res
         
         if node.step_value_node:
             step_value = res.register(self.visit(node.step_value_node, context))
-            if res.error:
+            if res.should_return():
                 return res
         else:
             step_value = Numero(1)
@@ -202,9 +205,17 @@ class Interpreter:
             context.symbol_table.set(node.var_name_tok.value, Numero(i))
             i += step_value.value
 
-            elements.append(res.register(self.visit(node.body_node, context)))
-            if res.error:
+            value = res.register(self.visit(node.body_node, context))
+            if res.should_return() and res.loop_should_continue is False and res.loop_should_break is False:
                 return res
+            
+            if res.loop_should_continue:
+                continue
+
+            if res.loop_should_break:
+                break
+
+            elements.append(value)
             
         return res.success(
             Numero.nada if node.should_return_null else
@@ -219,15 +230,23 @@ class Interpreter:
         while True:
             condition = res.register(self.visit(node.condition_node, context))
 
-            if res.error:
+            if res.should_return():
                 return res
             
             if not condition.is_true():
                 break
 
-            elements.append(res.register(self.visit(node.body_node, context)))
-            if res.error:
+            value = res.register(self.visit(node.body_node, context))
+            if res.should_return() and res.loop_should_continue is False and res.loop_should_break is False:
                 return res
+            
+            if res.loop_should_continue:
+                continue
+
+            if res.loop_should_break:
+                break
+
+            elements.append(value)
         
         return res.success(
             Numero.nada if node.should_return_null else
@@ -242,7 +261,7 @@ class Interpreter:
         func_name = node.var_name_tok.value if node.var_name_tok else None
         body_node = node.body_node
         arg_names = [arg_name.value for arg_name in node.arg_name_toks]
-        func_value = Laburo(func_name, body_node, arg_names, node.should_return_null).set_context(context).set_pos(node.pos_start, node.pos_end)
+        func_value = Laburo(func_name, body_node, arg_names, node.should_auto_return).set_context(context).set_pos(node.pos_start, node.pos_end)
 
         if node.var_name_tok:
             context.symbol_table.set(func_name, func_value)
@@ -254,31 +273,52 @@ class Interpreter:
         args = []
 
         value_to_call = res.register(self.visit(node.node_to_call, context))
-        if res.error:
+        if res.should_return():
             return res
         
         value_to_call = value_to_call.copy().set_pos(node.pos_start, node.pos_end)
 
         for arg_node in node.arg_nodes:
             args.append(res.register(self.visit(arg_node, context)))
-            if res.error:
+            if res.should_return():
                 return res
             
         return_value = res.register(value_to_call.execute(args, context))
-        if res.error:
+        if res.should_return():
             return res
         
         return_value = return_value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
         
         return res.success(return_value)
     
+    def visit_DevolverNode(self, node, context):
+        res = RTResult()
+
+        if node.node_to_return:
+            value = res.register(self.visit(node.node_to_return, context))
+            
+            if res.should_return():
+                return res
+        else:
+            value = Numero.nada
+
+        return res.success_return(value)
+    
+    def visit_ContinuarNode(self, node, context):
+        return RTResult().success_continue()
+    
+    def visit_RajarNode(self, node, context):
+        return RTResult().success_break()
+
     def visit_CosoNode(self, node, context):
         from lunfardo_types import Coso
         res = RTResult()
 
-        elements = [res.register(self.visit(element_node, context)) for element_node in node.element_nodes]
-        if res.error:
-            return res
+        elements = []
+        for element_node in node.element_nodes:
+            elements.append(res.register(self.visit(element_node, context)))
+            if res.should_return():
+                return res
 
         return res.success(
             Coso(elements).set_context(context).set_pos(node.pos_start, node.pos_end)

@@ -12,5 +12,8 @@ KEYWORDS = [
     'entre', # step
     'mientras', # while
     'laburo', # def, func, function
-    'chau' # end
+    'chau', # end
+    'devolver', # return
+    'continuar', # continue
+    'rajar' # break
 ]
