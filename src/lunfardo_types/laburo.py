@@ -337,6 +337,67 @@ class Curro(BaseLaburo):
 
     exec_extender.arg_names = ['listA', 'listB']
 
+    def exec_longitud(self, exec_ctx):
+        from . import Numero, Coso
+        list_ = exec_ctx.symbol_table.get('list')
+
+        if not isinstance(list_, Coso):
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                "Argument must be type coso.",
+                exec_ctx
+            ))
+        
+        return RTResult().success(Numero(len(list_.elements)))
+        
+    exec_longitud.arg_names = ['list']
+
+    def exec_run(self, exec_ctx):
+        from . import Chamuyo, Numero
+        fn = exec_ctx.symbol_table.get('fn')
+
+        if not isinstance(fn, Chamuyo):
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                "First argument must be type chamuyo.",
+                exec_ctx
+            ))
+        
+        fn = fn.value
+        
+        from os import path
+        this_file = path.abspath(__file__)
+        src_dir = path.dirname(os.path.dirname(this_file))
+        fn = path.join(src_dir, fn)
+
+        try:
+            with open(fn, "r") as f:
+                script = f.read()
+        except Exception as e:
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                f"Failed to load script \'{fn}\'\n'{e}.",
+                exec_ctx
+            ))
+        
+        from run import execute as run 
+        _, error = run(fn, script)
+
+        if error:
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                f"Failed to finish executing script \'{fn}\'\n'{error.as_string()}",
+                exec_ctx
+            ))
+        
+        return RTResult().success(Numero.nada)
+
+    exec_run.arg_names = ['fn']
+
 Curro.matear          = Curro('matear')
 Curro.morfar          = Curro('morfar')
 Curro.limpiavidrios   = Curro('limpiavidrios')
@@ -349,6 +410,8 @@ Curro.sacar           = Curro('sacar')
 Curro.extender        = Curro('extender')
 Curro.chamu           = Curro('chamu')
 Curro.num             = Curro('num')
+Curro.longitud        = Curro('longitud')
+Curro.run             = Curro('run')
 
 
 
