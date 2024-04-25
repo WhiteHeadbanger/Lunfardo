@@ -17,23 +17,23 @@ class Error:
 class IllegalCharError(Error):
 
     def __init__(self, pos_start, pos_end, details):
-        super().__init__(pos_start, pos_end, 'Illegal character', details)
+        super().__init__(pos_start, pos_end, 'Flaco, fijate que metiste un carácter mal', details)
 
 class InvalidSyntaxError(Error):
 
     def __init__(self, pos_start, pos_end, details):
-        super().__init__(pos_start, pos_end, 'Invalid Syntax', details)
+        super().__init__(pos_start, pos_end, 'No te entiendo nada, boludo', details)
 
 class ExpectedCharError(Error):
 
     def __init__(self, pos_start, pos_end, details):
-        super().__init__(pos_start, pos_end, 'Expected Character', details)
+        super().__init__(pos_start, pos_end, 'Flaco, fijate que te olvidaste de un carácter', details)
 
 # Run time error
 class RTError(Error):
 
     def __init__(self, pos_start, pos_end, details, context):
-        super().__init__(pos_start, pos_end, 'Runtime Error', details)
+        super().__init__(pos_start, pos_end, 'Error en tiempo de ejecución', details)
         self.context = context
 
     def as_string(self):
@@ -48,7 +48,7 @@ class RTError(Error):
         ctx = self.context
 
         while ctx:
-            result = f' File {pos.fn}, line {str(pos.ln + 1)}, in {ctx.display_name}\n{result}'
+            result = f' Fichero {pos.fn}, línea {str(pos.ln + 1)}, en {ctx.display_name}\n{result}'
             pos = ctx.parent_entry_pos
             ctx = ctx.parent
 

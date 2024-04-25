@@ -8,7 +8,7 @@ import os
 class BaseLaburo(Value):
     def __init__(self, name):
         super().__init__()
-        self.name = name or "<anonymous>"
+        self.name = name or "<injunable>"
 
     def generate_new_context(self):
         new_context = Context(self.name, self.context, self.pos_start)
@@ -23,7 +23,7 @@ class BaseLaburo(Value):
                 return res.failure(RTError(
                     self.pos_start, 
                     self.pos_end,
-                    f"too many args passed into '{self.name}'() (expected {len(arg_names)}, got {len(args)})",
+                    f"demasiados argumentos pasados a '{self.name}'() (esperados {len(arg_names)}, recibidos {len(args)})",
                     self.context
                 ))
         
@@ -32,7 +32,7 @@ class BaseLaburo(Value):
                 return res.failure(RTError(
                     self.pos_start,
                     self.pos_end,
-                    f"too few args passed into '{self.name}'() (expected {len(arg_names)}, got {len(args)})",
+                    f"pocos argumentos pasados a '{self.name}'() (esperados {len(arg_names)}, recibidos {len(args)})",
                     self.context
                 ))
         
@@ -146,7 +146,7 @@ class Curro(BaseLaburo):
             return RTResult().failure(RTError(
                 self.pos_start,
                 self.pos_end,
-                f"pocos argumentos pasados en '{self.name}'() (se espera 1, se obtuvo 0)",
+                f"pocos argumentos pasados en '{self.name}'() (esperados 1, recibidos 0)",
                 exec_ctx
             ))
         
@@ -169,7 +169,7 @@ class Curro(BaseLaburo):
             return RTResult().failure(RTError(
                 self.pos_start,
                 self.pos_end,
-                f"pocos argumentos pasados en '{self.name}'() (se espera 1, se obtuvo 0)",
+                f"pocos argumentos pasados en '{self.name}'() (esperados 1, recibidos 0)",
                 exec_ctx
             ))
         
@@ -266,7 +266,7 @@ class Curro(BaseLaburo):
             return RTResult().failure(RTError(
                 self.pos_start,
                 self.pos_end,
-                "First argument must be type list.",
+                "El primer argumento debe ser de tipo coso.",
                 exec_ctx
             ))
         
@@ -284,7 +284,7 @@ class Curro(BaseLaburo):
             return RTResult().failure(RTError(
                 self.pos_start,
                 self.pos_end,
-                "First argument must be type list.",
+                "El primer argumento debe ser de tipo coso.",
                 exec_ctx
             ))
         
@@ -292,7 +292,7 @@ class Curro(BaseLaburo):
             return RTResult().failure(RTError(
                 self.pos_start,
                 self.pos_end,
-                "Second argument must be type number.",
+                "El segundo argumento debe ser de tipo número.",
                 exec_ctx
             ))
         
@@ -302,7 +302,7 @@ class Curro(BaseLaburo):
             return RTResult().failure(RTError(
                 self.pos_start,
                 self.pos_end,
-                f"Element at index '{index.value}' could not be removed from list becase index is out of bounds.",
+                f"Elemento con el índice {index.value} no pudo ser removido del coso porque el índice está fuera de los límites.",
                 exec_ctx
             ))
         
@@ -319,7 +319,7 @@ class Curro(BaseLaburo):
             return RTResult().failure(RTError(
                 self.pos_start,
                 self.pos_end,
-                "First argument must be type list.",
+                "El primer argumento debe ser de tipo coso.",
                 exec_ctx
             ))
 
@@ -327,7 +327,7 @@ class Curro(BaseLaburo):
             return RTResult().failure(RTError(
                 self.pos_start,
                 self.pos_end,
-                "Second argument must be type list.",
+                "El segundo argumento debe ser de tipo coso.",
                 exec_ctx
             ))
         
@@ -345,7 +345,7 @@ class Curro(BaseLaburo):
             return RTResult().failure(RTError(
                 self.pos_start,
                 self.pos_end,
-                "Argument must be type coso.",
+                "El argumento debe ser de tipo coso.",
                 exec_ctx
             ))
         
@@ -361,7 +361,7 @@ class Curro(BaseLaburo):
             return RTResult().failure(RTError(
                 self.pos_start,
                 self.pos_end,
-                "First argument must be type chamuyo.",
+                "El primer argumento debe ser de tipo chamuyo.",
                 exec_ctx
             ))
         
@@ -379,7 +379,7 @@ class Curro(BaseLaburo):
             return RTResult().failure(RTError(
                 self.pos_start,
                 self.pos_end,
-                f"Failed to load script \'{fn}\'\n'{e}.",
+                f"Uy que rompimo! No pudimos abrir el archivo \'{fn}\'\n'{e}.",
                 exec_ctx
             ))
         
@@ -390,7 +390,7 @@ class Curro(BaseLaburo):
             return RTResult().failure(RTError(
                 self.pos_start,
                 self.pos_end,
-                f"Failed to finish executing script \'{fn}\'\n'{error.as_string()}",
+                f"Uy que rompimo! No pudimos terminar de ejecutar el fichero \'{fn}\'\n'{error.as_string()}",
                 exec_ctx
             ))
         
