@@ -56,7 +56,7 @@ class Interpreter:
             return res.failure(RTError(
                 node.pos_start, 
                 node.pos_end,
-                f"'{var_name}' is not defined",
+                f"'{var_name}' no está definido",
                 context
             ))
         

@@ -84,7 +84,7 @@ class Parser:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start, 
                 self.current_tok.pos_end, 
-                "Expected '+', '-', '*', '/', '^', '==', '!=', '<', '>', '<=', '>=', 'y' or 'o'"))
+                "Se esperaba '+', '-', '*', '/', '^', '==', '!=', '<', '>', '<=', '>=', 'y' ó 'o'"))
         return res
     # MARK: Parser.statements
     def statements(self):
@@ -163,7 +163,7 @@ class Parser:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start,
                 self.current_tok.pos_end,
-                "Expected 'devolver', 'continuar', 'rajar', 'cualca', 'si', 'para', 'mientras', 'laburo', int, float, identifier, '+', '-', '(', '[' or 'truchar'"
+                "Se esperaba 'devolver', 'continuar', 'rajar', 'cualca', 'si', 'para', 'mientras', 'laburo', int, float, identifier, '+', '-', '(', '[' ó 'truchar'"
             ))
         
         return res.success(expr)
@@ -176,6 +176,9 @@ class Parser:
         if res.error:
             return res
         
+        # Accessing a coso by index is currently done like this: coso / index. However I want replace it with the traditional coso[index]. Maybe using coso / index when
+        # wanting to split a list in two. From 0 -> index and index + 1 -> end.
+        # Here we can address the first issue.
         if self.current_tok.type == TT_LPAREN:
             res.register_advance()
             self.advance()
@@ -193,7 +196,7 @@ class Parser:
                     return res.failure(InvalidSyntaxError(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
-                        "Expected ')', 'cualca', 'si', 'para', 'mientras', 'laburo', int, float, identifier, '+', '-', '(', '[' or 'truchar'"
+                        "Se esperaba ')', 'cualca', 'si', 'para', 'mientras', 'laburo', int, float, identifier, '+', '-', '(', '[' ó 'truchar'"
                     ))
                 
                 while self.current_tok.type == TT_COMMA:
@@ -208,7 +211,7 @@ class Parser:
                     return res.failure(InvalidSyntaxError(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
-                        "Expected ',' or ')'"
+                        "Se esperaba ',' ó ')'"
                     ))
                 
                 res.register_advance()
@@ -258,7 +261,7 @@ class Parser:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start, 
                 self.current_tok.pos_end,
-                "Expected ')'"
+                "Se esperaba ')'"
             ))
         
         if tok.type == TT_LSQUARE:
@@ -304,7 +307,7 @@ class Parser:
         return res.failure(InvalidSyntaxError(
             tok.pos_start,
             tok.pos_end,
-            "Expected int, float, identifier, '+', '-', '(', '[', 'si', 'para', 'mientras', 'laburo'"
+            "Se esperaba int, float, identifier, '+', '-', '(', '[', 'si', 'para', 'mientras' ó 'laburo'"
         ))
    
     def power(self):
@@ -351,7 +354,7 @@ class Parser:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start,
                 self.current_tok.pos_end,
-                "Expected int, float, identifier, '+', '-', '(', '[' or truchar'"
+                "Se esperaba int, float, identifier, '+', '-', '(', '[' ó truchar'"
             ))
         
         return res.success(node)
@@ -369,7 +372,7 @@ class Parser:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start,
                 self.current_tok.pos_end,
-                "Expected '['"
+                "Se esperaba '['"
             ))
         
         res.register_advance()
@@ -387,7 +390,7 @@ class Parser:
                 return res.failure(InvalidSyntaxError(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
-                    "Expected ']', 'cualca', 'si', 'para', 'mientras', 'laburo', int, float, identifier, '+', '-', '(', '[' or 'truchar'"
+                    "Se esperaba ']', 'cualca', 'si', 'para', 'mientras', 'laburo', int, float, identifier, '+', '-', '(', '[' ó 'truchar'"
                 ))
             
             while self.current_tok.type == TT_COMMA:
@@ -403,7 +406,7 @@ class Parser:
                 return res.failure(InvalidSyntaxError(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
-                    "Expected ',' or ']'"
+                    "Se esperaba ',' ó ']'"
                 ))
             
             res.register_advance()
@@ -455,7 +458,7 @@ class Parser:
                     return res.failure(InvalidSyntaxError(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
-                        "Expected 'chau'"
+                        "Se esperaba 'chau'"
                     ))
                 
             else:
@@ -497,7 +500,7 @@ class Parser:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start,
                 self.current_tok.pos_end,
-                f"Expected '{case_keyword}'"
+                f"Se esperaba '{case_keyword}'"
             ))
         
         res.register_advance()
@@ -512,7 +515,7 @@ class Parser:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start,
                 self.current_tok.pos_end,
-                "Expected 'entonces'"
+                "Se esperaba 'entonces'"
             ))
         
         res.register_advance()
@@ -568,7 +571,7 @@ class Parser:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start,
                 self.current_tok.pos_end,
-                "Expected 'para'"
+                "Se esperaba 'para'"
             ))
         
         res.register_advance()
@@ -578,7 +581,7 @@ class Parser:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start,
                 self.current_tok.pos_end,
-                "Expected identifier"
+                "Se esperaba identificador"
             ))
         
         var_name = self.current_tok
@@ -590,7 +593,7 @@ class Parser:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start, 
                 self.current_tok.pos_end,
-                "Expected '='"
+                "Se esperaba '='"
             ))
         
         res.register_advance()
@@ -605,7 +608,7 @@ class Parser:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start,
                 self.current_tok.pos_end,
-                "Expected 'hasta'"
+                "Se esperaba 'hasta'"
             ))
         
         res.register_advance()
@@ -632,7 +635,7 @@ class Parser:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start,
                 self.current_tok.pos_end,
-                "Expected 'entonces'"
+                "Se esperaba 'entonces'"
             ))
         
         res.register_advance()
@@ -651,7 +654,7 @@ class Parser:
                 return res.failure(InvalidSyntaxError(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
-                    "Expected 'chau'"
+                    "Se esperaba 'chau'"
                 ))
             
             res.register_advance()
@@ -674,7 +677,7 @@ class Parser:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start,
                 self.current_tok.pos_end,
-                "Expected 'mientras'"
+                "Se esperaba 'mientras'"
             ))
         
         res.register_advance()
@@ -689,7 +692,7 @@ class Parser:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start,
                 self.current_tok.pos_end,
-                "Expected 'entonces'"
+                "Se esperaba 'entonces'"
             ))
         
         res.register_advance()
@@ -708,7 +711,7 @@ class Parser:
                 return res.failure(InvalidSyntaxError(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
-                    "Expected 'chau'"
+                    "Se esperaba 'chau'"
                 ))
             
             res.register_advance()
@@ -732,7 +735,7 @@ class Parser:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start,
                 self.current_tok.pos_end,
-                "Expected 'laburo'"
+                "Se esperaba 'laburo'"
             ))
         
         res.register_advance()
@@ -748,7 +751,7 @@ class Parser:
                 return res.failure(InvalidSyntaxError(
                     self.current_tok.pos_start, 
                     self.current_tok.pos_end,
-                    "Expected '('"
+                    "Se esperaba '('"
                 ))
         
         else:
@@ -758,7 +761,7 @@ class Parser:
                 return res.failure(InvalidSyntaxError(
                     self.current_tok.pos_start, 
                     self.current_tok.pos_end,
-                    "Expected identifier or '('"
+                    "Se esperaba identifier ó '('"
                 ))
         
         res.register_advance()
@@ -778,7 +781,7 @@ class Parser:
                     return res.failure(InvalidSyntaxError(
                         self.current_tok.pos_start, 
                         self.current_tok.pos_end,
-                        "Expected identifier"
+                        "Se esperaba identifier"
                     ))
                 
                 arg_name_toks.append(self.current_tok)
@@ -789,7 +792,7 @@ class Parser:
                 return res.failure(InvalidSyntaxError(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
-                    "Expected ',' or ')'"
+                    "Se esperaba ',' ó ')'"
                 ))
             
         else:
@@ -797,12 +800,14 @@ class Parser:
                 return res.failure(InvalidSyntaxError(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
-                    "Expected identifier or ')'"
+                    "Se esperaba identifier ó ')'"
                 ))
             
         res.register_advance()
         self.advance()
 
+        # Here we can change if we want laburos to always have to be defined with a colon. I personally think that it's a good idea to force one-liners
+        # and multiline with a return statement. If not provided, just return None.
         if self.current_tok.type == TT_COLON:
             res.register_advance()
             self.advance()
@@ -822,7 +827,7 @@ class Parser:
         if self.current_tok.type != TT_NEWLINE:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start, self.current_tok.pos_end,
-                "Expected ':' or NEWLINE"
+                "Se esperaba ':' ó NEWLINE"
             ))
         
         res.register_advance()
@@ -837,7 +842,7 @@ class Parser:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start,
                 self.current_tok.pos_end,
-                "Expected 'chau'"
+                "Se esperaba 'chau'"
             ))
         
         res.register_advance()
@@ -862,7 +867,7 @@ class Parser:
                 return res.failure(InvalidSyntaxError(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
-                    "Expected identifier"
+                    "Se esperaba identifier"
                 ))
             
             var_name = self.current_tok
@@ -874,7 +879,7 @@ class Parser:
                 return res.failure(InvalidSyntaxError(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
-                    "Expected '='"
+                    "Se esperaba '='"
                 ))
             
             res.register_advance()
@@ -893,7 +898,7 @@ class Parser:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start,
                 self.current_tok.pos_end,
-                "Expected 'cualca', 'si', 'para', 'mientras', 'laburo', int, float, identifier, '+', '-', '(', '[' or 'truchar'"
+                "Se esperaba 'cualca', 'si', 'para', 'mientras', 'laburo', int, float, identifier, '+', '-', '(', '[' ó 'truchar'"
             ))
         
         return res.success(node)

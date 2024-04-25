@@ -42,7 +42,7 @@ def execute(fn, text):
 
     # Run
     interpreter = Interpreter()
-    context = Context('<program>')
+    context = Context('<programa>')
     context.symbol_table = global_symbol_table
     result = interpreter.visit(ast.node, context)
 

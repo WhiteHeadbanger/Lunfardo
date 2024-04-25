@@ -50,7 +50,7 @@ class Coso(Value):
                 return None, RTError(
                     other.pos_start,
                     other.pos_end,
-                    f"Element at the index {other.value} could not be removed from the list because the index is out of bounds.",
+                    f"Elemento con el índice {other.value} no pudo ser removido del coso porque el índice está fuera de los límites.",
                     self.context
                 )
         
@@ -96,7 +96,7 @@ class Coso(Value):
                 return None, RTError(
                     other.pos_start,
                     other.pos_end,
-                    f"Element at the index {other.value} could not be returned from the list because the index is out of bounds.",
+                    f"Elemento con el índice {other.value} no pudo ser devuelto del coso porque el índice está fuera de los límites.",
                     self.context
                 )
         

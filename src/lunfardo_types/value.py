@@ -67,7 +67,7 @@ class Value:
         return RTError(
             self.pos_start,
             other.pos_end,
-            'Illegal operation',
+            'Operación Ilegal',
             self.context
         )
     
