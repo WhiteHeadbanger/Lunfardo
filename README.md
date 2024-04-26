@@ -1,16 +1,29 @@
-# Lunfardo Programming Language
+# Lunfardo: el lenguaje de programación basado en el lunfardo argentino
 
-Lunfardo is a programming language inspired by the colorful and expressive Argentinian Lunfardo slang. It aims to provide laughs and enjoy a new esoteric language.
+## Sobre Lunfardo
 
-## Features
+Lunfardo está fuertemente basado (por el momento) en: [Juro que no es Rick Roll](https://www.youtube.com/watch?v=Eythq9848Fg&list=PLZQftyCk7_SdoVexSmwy_tBgs7P0b97yD)
 
-- **Expressive Syntax**: Lunfardo's syntax is inspired by the rich vocabulary and idioms of Lunfardo slang, making it expressive and fun to write.
-- **Ease of Use**: Designed with simplicity in mind, Lunfardo prioritizes readability and ease of understanding for developers of all levels.
+Es un [esolang](https://github.com/angrykoala/awesome-esolangs) interpretado escrito en Python 3, por ende si Python es lento, Lunfardo es dos veces más lento, ó tres, ó mas ya que todavía no hay una función que mida el tiempo.
+La idea del lenguaje es divertirse!
 
-## Installation
+## Instalación
 
-To install Lunfardo, simply download the latest release from the [GitHub repository](https://github.com/yourusername/lunfardo) and follow the installation instructions.
-``
+- Requerimiento: tener instalado Python 3
+- Clonar el repositorio
+
+## Empezar a usar
+
+- `cd src`
+- `python3 run.py`
+
+Inmediatamente se puede empezar a usar el intérprete, pero también podemos escribir nuevos archivos.  
+
+Para ejecutar archivos
+
+- `run(<nombre_del_archivo_en_strings>)`  
+Ej: `run("factorial.lunf")`
+
 
 # Características
 
@@ -19,7 +32,7 @@ To install Lunfardo, simply download the latest release from the [GitHub reposit
 Todos los tipos de dato validan a Numero y devuelven un número, por ejemplo si escribimos en el intérprete: `trucho` devolverá `0`.
 
 - `Numero`: _entero_ | _float_  
-Ej: `1`
+Ej: `1`, `1.5`
 - `trucho`: _entero_ = `0`
 - `nada`: _entero_ = `0`
 - `posta`: _entero != 0_ = `0 < n > 0`
@@ -129,10 +142,14 @@ Un curro es un laburo pre-definido.
     Devuelve 1 si es un laburo, 0 si es falso
 - `guardar(<coso>, <valor>)`  
     Guarda un valor en un coso
-- `sacar(<coso>, <index>)`  
-    Saca un valor de un coso
+- `sacar(<coso>, <indice>)`  
+    Saca un valor de un coso en el índice especificado
 - `extender(<coso>, <coso>)`  
     Extiende un coso con los valores de otro coso
+- `reemplazar(<coso>, <indice>, <valor>)`  
+    Reemplaza un valor en un coso en el índice especificado
+- `insertar(<coso>, <indice>, <valor>)`  
+    Inserta un valor en un coso en el índice especificado
 - `longitud(<coso>)`  
     Devuelve la longitud de un coso
 - `num(<identificador | valor>)`  
@@ -214,4 +231,106 @@ para i = 0 hasta var entonces
 chau
 
 matear("Secuencia de Fibonacci de longitud " + chamu(var) + ": " + chamu(secuencia))
+```
+
+### Sistema bancario
+
+```
+laburo crear_cuenta(nombres, balances, nombre, balance_inicial)
+    guardar(nombres, nombre)
+    guardar(balances, balance_inicial)
+    matear("Cuenta creada satisfactoriamente!")
+chau
+
+laburo deposito(nombres, balances, nombre, cantidad)
+    cualca cuenta_encontrada = trucho
+    para i = 0 hasta longitud(nombres) entonces
+        si nombres / i == nombre entonces
+            cualca nuevo_balance = balances / i + cantidad
+            reemplazar(balances, i, nuevo_balance)
+            matear("Deposito realizado. Nuevo balance: " + chamu(nuevo_balance))
+            cualca cuenta_encontrada = posta
+            rajar
+        chau
+    chau
+
+    si cuenta_encontrada == trucho entonces
+        matear("No se encontro la cuenta")
+    chau
+chau
+
+laburo retiro(nombres, balances, nombre, cantidad)
+    cualca cuenta_encontrada = trucho
+    para i = 0 hasta longitud(nombres) entonces
+        si nombres / i == nombre entonces
+            si cantidad <= 0 entonces
+                matear("No se puede retirar dinero negativo o cero")
+                devolver
+            osi cantidad > (balances / i) entonces
+                matear("No hay suficiente dinero en la cuenta")
+                devolver
+            otro
+                cualca nuevo_balance = balances / i - cantidad
+                reemplazar(balances, i, nuevo_balance)
+                matear("Retiro realizado. Nuevo balance: " + chamu(nuevo_balance))
+                cualca cuenta_encontrada = posta
+                rajar
+            chau
+        chau
+    chau
+
+    si cuenta_encontrada == trucho entonces
+        matear("No se encontro la cuenta")
+    chau
+chau
+
+laburo balance(nombres, balances, nombre)
+    cualca cuenta_encontrada = trucho
+    para i = 0 hasta longitud(nombres) entonces
+        si nombres / i == nombre entonces
+            matear("El balance de la cuenta de " + nombre + " es: " + chamu(balances / i))
+            cualca cuenta_encontrada = posta
+            rajar
+        chau
+    chau
+
+    si cuenta_encontrada == trucho entonces
+        matear("No se encontro la cuenta")
+    chau
+chau
+
+cualca nombres_de_cuentas = []
+cualca balances_de_cuentas = []
+
+mientras posta entonces
+    matear("1. Crear cuenta")
+    matear("2. Deposito")
+    matear("3. Retiro")
+    matear("4. Balance")
+    matear("5. Salir")
+
+    cualca opcion = num(morfar("Seleccione una opcion: "))
+
+    si opcion == 1 entonces
+        cualca nombre = morfar("Nombre de la cuenta: ")
+        cualca balance_inicial = num(morfar("Balance inicial: "))
+        crear_cuenta(nombres_de_cuentas, balances_de_cuentas, nombre, balance_inicial)
+    osi opcion == 2 entonces
+        cualca nombre = morfar("Nombre de la cuenta: ")
+        cualca cantidad = num(morfar("Cantidad a depositar: "))
+        deposito(nombres_de_cuentas, balances_de_cuentas, nombre, cantidad)
+    osi opcion == 3 entonces
+        cualca nombre = morfar("Nombre de la cuenta: ")
+        cualca cantidad = num(morfar("Cantidad a retirar: "))
+        retiro(nombres_de_cuentas, balances_de_cuentas, nombre, cantidad)
+    osi opcion == 4 entonces
+        cualca nombre = morfar("Nombre de la cuenta: ")
+        balance(nombres_de_cuentas, balances_de_cuentas, nombre)
+    osi opcion == 5 entonces
+        matear("Gracias por confiar en nuestro banco.")
+        rajar
+    otro
+        matear("Opcion invalida")
+    chau
+chau
 ```
