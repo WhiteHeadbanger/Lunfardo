@@ -431,7 +431,7 @@ class Curro(BaseLaburo):
         
     exec_longitud.arg_names = ['list']
 
-    def exec_run(self, exec_ctx):
+    def exec_ejecutar(self, exec_ctx):
         from . import Chamuyo, Numero
         fn = exec_ctx.symbol_table.get('fn')
 
@@ -474,7 +474,7 @@ class Curro(BaseLaburo):
         
         return RTResult().success(Numero.nada)
 
-    exec_run.arg_names = ['fn']
+    exec_ejecutar.arg_names = ['fn']
 
 Curro.matear          = Curro('matear')
 Curro.morfar          = Curro('morfar')
@@ -491,7 +491,7 @@ Curro.extender        = Curro('extender')
 Curro.chamu           = Curro('chamu')
 Curro.num             = Curro('num')
 Curro.longitud        = Curro('longitud')
-Curro.run             = Curro('run')
+Curro.ejecutar        = Curro('ejecutar')
 
 
 

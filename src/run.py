@@ -26,7 +26,7 @@ global_symbol_table.set("longitud", Curro.longitud)
 global_symbol_table.set("chamu", Curro.chamu)
 global_symbol_table.set("num", Curro.num)
 
-global_symbol_table.set("run", Curro.run)
+global_symbol_table.set("ejecutar", Curro.ejecutar)
 
 
 
