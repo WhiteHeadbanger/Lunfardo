@@ -19,6 +19,18 @@ class Chamuyo(Value):
         
         return None, Value.illegal_operation(self, other)
     
+    def get_comparison_eq(self, other):
+        if isinstance(other, (Chamuyo, Numero)):
+            return Numero(int(self.value == other.value)).set_context(self.context), None
+    
+        return None, Value.illegal_operation(self.pos_start, other.pos_end)
+    
+    def get_comparison_ne(self, other):
+        if isinstance(other, (Chamuyo, Numero)):
+            return Numero(int(self.value != other.value)).set_context(self.context), None
+    
+        return None, Value.illegal_operation(self.pos_start, other.pos_end)
+    
     def is_true(self):
         return len(self.value) > 0
     
