@@ -31,7 +31,7 @@ class Numero(Value):
                 return None, RTError(
                     other.pos_start,
                     other.pos_end,
-                    'Division by zero',
+                    'Division por cero',
                     self.context
                 )
             return Numero(self.value / other.value).set_context(self.context), None 
