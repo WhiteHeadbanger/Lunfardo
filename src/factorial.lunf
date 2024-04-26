@@ -1,0 +1,11 @@
+laburo factorial(n)
+    si n <= 1 entonces
+        devolver 1
+    otro
+        devolver n * factorial(n - 1)
+    chau
+chau
+
+cualca numero = 10
+cualca resultado = factorial(numero)
+matear("El factorial de " + chamu(numero) + " es: " + chamu(resultado))
