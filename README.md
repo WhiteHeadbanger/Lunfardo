@@ -21,9 +21,10 @@ Inmediatamente se puede empezar a usar el intérprete, pero también podemos esc
 
 Para ejecutar archivos
 
-- `run(<nombre_del_archivo_en_strings>)`  
-Ej: `run("factorial.lunf")`
+- `ejecutar(<nombre_del_archivo_en_strings>)`  
+Ej: `ejecutar("factorial.lunf")`
 
+Nota: el archivo debe estar dentro de la carpeta `src` 
 
 # Características
 
@@ -156,7 +157,7 @@ Un curro es un laburo pre-definido.
     Convierte un chamuyo a numero
 - `chamu(<identificador | valor>)`  
     Convierte un numero a un chamuyo
-- `run(<chamuyo>)`  
+- `ejecutar(<chamuyo>)`  
     Ejecuta el codigo de un archivo lunfardo
 
 ## Errores
