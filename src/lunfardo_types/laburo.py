@@ -280,6 +280,78 @@ class Curro(BaseLaburo):
         return RTResult().success(Numero.nada)
     
     exec_guardar.arg_names = ['list', 'value']
+
+    def exec_insertar(self, exec_ctx):
+        from . import Coso, Numero
+        list_ = exec_ctx.symbol_table.get('list')
+        index = exec_ctx.symbol_table.get('index')
+        value = exec_ctx.symbol_table.get('value')
+
+        if not isinstance(list_, Coso):
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                "El primer argumento debe ser de tipo coso.",
+                exec_ctx
+            ))
+        
+        if not isinstance(index, Numero):
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                "El segundo argumento debe ser de tipo número.",
+                exec_ctx
+            ))
+        
+        try:
+            list_.elements.insert(index.value, value.value)
+        except TypeError:
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                "El índice debe ser un número entero.",
+                exec_ctx
+            ))
+
+        return RTResult().success(Numero.nada)
+    
+    exec_insertar.arg_names = ['list', 'index', 'value']
+
+    def exec_reemplazar(self, exec_ctx):
+        from . import Coso, Numero
+        list_ = exec_ctx.symbol_table.get('list')
+        index = exec_ctx.symbol_table.get('index')
+        value = exec_ctx.symbol_table.get('value')
+
+        if not isinstance(list_, Coso):
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                "El primer argumento debe ser de tipo coso.",
+                exec_ctx
+            ))
+        
+        if not isinstance(index, Numero):
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                "El segundo argumento debe ser de tipo número.",
+                exec_ctx
+            ))
+        
+        try:
+            list_.elements[index.value] = value.value
+        except TypeError:
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                "El índice debe ser un número entero.",
+                exec_ctx
+            ))
+        
+        return RTResult().success(Numero.nada)
+        
+    exec_reemplazar.arg_names = ['list', 'index', 'value']
     
     def exec_sacar(self, exec_ctx):
         from . import Numero, Coso
@@ -412,6 +484,8 @@ Curro.es_chamu        = Curro('es_chamu')
 Curro.es_coso         = Curro('es_coso')
 Curro.es_laburo       = Curro('es_laburo')
 Curro.guardar         = Curro('guardar')
+Curro.insertar        = Curro('insertar')
+Curro.reemplazar      = Curro('reemplazar')
 Curro.sacar           = Curro('sacar')
 Curro.extender        = Curro('extender')
 Curro.chamu           = Curro('chamu')
