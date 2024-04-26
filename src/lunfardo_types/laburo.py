@@ -139,7 +139,7 @@ class Curro(BaseLaburo):
     #########################################
 
     def exec_chamu(self, exec_ctx):
-        from . import Chamuyo, Numero
+        from . import Chamuyo, Numero, Coso
         value = exec_ctx.symbol_table.get('value')
         
         if not value:
@@ -151,10 +151,13 @@ class Curro(BaseLaburo):
             ))
         
         if isinstance(value, Numero):
-            return RTResult().success(Chamuyo(value.value))
+            return RTResult().success(Chamuyo(str(value.value)))
         
         if isinstance(value, Chamuyo):
-            return RTResult().success(value)
+            return RTResult().success(Chamuyo(value.value))
+        
+        if isinstance(value, Coso):
+            return RTResult().success(Chamuyo(f'{value.elements}'))
         
         if isinstance(value, BaseLaburo):
             return RTResult().success(Chamuyo(str(value)))
@@ -174,19 +177,22 @@ class Curro(BaseLaburo):
             ))
         
         if isinstance(value, Numero):
-            return RTResult().success(value)
+            return RTResult().success(Numero(new_value))
         
         if isinstance(value, Chamuyo):
             # check if string is a valid string
             try:
                 new_value = int(value.value)
             except ValueError:
-                return RTResult().failure(RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    f"Literal invalido para '{self.name}()' con base 10: '{value.value}'",
-                    exec_ctx
-                ))
+                try:
+                    new_value = float(value.value)
+                except ValueError:
+                    return RTResult().failure(RTError(
+                        self.pos_start,
+                        self.pos_end,
+                        f"Literal invalido para '{self.name}()' con base 10: '{value.value}'",
+                        exec_ctx
+                    ))
             
             return RTResult().success(Numero(new_value))
         
