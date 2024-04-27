@@ -13,6 +13,8 @@ TT_LPAREN       = 'LPAREN'
 TT_RPAREN       = 'RPAREN'
 TT_LSQUARE      = 'LSQUARE'
 TT_RSQUARE      = 'RSQUARE'
+TT_LCURLY       = 'LCURLY'
+TT_RCURLY       = 'RCURLY'
 TT_EE           = 'EE' # ==
 TT_NE           = 'NE' # !=
 TT_LT           = 'LT' # <

@@ -176,7 +176,7 @@ class Parser:
         if res.error:
             return res
         
-        # Accessing a coso by index is currently done like this: coso / index. However I want replace it with the traditional coso[index]. Maybe using coso / index when
+        #TODO Accessing a coso by index is currently done like this: coso / index. However I want replace it with the traditional coso[index]. Maybe using coso / index when
         # wanting to split a list in two. From 0 -> index and index + 1 -> end.
         # Here we can address the first issue.
         if self.current_tok.type == TT_LPAREN:
@@ -271,6 +271,14 @@ class Parser:
                 return res
             
             return res.success(list_expr)
+        
+        if tok.type == TT_LCURLY:
+            dict_expr = res.register(self.dict_expr())
+
+            if res.error:
+                return res
+            
+            return res.success(dict_expr)
         
         if tok.matches(TT_KEYWORD, 'si'):
             if_expr = res.register(self.if_expr())
@@ -418,6 +426,130 @@ class Parser:
             pos_start,
             self.current_tok.pos_end.copy()
         ))
+    
+    def dict_expr(self):
+        res = ParseResult()
+
+        keys, values = [], []
+        pos_start = self.current_tok.pos_start.copy()
+
+        if self.current_tok.type != TT_LCURLY:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start,
+                self.current_tok.pos_end,
+                "Se esperaba '{'"
+            ))
+        
+        res.register_advance()
+        self.advance()
+
+        # Empty mataburros (dict)
+        if self.current_tok.type == TT_RCURLY:
+            res.register_advance()
+            self.advance()
+
+        else:
+            expr = self.expr()
+            if isinstance(expr.node, (CosoNode, MataburrosNode)):
+                #TODO create a 'type error' like error
+                return res.failure(InvalidSyntaxError(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Un coso ó mataburros no puede utilizarse como clave"
+                ))
+
+            keys.append(res.register(expr))
+            
+            if res.error:
+                return res.failure(InvalidSyntaxError(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Se esperaba una clave"
+                ))
+            
+            if not self.current_tok.type == TT_COLON:
+                return res.failure(InvalidSyntaxError(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Se esperaba ':'"
+                ))
+            
+            res.register_advance()
+            self.advance()
+
+            values.append(res.register(self.expr()))
+
+            if res.error:
+                return res.failure(InvalidSyntaxError(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Se esperaba un valor"
+                ))
+            
+            while self.current_tok.type == TT_COMMA:
+                res.register_advance()
+                self.advance()
+
+                expr = self.expr()
+                if isinstance(expr.node, (CosoNode, MataburrosNode)):
+                    #TODO create a 'type error' like error
+                    return res.failure(InvalidSyntaxError(
+                        self.current_tok.pos_start,
+                        self.current_tok.pos_end,
+                        "Un coso ó mataburros no puede utilizarse como clave"
+                    ))
+                
+                key_value = expr.node.tok.value
+                if not key_value in [k.tok.value for k in keys]:
+                    keys.append(res.register(expr))
+                    
+                    if res.error:
+                        return res
+                    
+                    if not self.current_tok.type == TT_COLON:
+                        return res.failure(InvalidSyntaxError(
+                            self.current_tok.pos_start,
+                            self.current_tok.pos_end,
+                            "Se esperaba ':'"
+                        ))
+                    
+                    res.register_advance()
+                    self.advance()
+
+                    values.append(res.register(self.expr()))
+
+                    if res.error:
+                        return res
+                
+                else:
+                    # Update value if key token already exists
+                    idx = [k.tok.value for k in keys].index(key_value)
+
+                    res.register_advance()
+                    self.advance()
+
+                    values[idx] = res.register(self.expr())
+
+                    if res.error:
+                        return res
+            
+            if self.current_tok.type != TT_RCURLY:
+                return res.failure(InvalidSyntaxError(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Se esperaba ',' ó '}'"
+                ))
+            
+            res.register_advance()
+            self.advance()
+
+        return res.success(MataburrosNode(
+            keys,
+            values,
+            pos_start,
+            self.current_tok.pos_end.copy()
+        ))
+
     # MARK: Parse.if_expr
     def if_expr(self):
         res = ParseResult()
