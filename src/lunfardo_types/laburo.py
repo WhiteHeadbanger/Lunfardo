@@ -476,6 +476,12 @@ class Curro(BaseLaburo):
 
     exec_ejecutar.arg_names = ['fn']
 
+    def exec_renuncio(self, exec_ctx):
+        import sys
+        return RTResult().success(sys.exit())
+    
+    exec_renuncio.arg_names = []
+
 Curro.matear          = Curro('matear')
 Curro.morfar          = Curro('morfar')
 Curro.limpiavidrios   = Curro('limpiavidrios')
@@ -492,6 +498,8 @@ Curro.chamu           = Curro('chamu')
 Curro.num             = Curro('num')
 Curro.longitud        = Curro('longitud')
 Curro.ejecutar        = Curro('ejecutar')
+
+Curro.renuncio        = Curro('renuncio')
 
 
 

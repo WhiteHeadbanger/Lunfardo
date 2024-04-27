@@ -28,6 +28,8 @@ global_symbol_table.set("num", Curro.num)
 
 global_symbol_table.set("ejecutar", Curro.ejecutar)
 
+global_symbol_table.set("renuncio", Curro.renuncio)
+
 
 
 def execute(fn, text):
