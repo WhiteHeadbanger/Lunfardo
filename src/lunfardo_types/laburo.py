@@ -448,7 +448,7 @@ class Curro(BaseLaburo):
         from os import path
         this_file = path.abspath(__file__)
         src_dir = path.dirname(os.path.dirname(this_file))
-        fn = path.join(src_dir, fn)
+        fn = path.join(src_dir, "examples", fn)
 
         try:
             with open(fn, "r") as f:

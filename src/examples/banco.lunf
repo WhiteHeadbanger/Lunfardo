@@ -1,0 +1,97 @@
+laburo crear_cuenta(nombres, balances, nombre, balance_inicial)
+    guardar(nombres, nombre)
+    guardar(balances, balance_inicial)
+    matear("Cuenta creada satisfactoriamente!")
+chau
+
+laburo deposito(nombres, balances, nombre, cantidad)
+    cualca cuenta_encontrada = trucho
+    para i = 0 hasta longitud(nombres) entonces
+        si nombres / i == nombre entonces
+            cualca nuevo_balance = balances / i + cantidad
+            reemplazar(balances, i, nuevo_balance)
+            matear("Deposito realizado. Nuevo balance: " + chamu(nuevo_balance))
+            cualca cuenta_encontrada = posta
+            rajar
+        chau
+    chau
+
+    si cuenta_encontrada == trucho entonces
+        matear("No se encontro la cuenta")
+    chau
+chau
+
+laburo retiro(nombres, balances, nombre, cantidad)
+    cualca cuenta_encontrada = trucho
+    para i = 0 hasta longitud(nombres) entonces
+        si nombres / i == nombre entonces
+            si cantidad <= 0 entonces
+                matear("No se puede retirar dinero negativo o cero")
+                devolver
+            osi cantidad > (balances / i) entonces
+                matear("No hay suficiente dinero en la cuenta")
+                devolver
+            otro
+                cualca nuevo_balance = balances / i - cantidad
+                reemplazar(balances, i, nuevo_balance)
+                matear("Retiro realizado. Nuevo balance: " + chamu(nuevo_balance))
+                cualca cuenta_encontrada = posta
+                rajar
+            chau
+        chau
+    chau
+
+    si cuenta_encontrada == trucho entonces
+        matear("No se encontro la cuenta")
+    chau
+chau
+
+laburo balance(nombres, balances, nombre)
+    cualca cuenta_encontrada = trucho
+    para i = 0 hasta longitud(nombres) entonces
+        si nombres / i == nombre entonces
+            matear("El balance de la cuenta de " + nombre + " es: " + chamu(balances / i))
+            cualca cuenta_encontrada = posta
+            rajar
+        chau
+    chau
+
+    si cuenta_encontrada == trucho entonces
+        matear("No se encontro la cuenta")
+    chau
+chau
+
+cualca nombres_de_cuentas = []
+cualca balances_de_cuentas = []
+
+mientras posta entonces
+    matear("1. Crear cuenta")
+    matear("2. Deposito")
+    matear("3. Retiro")
+    matear("4. Balance")
+    matear("5. Salir")
+
+    cualca opcion = num(morfar("Seleccione una opcion: "))
+
+    si opcion == 1 entonces
+        cualca nombre = morfar("Nombre de la cuenta: ")
+        cualca balance_inicial = num(morfar("Balance inicial: "))
+        crear_cuenta(nombres_de_cuentas, balances_de_cuentas, nombre, balance_inicial)
+    osi opcion == 2 entonces
+        cualca nombre = morfar("Nombre de la cuenta: ")
+        cualca cantidad = num(morfar("Cantidad a depositar: "))
+        deposito(nombres_de_cuentas, balances_de_cuentas, nombre, cantidad)
+    osi opcion == 3 entonces
+        cualca nombre = morfar("Nombre de la cuenta: ")
+        cualca cantidad = num(morfar("Cantidad a retirar: "))
+        retiro(nombres_de_cuentas, balances_de_cuentas, nombre, cantidad)
+    osi opcion == 4 entonces
+        cualca nombre = morfar("Nombre de la cuenta: ")
+        balance(nombres_de_cuentas, balances_de_cuentas, nombre)
+    osi opcion == 5 entonces
+        matear("Gracias por confiar en nuestro banco.")
+        rajar
+    otro
+        matear("Opcion invalida")
+    chau
+chau
