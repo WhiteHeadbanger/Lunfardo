@@ -21,4 +21,4 @@ class Mataburros(Value):
         return f'{{{", ".join([f"{k}: {v}" for k, v in zip(self.keys, self.values)])}}}'
         
     def __repr__(self):
-        return f"Mataburros({self.keys}, {self.values})"
+        return f'{{{", ".join([f"{k}: {v}" for k, v in zip(self.keys, self.values)])}}}'

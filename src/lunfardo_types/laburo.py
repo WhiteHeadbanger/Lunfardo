@@ -263,6 +263,13 @@ class Curro(BaseLaburo):
     
     exec_es_laburo.arg_names = ['value']
     
+    def exec_es_mataburros(self, exec_ctx):
+        from . import Numero, Mataburros
+        is_dict = isinstance(exec_ctx.symbol_table.get('value'), Mataburros)
+        return RTResult().success(Numero.posta if is_dict else Numero.trucho)
+    
+    exec_es_mataburros.arg_names = ['value']
+    
     def exec_guardar(self, exec_ctx):
         from . import Numero, Coso
         list_ = exec_ctx.symbol_table.get('list')
@@ -483,6 +490,42 @@ class Curro(BaseLaburo):
             
     exec_metele_en.arg_names = ['dict', 'key', 'value']
 
+    def exec_borra_de(self, exec_ctx):
+        from . import Chamuyo, Numero, Mataburros
+        dict_ = exec_ctx.symbol_table.get('dict')
+        key = exec_ctx.symbol_table.get('key')
+
+        if not isinstance(dict_, Mataburros):
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                "El primer argumento debe ser de tipo mataburros.",
+                exec_ctx
+            ))
+        
+        if not isinstance(key, (Numero, Chamuyo)):
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                "El segundo argumento debe ser de tipo número o chamuyo.",
+                exec_ctx
+            ))
+        
+        for i, dictkey in enumerate(dict_.keys):
+            if dictkey.value == key.value:
+                del dict_.keys[i]
+                del dict_.values[i]
+                return RTResult().success(Numero.nada)
+            
+        return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                f"El elemento con la llave {key} no pudo ser encontrado en el mataburros.",
+                exec_ctx
+            ))
+    
+    exec_borra_de.arg_names = ['dict', 'key']
+
     def exec_longitud(self, exec_ctx):
         from . import Numero, Coso
         list_ = exec_ctx.symbol_table.get('list')
@@ -558,6 +601,7 @@ Curro.es_num          = Curro('es_num')
 Curro.es_chamu        = Curro('es_chamu')
 Curro.es_coso         = Curro('es_coso')
 Curro.es_laburo       = Curro('es_laburo')
+Curro.es_mataburros   = Curro('es_mataburros')
 Curro.chamu           = Curro('chamu')
 Curro.num             = Curro('num')
 # Coso related
@@ -570,6 +614,7 @@ Curro.longitud        = Curro('longitud')
 # Mataburros related
 Curro.agarra_de       = Curro('agarra_de')
 Curro.metele_en       = Curro('metele_en')
+Curro.borra_de        = Curro('borra_de')
 # Misc
 Curro.limpiavidrios   = Curro('limpiavidrios')
 Curro.ejecutar        = Curro('ejecutar')

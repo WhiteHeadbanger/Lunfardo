@@ -17,6 +17,7 @@ global_symbol_table.set("es_num", Curro.es_num)
 global_symbol_table.set("es_chamu", Curro.es_chamu)
 global_symbol_table.set("es_coso", Curro.es_coso)
 global_symbol_table.set("es_laburo", Curro.es_laburo)
+global_symbol_table.set("es_mataburros", Curro.es_mataburros)
 global_symbol_table.set("chamu", Curro.chamu)
 global_symbol_table.set("num", Curro.num)
 # Coso related
@@ -29,6 +30,7 @@ global_symbol_table.set("longitud", Curro.longitud)
 # Mataburros related
 global_symbol_table.set("agarra_de", Curro.agarra_de)
 global_symbol_table.set("metele_en", Curro.metele_en)
+global_symbol_table.set("borra_de", Curro.borra_de)
 # Misc
 global_symbol_table.set("linpiavidrios", Curro.limpiavidrios)
 global_symbol_table.set("winpiavidrios", Curro.limpiavidrios)
