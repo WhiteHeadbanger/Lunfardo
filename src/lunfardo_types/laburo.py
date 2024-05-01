@@ -527,20 +527,27 @@ class Curro(BaseLaburo):
     exec_borra_de.arg_names = ['dict', 'key']
 
     def exec_longitud(self, exec_ctx):
-        from . import Numero, Coso
-        list_ = exec_ctx.symbol_table.get('list')
+        from . import Numero, Coso, Mataburros, Chamuyo
+        arg = exec_ctx.symbol_table.get('arg')
 
-        if not isinstance(list_, Coso):
+        if not isinstance(arg, (Coso, Mataburros, Chamuyo)):
             return RTResult().failure(RTError(
                 self.pos_start,
                 self.pos_end,
-                "El argumento debe ser de tipo coso.",
+                "El argumento debe ser de tipo coso, mataburros o chamuyo.",
                 exec_ctx
             ))
         
-        return RTResult().success(Numero(len(list_.elements)))
+        if isinstance(arg, Mataburros):
+            return RTResult().success(Numero(len(arg.keys)))
         
-    exec_longitud.arg_names = ['list']
+        if isinstance(arg, Chamuyo):
+            return RTResult().success(Numero(len(arg.value)))
+        
+        if isinstance(arg, Coso):
+            return RTResult().success(Numero(len(arg.elements)))
+        
+    exec_longitud.arg_names = ['arg']
 
     def exec_ejecutar(self, exec_ctx):
         from . import Chamuyo, Numero
