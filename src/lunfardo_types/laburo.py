@@ -207,9 +207,9 @@ class Curro(BaseLaburo):
     exec_num.arg_names = ['value']
     
     def exec_matear(self, exec_ctx):
-        from . import Numero
+        from . import Numero, Chamuyo
         value = exec_ctx.symbol_table.get('value')
-        if value is not None: 
+        if value is not None:
             print(value)
         else:
             print()
@@ -221,6 +221,8 @@ class Curro(BaseLaburo):
         from . import Chamuyo
         _prefix = exec_ctx.symbol_table.get('value')
         if _prefix is not None:
+            if isinstance(_prefix, Chamuyo):
+                _prefix = _prefix.value
             text = input(_prefix)
         else:
             text = input()
@@ -478,10 +480,9 @@ class Curro(BaseLaburo):
                 dict_.values[i] = value
                 return RTResult().success(Numero.nada)
             
-            else:
-                dict_.keys.append(key)
-                dict_.values.append(value)
-                return RTResult().success(Numero.nada)
+        dict_.keys.append(key)
+        dict_.values.append(value)
+        return RTResult().success(Numero.nada)
             
     exec_metele_en.arg_names = ['dict', 'key', 'value']
 
@@ -521,6 +522,35 @@ class Curro(BaseLaburo):
     
     exec_borra_de.arg_names = ['dict', 'key']
 
+    def exec_existe_clave(self, exec_ctx):
+        from . import Chamuyo, Numero, Mataburros, Laburo, Curro
+        dict_ = exec_ctx.symbol_table.get('dict')
+        key = exec_ctx.symbol_table.get('key')
+
+        if not isinstance(dict_, Mataburros):
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                "El primer argumento debe ser de tipo mataburros.",
+                exec_ctx
+            ))
+        
+        if not isinstance(key, (Numero, Chamuyo, Laburo, Curro)):
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                "El segundo argumento no puede ser de tipo Coso ó Mataburros.",
+                exec_ctx
+            ))
+        
+        for _, dictkey in enumerate(dict_.keys):
+            if dictkey.value == key.value:
+                return RTResult().success(Numero.posta)
+        
+        return RTResult().success(Numero.nada)
+    
+    exec_existe_clave.arg_names = ['dict', 'key']
+
     def exec_longitud(self, exec_ctx):
         from . import Numero, Coso, Mataburros, Chamuyo
         arg = exec_ctx.symbol_table.get('arg')
@@ -541,6 +571,8 @@ class Curro(BaseLaburo):
         
         if isinstance(arg, Coso):
             return RTResult().success(Numero(len(arg.elements)))
+        
+        return RTResult().success(Numero.nada)
         
     exec_longitud.arg_names = ['arg']
 
@@ -617,6 +649,7 @@ Curro.longitud        = Curro('longitud')
 Curro.agarra_de       = Curro('agarra_de')
 Curro.metele_en       = Curro('metele_en')
 Curro.borra_de        = Curro('borra_de')
+Curro.existe_clave    = Curro('existe_clave')
 # Misc
 Curro.limpiavidrios   = Curro('limpiavidrios')
 Curro.ejecutar        = Curro('ejecutar')

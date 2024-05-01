@@ -31,6 +31,7 @@ global_symbol_table.set("longitud", Curro.longitud)
 global_symbol_table.set("agarra_de", Curro.agarra_de)
 global_symbol_table.set("metele_en", Curro.metele_en)
 global_symbol_table.set("borra_de", Curro.borra_de)
+global_symbol_table.set("existe_clave", Curro.existe_clave)
 # Misc
 global_symbol_table.set("linpiavidrios", Curro.limpiavidrios)
 global_symbol_table.set("winpiavidrios", Curro.limpiavidrios)
