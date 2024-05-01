@@ -50,7 +50,7 @@ Ej: `1`, `1.5`
 - `Coso`: _lista_ = `[]`  
 Ej: `cualca lista = [1, 2, 3]`
 - `Mataburros`: _dict_ = `{}`  
-Ej: `cualca dict = {"1": 1, 2: "dos", var: otra_var}
+Ej: `cualca dict = {"1": 1, 2: "dos", var: otra_var}`
 
 ## Operadores
 
