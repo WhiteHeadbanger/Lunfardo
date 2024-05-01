@@ -447,12 +447,7 @@ class Curro(BaseLaburo):
             if dictkey.value == key.value:
                 return RTResult().success(dict_.values[i])
         
-        return RTResult().failure(RTError(
-            self.pos_start,
-            self.pos_end,
-            f"El elemento con la llave {key} no pudo ser encontrado en el mataburros.",
-            exec_ctx
-        ))
+        return RTResult().success(Numero.nada)
 
     exec_agarra_de.arg_names = ['dict', 'key']
 
