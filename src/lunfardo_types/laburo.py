@@ -207,7 +207,7 @@ class Curro(BaseLaburo):
     exec_num.arg_names = ['value']
     
     def exec_matear(self, exec_ctx):
-        from . import Numero, Chamuyo
+        from . import Numero
         value = exec_ctx.symbol_table.get('value')
         if value is not None:
             print(value)
