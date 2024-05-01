@@ -5,30 +5,38 @@ from interpreter import Interpreter, SymbolTable
 from context import Context
 
 global_symbol_table = SymbolTable()
+# Bools and null
 global_symbol_table.set("nada", Numero.nada) #null, none
 global_symbol_table.set("posta", Numero.posta) #true
 global_symbol_table.set("trucho", Numero.trucho) #false
+# I/O
 global_symbol_table.set("matear", Curro.matear)
 global_symbol_table.set("morfar", Curro.morfar)
-global_symbol_table.set("linpiavidrios", Curro.limpiavidrios)
-global_symbol_table.set("winpiavidrios", Curro.limpiavidrios)
+# Types
 global_symbol_table.set("es_num", Curro.es_num)
 global_symbol_table.set("es_chamu", Curro.es_chamu)
 global_symbol_table.set("es_coso", Curro.es_coso)
 global_symbol_table.set("es_laburo", Curro.es_laburo)
+global_symbol_table.set("es_mataburros", Curro.es_mataburros)
+global_symbol_table.set("chamu", Curro.chamu)
+global_symbol_table.set("num", Curro.num)
+# Coso related
 global_symbol_table.set("guardar", Curro.guardar)
 global_symbol_table.set("insertar", Curro.insertar)
 global_symbol_table.set("reemplazar", Curro.reemplazar)
 global_symbol_table.set("sacar", Curro.sacar)
 global_symbol_table.set("extender", Curro.extender)
+# Mataburros related
+global_symbol_table.set("agarra_de", Curro.agarra_de)
+global_symbol_table.set("metele_en", Curro.metele_en)
+global_symbol_table.set("borra_de", Curro.borra_de)
+global_symbol_table.set("existe_clave", Curro.existe_clave)
+# Misc
+global_symbol_table.set("linpiavidrios", Curro.limpiavidrios)
+global_symbol_table.set("winpiavidrios", Curro.limpiavidrios)
 global_symbol_table.set("longitud", Curro.longitud)
-
-global_symbol_table.set("chamu", Curro.chamu)
-global_symbol_table.set("num", Curro.num)
-
 global_symbol_table.set("ejecutar", Curro.ejecutar)
-
-
+global_symbol_table.set("renuncio", Curro.renuncio)
 
 def execute(fn, text):
     lexer = Lexer(fn, text)

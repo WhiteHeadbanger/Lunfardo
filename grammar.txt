@@ -1,0 +1,63 @@
+statements      :       NEWLINE* statement (NEWLINE+ statement)* NEWLINE
+
+statement       :       KEYWORD:DEVOLVER expr?
+                :       KEYWORD:CONTINUAR
+                :       KEYWORD:RAJAR
+                :       expr
+
+expr            :       KEYWORD:CUALCA IDENTIFIER EQ expr
+                :       comp-expr ((KEYWORD:Y|KEYWORD:O) comp-expr)*
+                
+comp-expr       :       TRUCHO comp-expr
+                        arith-expr ((EE|LT|GT|LTE|GTE) arith-expr)*
+
+arith-expr      :       term ((PLUS|MINUS) term)*
+
+term            :       factor ((MUL|DIV) factor)*
+
+factor          :       (PLUS|MINUS) factor
+                :       power
+
+power           :       call (POW factor)*
+
+call            :       atom (LPAREN (expr (COMMA expr)*)? RPAREN)?
+
+atom            :       INT|FLOAT|STRING|IDENTIFIER
+                :       LPAREN expr RPAREN
+                :       list-expr
+                :       if-expr
+                :       for-expr
+                :       while-expr
+                :       func-def
+
+list-expr       :       LSQUARE (expr (COMMA expr)*)? RSQUARE
+
+dict-expr       :       LCURLY (expr COLON expr (COMMA expr COLON expr)*)? RCURLY
+
+if-expr         :       KEYWORD:SI expr KEYWORD:ENTONCES
+                        (statement if-expr-b|if-expr-c?)
+                |       (NEWLINE statements KEYWORD:CHAU|if-expr-b|if-expr-c)
+
+if-expr-b       :       KEYWORD:OSI expr KEYWORD:ENTONCES
+                        (statement if-expr-b|if-expr-c?)
+                |       (NEWLINE statements KEYWORD:CHAU|if-expr-b|if-expr-c)
+
+if-expr-c       :       KEYWORD:OTRO
+                        statement
+                        (NEWLINE statements KEYWORD:CHAU)
+
+for-expr        :       KEYWORD:PARA IDENTIFIER EQ expr KEYWORD:HASTA expr
+                        (KEYWORD:ENTRE expr)? KEYWORD:ENTONCES 
+                        statement
+                |       (NEWLINE statements KEYWORD:CHAU)
+
+
+while-expr      :       KEYWORD:MIENTRAS expr KEYWORD:ENTONCES expr
+                        statement
+                |       (NEWLINE statements KEYWORD:CHAU)
+
+func-def        :       KEYWORD:LABURO IDENTIFIER? 
+                        LPAREN (IDENTIFIER (COMMA IDENTIFIER)*)? RPAREN
+                        (COLON expr)
+                |       (NEWLINE statements KEYWORD:CHAU)
+

@@ -73,6 +73,14 @@ class Lexer:
             elif self.current_char == ']':
                 tokens.append(Token(TT_RSQUARE, pos_start = self.pos))
                 self.advance()
+
+            elif self.current_char == '{':
+                tokens.append(Token(TT_LCURLY, pos_start = self.pos))
+                self.advance()
+            
+            elif self.current_char == '}':
+                tokens.append(Token(TT_RCURLY, pos_start = self.pos))
+                self.advance()
             
             elif self.current_char == ',':
                 tokens.append(Token(TT_COMMA, pos_start = self.pos))
@@ -216,4 +224,5 @@ class Lexer:
             self.advance()
 
         self.advance()
+        #TODO fix infinite loop while having a comment as the last line of a file
     
