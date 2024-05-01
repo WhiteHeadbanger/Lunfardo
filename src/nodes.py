@@ -28,6 +28,17 @@ class CosoNode:
     def __repr__(self):
         return f'({self.element_nodes})'
     
+class MataburrosNode:
+
+    def __init__(self, keys_nodes, values_nodes, pos_start, pos_end):
+        self.keys_nodes = keys_nodes
+        self.values_nodes = values_nodes
+        self.pos_start = pos_start
+        self.pos_end = pos_end
+
+    def __repr__(self):
+        return f'({self.keys_nodes}, {self.values_nodes})'
+    
 class CualcaAccessNode:
 
     def __init__(self, var_name_tok):

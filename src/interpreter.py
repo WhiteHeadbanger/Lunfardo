@@ -324,6 +324,24 @@ class Interpreter:
             Coso(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
 
+    def visit_MataburrosNode(self, node, context):
+        from lunfardo_types import Mataburros
+        res = RTResult()
+
+        keys, values = [], []
+
+        for key_node, value_node in zip(node.keys_nodes, node.values_nodes):
+            keys.append(res.register(self.visit(key_node, context)))
+            if res.should_return():
+                return res
+            
+            values.append(res.register(self.visit(value_node, context)))
+            if res.should_return():
+                return res
+            
+        return res.success(
+            Mataburros(keys, values).set_context(context).set_pos(node.pos_start, node.pos_end)
+        )
 
 
 

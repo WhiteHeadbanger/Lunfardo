@@ -209,7 +209,7 @@ class Curro(BaseLaburo):
     def exec_matear(self, exec_ctx):
         from . import Numero
         value = exec_ctx.symbol_table.get('value')
-        if value is not None: 
+        if value is not None:
             print(value)
         else:
             print()
@@ -221,6 +221,8 @@ class Curro(BaseLaburo):
         from . import Chamuyo
         _prefix = exec_ctx.symbol_table.get('value')
         if _prefix is not None:
+            if isinstance(_prefix, Chamuyo):
+                _prefix = _prefix.value
             text = input(_prefix)
         else:
             text = input()
@@ -262,6 +264,13 @@ class Curro(BaseLaburo):
         return RTResult().success(Numero.posta if is_func else Numero.trucho)
     
     exec_es_laburo.arg_names = ['value']
+    
+    def exec_es_mataburros(self, exec_ctx):
+        from . import Numero, Mataburros
+        is_dict = isinstance(exec_ctx.symbol_table.get('value'), Mataburros)
+        return RTResult().success(Numero.posta if is_dict else Numero.trucho)
+    
+    exec_es_mataburros.arg_names = ['value']
     
     def exec_guardar(self, exec_ctx):
         from . import Numero, Coso
@@ -415,21 +424,157 @@ class Curro(BaseLaburo):
 
     exec_extender.arg_names = ['listA', 'listB']
 
-    def exec_longitud(self, exec_ctx):
-        from . import Numero, Coso
-        list_ = exec_ctx.symbol_table.get('list')
+    def exec_agarra_de(self, exec_ctx):
+        from . import Chamuyo, Numero, Mataburros
+        dict_ = exec_ctx.symbol_table.get('dict')
+        key = exec_ctx.symbol_table.get('key')
 
-        if not isinstance(list_, Coso):
+        if not isinstance(dict_, Mataburros):
             return RTResult().failure(RTError(
                 self.pos_start,
                 self.pos_end,
-                "El argumento debe ser de tipo coso.",
+                "El primer argumento debe ser de tipo mataburros.",
                 exec_ctx
             ))
         
-        return RTResult().success(Numero(len(list_.elements)))
+        if not isinstance(key, (Numero, Chamuyo)):
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                "El segundo argumento debe ser de tipo número o chamuyo.",
+                exec_ctx
+            ))
         
-    exec_longitud.arg_names = ['list']
+        for i, dictkey in enumerate(dict_.keys):
+            if dictkey.value == key.value:
+                return RTResult().success(dict_.values[i])
+        
+        return RTResult().success(Numero.nada)
+
+    exec_agarra_de.arg_names = ['dict', 'key']
+
+    def exec_metele_en(self, exec_ctx):
+        from . import Chamuyo, Numero, Mataburros
+        dict_ = exec_ctx.symbol_table.get('dict')
+        key = exec_ctx.symbol_table.get('key')
+        value = exec_ctx.symbol_table.get('value')
+
+        if not isinstance(dict_, Mataburros):
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                "El primer argumento debe ser de tipo mataburros.",
+                exec_ctx
+            ))
+        
+        if not isinstance(key, (Numero, Chamuyo)):
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                "El segundo argumento debe ser de tipo número o chamuyo.",
+                exec_ctx
+            ))
+        
+        for i, dictkey in enumerate(dict_.keys):
+            if dictkey.value == key.value:
+                dict_.values[i] = value
+                return RTResult().success(Numero.nada)
+            
+        dict_.keys.append(key)
+        dict_.values.append(value)
+        return RTResult().success(Numero.nada)
+            
+    exec_metele_en.arg_names = ['dict', 'key', 'value']
+
+    def exec_borra_de(self, exec_ctx):
+        from . import Chamuyo, Numero, Mataburros
+        dict_ = exec_ctx.symbol_table.get('dict')
+        key = exec_ctx.symbol_table.get('key')
+
+        if not isinstance(dict_, Mataburros):
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                "El primer argumento debe ser de tipo mataburros.",
+                exec_ctx
+            ))
+        
+        if not isinstance(key, (Numero, Chamuyo)):
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                "El segundo argumento debe ser de tipo número o chamuyo.",
+                exec_ctx
+            ))
+        
+        for i, dictkey in enumerate(dict_.keys):
+            if dictkey.value == key.value:
+                del dict_.keys[i]
+                del dict_.values[i]
+                return RTResult().success(Numero.nada)
+            
+        return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                f"El elemento con la llave {key} no pudo ser encontrado en el mataburros.",
+                exec_ctx
+            ))
+    
+    exec_borra_de.arg_names = ['dict', 'key']
+
+    def exec_existe_clave(self, exec_ctx):
+        from . import Chamuyo, Numero, Mataburros, Laburo, Curro
+        dict_ = exec_ctx.symbol_table.get('dict')
+        key = exec_ctx.symbol_table.get('key')
+
+        if not isinstance(dict_, Mataburros):
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                "El primer argumento debe ser de tipo mataburros.",
+                exec_ctx
+            ))
+        
+        if not isinstance(key, (Numero, Chamuyo, Laburo, Curro)):
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                "El segundo argumento no puede ser de tipo Coso ó Mataburros.",
+                exec_ctx
+            ))
+        
+        for _, dictkey in enumerate(dict_.keys):
+            if dictkey.value == key.value:
+                return RTResult().success(Numero.posta)
+        
+        return RTResult().success(Numero.nada)
+    
+    exec_existe_clave.arg_names = ['dict', 'key']
+
+    def exec_longitud(self, exec_ctx):
+        from . import Numero, Coso, Mataburros, Chamuyo
+        arg = exec_ctx.symbol_table.get('arg')
+
+        if not isinstance(arg, (Coso, Mataburros, Chamuyo)):
+            return RTResult().failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                "El argumento debe ser de tipo coso, mataburros o chamuyo.",
+                exec_ctx
+            ))
+        
+        if isinstance(arg, Mataburros):
+            return RTResult().success(Numero(len(arg.keys)))
+        
+        if isinstance(arg, Chamuyo):
+            return RTResult().success(Numero(len(arg.value)))
+        
+        if isinstance(arg, Coso):
+            return RTResult().success(Numero(len(arg.elements)))
+        
+        return RTResult().success(Numero.nada)
+        
+    exec_longitud.arg_names = ['arg']
 
     def exec_ejecutar(self, exec_ctx):
         from . import Chamuyo, Numero
@@ -476,22 +621,39 @@ class Curro(BaseLaburo):
 
     exec_ejecutar.arg_names = ['fn']
 
+    def exec_renuncio(self, exec_ctx):
+        import sys
+        return RTResult().success(sys.exit())
+    
+    exec_renuncio.arg_names = []
+
+# I/O
 Curro.matear          = Curro('matear')
 Curro.morfar          = Curro('morfar')
-Curro.limpiavidrios   = Curro('limpiavidrios')
+# Types
 Curro.es_num          = Curro('es_num')
 Curro.es_chamu        = Curro('es_chamu')
 Curro.es_coso         = Curro('es_coso')
 Curro.es_laburo       = Curro('es_laburo')
+Curro.es_mataburros   = Curro('es_mataburros')
+Curro.chamu           = Curro('chamu')
+Curro.num             = Curro('num')
+# Coso related
 Curro.guardar         = Curro('guardar')
 Curro.insertar        = Curro('insertar')
 Curro.reemplazar      = Curro('reemplazar')
 Curro.sacar           = Curro('sacar')
 Curro.extender        = Curro('extender')
-Curro.chamu           = Curro('chamu')
-Curro.num             = Curro('num')
 Curro.longitud        = Curro('longitud')
+# Mataburros related
+Curro.agarra_de       = Curro('agarra_de')
+Curro.metele_en       = Curro('metele_en')
+Curro.borra_de        = Curro('borra_de')
+Curro.existe_clave    = Curro('existe_clave')
+# Misc
+Curro.limpiavidrios   = Curro('limpiavidrios')
 Curro.ejecutar        = Curro('ejecutar')
+Curro.renuncio        = Curro('renuncio')
 
 
 

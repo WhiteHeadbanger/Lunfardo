@@ -41,7 +41,7 @@ class Chamuyo(Value):
         return copy
     
     def __str__(self):
-        return self.value
+        return f'"{self.value}"'
 
     def __repr__(self):
         return f'"{self.value}"'
