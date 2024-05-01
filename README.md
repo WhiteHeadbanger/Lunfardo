@@ -24,7 +24,9 @@ Para ejecutar archivos
 - `ejecutar(<nombre_del_archivo_en_strings>)`  
 Ej: `ejecutar("factorial.lunf")`
 
-Nota: el archivo debe estar dentro de la carpeta `src` 
+Nota: el archivo debe estar dentro de la carpeta `src/examples` por el momento.  
+Si querés cambiar esto, al final del archivo `src/lunfardo_types/laburo.py` podés encontrar  
+el método `exec_ejecutar()` en donde se comprueba esta ruta. 
 
 # Características
 
@@ -36,7 +38,7 @@ Todos los tipos de dato validan a Numero y devuelven un número, por ejemplo si 
 Ej: `1`, `1.5`
 - `trucho`: _entero_ = `0`
 - `nada`: _entero_ = `0`
-- `posta`: _entero != 0_ = `0 < n > 0`
+- `posta`: _entero != 0_ = `n > 0`
 
 ## Variables
 
@@ -47,7 +49,8 @@ Ej: `1`, `1.5`
 
 - `Coso`: _lista_ = `[]`  
 Ej: `cualca lista = [1, 2, 3]`
-- `Mataburros`: _dict_ = `{}` 
+- `Mataburros`: _dict_ = `{}`  
+Ej: `cualca dict = {"1": 1, 2: "dos", var: otra_var}
 
 ## Operadores
 
@@ -204,6 +207,11 @@ Un curro es un laburo pre-definido.
 - `rajar`
 - `chau`
 
+## Comentarios
+- `#`  
+Ej: `# Esto es un comentario, y esta línea va a ser ignorada por el intérprete`  
+
+
 # Ejemplos 
 
 ### "Hola mundo"
@@ -328,3 +336,10 @@ mientras posta entonces
     chau
 chau
 ```
+
+# Siguientes pasos
+
+- Importar archivos de código.
+- Más tipos de errores, como errores que comprueben tipos de dato.
+- OOP, herencia.
+- Que el lenguaje valide a `Numero` hace que programar sea más complicado. El tipo de dato `nada` debería ser un dato a parte, en lugar de ser `0`. Lo mismo con `posta` y `trucho`.
