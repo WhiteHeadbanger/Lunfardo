@@ -45,8 +45,9 @@ Ej: `1`, `1.5`
 
 ## Estructuras de datos
 
-- Coso: lista = `[]`  
+- `Coso`: _lista_ = `[]`  
 Ej: `cualca lista = [1, 2, 3]`
+- `Mataburros`: _dict_ = `{}` 
 
 ## Operadores
 
@@ -102,7 +103,7 @@ Ej: `cualca lista = [1, 2, 3]`
 
 ### Bucle `para`
 
-- `para <identificador = valor> hasta <condicion> [entre <valor>] entonces <sentencia>`  
+- `para <identificador = valor> hasta <condicion> [entre <valor>] entonces <sentencia> chau`  
 Si no se especifica un valor para `entre`, su valor es 1.
 
 ### Bucle `mientras`
@@ -139,6 +140,8 @@ Un curro es un laburo pre-definido.
     Devuelve 1 si es un chamuyo, 0 si es falso
 - `es_coso(<identificador | valor>)`  
     Devuelve 1 si es un coso, 0 si es falso
+- `es_mataburros(<identificador | valor>)`  
+    Devuelve 1 si es un mataburros, 0 si es falso
 - `es_laburo(<identificador | valor>)`  
     Devuelve 1 si es un laburo, 0 si es falso
 - `guardar(<coso>, <valor>)`  
@@ -151,14 +154,25 @@ Un curro es un laburo pre-definido.
     Reemplaza un valor en un coso en el índice especificado
 - `insertar(<coso>, <indice>, <valor>)`  
     Inserta un valor en un coso en el índice especificado
-- `longitud(<coso>)`  
-    Devuelve la longitud de un coso
+- `longitud(<coso | chamuyo | mataburros>)`  
+    Devuelve la longitud de un coso | chamuyo | mataburros
+- `metele_en(<mataburros>, <clave>, <valor>)`  
+    Guarda un valor en la clave especificada de un mataburros.  
+    Si la clave no está presente, se crea.
+- `agarra_de(<mataburros>, <clave>)`  
+    Devuelve el valor de una clave de un mataburros.
+- `borra_de(<mataburros>, <clave>)`  
+    Borra una clave de un mataburros.
+- `existe_clave(<mataburros>, <clave>)`  
+    Devuelve 1 si la clave existe en el mataburros, 0 si no.
 - `num(<identificador | valor>)`  
     Convierte un chamuyo a numero
 - `chamu(<identificador | valor>)`  
     Convierte un numero a un chamuyo
 - `ejecutar(<chamuyo>)`  
-    Ejecuta el codigo de un archivo lunfardo
+    Ejecuta el codigo de un archivo Lunfardo
+- `renuncio()`  
+    Termina la ejecución del intérprete de Lunfardo.
 
 ## Errores
 
@@ -237,71 +251,50 @@ matear("Secuencia de Fibonacci de longitud " + chamu(var) + ": " + chamu(secuenc
 ### Sistema bancario
 
 ```
-laburo crear_cuenta(nombres, balances, nombre, balance_inicial)
-    guardar(nombres, nombre)
-    guardar(balances, balance_inicial)
+laburo crear_cuenta(cuentas, nombre, balance_inicial)
+    metele_en(cuentas, nombre, balance_inicial)
     matear("Cuenta creada satisfactoriamente!")
 chau
 
-laburo deposito(nombres, balances, nombre, cantidad)
-    cualca cuenta_encontrada = trucho
-    para i = 0 hasta longitud(nombres) entonces
-        si nombres / i == nombre entonces
-            cualca nuevo_balance = balances / i + cantidad
-            reemplazar(balances, i, nuevo_balance)
+laburo deposito(cuentas, nombre, cantidad)
+    si existe_clave(cuentas, nombre) entonces
+        si cantidad > 0 entonces
+            cualca balance_actual = agarra_de(cuentas, nombre)
+            cualca nuevo_balance = balance_actual + cantidad
+            metele_en(cuentas, nombre, nuevo_balance)
             matear("Deposito realizado. Nuevo balance: " + chamu(nuevo_balance))
-            cualca cuenta_encontrada = posta
-            rajar
+        otro
+            matear("No se puede depositar una cantidad negativa")
         chau
-    chau
-
-    si cuenta_encontrada == trucho entonces
-        matear("No se encontro la cuenta")
+    otro
+        matear("La cuenta no existe")
     chau
 chau
 
-laburo retiro(nombres, balances, nombre, cantidad)
-    cualca cuenta_encontrada = trucho
-    para i = 0 hasta longitud(nombres) entonces
-        si nombres / i == nombre entonces
-            si cantidad <= 0 entonces
-                matear("No se puede retirar dinero negativo o cero")
-                devolver
-            osi cantidad > (balances / i) entonces
-                matear("No hay suficiente dinero en la cuenta")
-                devolver
-            otro
-                cualca nuevo_balance = balances / i - cantidad
-                reemplazar(balances, i, nuevo_balance)
-                matear("Retiro realizado. Nuevo balance: " + chamu(nuevo_balance))
-                cualca cuenta_encontrada = posta
-                rajar
-            chau
+laburo retiro(cuentas, nombre, cantidad)
+    si existe_clave(cuentas, nombre) entonces
+        si (cantidad >= 0) y (cantidad <= agarra_de(cuentas, nombre)) entonces
+            cualca balance_actual = agarra_de(cuentas, nombre)
+            cualca nuevo_balance = balance_actual - cantidad
+            metele_en(cuentas, nombre, nuevo_balance)
+            matear("Retiro realizado. Nuevo balance: " + chamu(nuevo_balance))
+        otro
+            matear("No se puede retirar una cantidad negativa o mayor al balance")
         chau
-    chau
-
-    si cuenta_encontrada == trucho entonces
-        matear("No se encontro la cuenta")
+    otro
+        matear("La cuenta no existe")
     chau
 chau
 
-laburo balance(nombres, balances, nombre)
-    cualca cuenta_encontrada = trucho
-    para i = 0 hasta longitud(nombres) entonces
-        si nombres / i == nombre entonces
-            matear("El balance de la cuenta de " + nombre + " es: " + chamu(balances / i))
-            cualca cuenta_encontrada = posta
-            rajar
-        chau
-    chau
-
-    si cuenta_encontrada == trucho entonces
-        matear("No se encontro la cuenta")
+laburo balance(cuentas, nombre)
+    si existe_clave(cuentas, nombre) entonces
+        matear("Balance: " + chamu(agarra_de(cuentas, nombre)))
+    otro
+        matear("La cuenta no existe")
     chau
 chau
 
-cualca nombres_de_cuentas = []
-cualca balances_de_cuentas = []
+cualca cuentas_db = {}
 
 mientras posta entonces
     matear("1. Crear cuenta")
@@ -315,18 +308,18 @@ mientras posta entonces
     si opcion == 1 entonces
         cualca nombre = morfar("Nombre de la cuenta: ")
         cualca balance_inicial = num(morfar("Balance inicial: "))
-        crear_cuenta(nombres_de_cuentas, balances_de_cuentas, nombre, balance_inicial)
+        crear_cuenta(cuentas_db, nombre, balance_inicial)
     osi opcion == 2 entonces
         cualca nombre = morfar("Nombre de la cuenta: ")
         cualca cantidad = num(morfar("Cantidad a depositar: "))
-        deposito(nombres_de_cuentas, balances_de_cuentas, nombre, cantidad)
+        deposito(cuentas_db, nombre, cantidad)
     osi opcion == 3 entonces
         cualca nombre = morfar("Nombre de la cuenta: ")
         cualca cantidad = num(morfar("Cantidad a retirar: "))
-        retiro(nombres_de_cuentas, balances_de_cuentas, nombre, cantidad)
+        retiro(cuentas_db, nombre, cantidad)
     osi opcion == 4 entonces
         cualca nombre = morfar("Nombre de la cuenta: ")
-        balance(nombres_de_cuentas, balances_de_cuentas, nombre)
+        balance(cuentas_db, nombre)
     osi opcion == 5 entonces
         matear("Gracias por confiar en nuestro banco.")
         rajar
