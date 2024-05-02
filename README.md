@@ -24,7 +24,9 @@ Para ejecutar archivos
 - `ejecutar(<nombre_del_archivo_en_strings>)`  
 Ej: `ejecutar("factorial.lunf")`
 
-Nota: el archivo debe estar dentro de la carpeta `src` 
+Nota: el archivo debe estar dentro de la carpeta `src/examples` por el momento.  
+Si querés cambiar esto, al final del archivo `src/lunfardo_types/laburo.py` podés encontrar  
+el método `exec_ejecutar()` en donde se comprueba esta ruta. 
 
 # Características
 
@@ -36,61 +38,63 @@ Todos los tipos de dato validan a Numero y devuelven un número, por ejemplo si 
 Ej: `1`, `1.5`
 - `trucho`: _entero_ = `0`
 - `nada`: _entero_ = `0`
-- `posta`: _entero != 0_ = `0 < n > 0`
+- `posta`: _entero != 0_ = `n > 0`
 
 ## Variables
 
-- `cualca <identificador> = <valor>`  
-    Ej: `cualca numero = 10`
+- `poneleque <identificador> = <valor>`  
+    Ej: `poneleque numero = 10`
 
 ## Estructuras de datos
 
-- Coso: lista = `[]`  
-Ej: `cualca lista = [1, 2, 3]`
+- `Coso`: _lista_ = `[]`  
+Ej: `poneleque lista = [1, 2, 3]`
+- `Mataburros`: _dict_ = `{}`  
+Ej: `poneleque dict = {"1": 1, 2: "dos", var: otra_var}`
 
 ## Operadores
 
 ### Operadores aritméticos
 
 - `+`: _sumar_  
-    Ej: `cualca numero = 10 + 10`
+    Ej: `poneleque numero = 10 + 10`
 - `-`: _restar_  
-    Ej: `cualca numero = 10 - 10`
+    Ej: `poneleque numero = 10 - 10`
 - `*`: _multiplicar_  
-    Ej: `cualca numero = 10 * 10`
+    Ej: `poneleque numero = 10 * 10`
 - `/`: _dividir_  
-    Ej: `cualca numero = 10 / 10`
+    Ej: `poneleque numero = 10 / 10`
 - `^`: _potencia_  
-    Ej: `cualca numero = 10 ^ 10`
+    Ej: `poneleque numero = 10 ^ 10`
 
 ### Operadores lógicos
 
 - `y`  
-    Ej: `cualca valor = 10 y 10`
+    Ej: `poneleque valor = 10 y 10`
 - `o`  
-    Ej: `cualca valor = 10 o 10`
+    Ej: `poneleque valor = 10 o 10`
 - `truchar`  
-    Ej: `cualca valor = truchar 10`
+    Ej: `poneleque valor = truchar 10`
 
 ### Operadores de asignación
 
 - `=`  
-    Ej: `cualca numero = 10`
+    Ej: `poneleque numero = 10`
 
 ### Operadores de comparación
 
 - `==`  
-    Ej: `si 10 == 10 entonces cualca valor = 10`
+    Ej: `si 10 == 10 entonces poneleque valor = 10`
 - `!=`  
-    Ej: `si 10 != 10 entonces cualca valor = 245`
+    Ej: `si 10 != 10 entonces poneleque valor = 245`
 - `<`  
-    Ej: `si 0 < 10 entonces cualca valor = 9`
+    Ej: `si 0 < 10 entonces poneleque valor = 9`
 - `>`  
-    Ej: `si 20 > 10 entonces cualca valor = 20`
+    Ej: `si 20 > 10 entonces poneleque valor = 20`
 - `<=`  
-    Ej: `si 4 <= 10 entonces cualca valor = 4`
+    Ej: `si 4 <= 10 entonces poneleque valor = 4`
 - `>=`  
-    Ej: `si 14 >= 10 entonces cualca valor = 14`
+    Ej: `si 14 >= 10 entonces poneleque valor = 14`
 
 ## Flujo de datos
 
@@ -98,11 +102,11 @@ Ej: `cualca lista = [1, 2, 3]`
 
 - `si <condicion> entonces <sentencia>`
 - `[osi <condicion> entonces <sentencia>]` 
-- `[otro <sentencia>]`
+- `[sino <sentencia>]`
 
 ### Bucle `para`
 
-- `para <identificador = valor> hasta <condicion> [entre <valor>] entonces <sentencia>`  
+- `para <identificador = valor> hasta <condicion> [entre <valor>] entonces <sentencia> chau`  
 Si no se especifica un valor para `entre`, su valor es 1.
 
 ### Bucle `mientras`
@@ -139,6 +143,8 @@ Un curro es un laburo pre-definido.
     Devuelve 1 si es un chamuyo, 0 si es falso
 - `es_coso(<identificador | valor>)`  
     Devuelve 1 si es un coso, 0 si es falso
+- `es_mataburros(<identificador | valor>)`  
+    Devuelve 1 si es un mataburros, 0 si es falso
 - `es_laburo(<identificador | valor>)`  
     Devuelve 1 si es un laburo, 0 si es falso
 - `guardar(<coso>, <valor>)`  
@@ -146,19 +152,30 @@ Un curro es un laburo pre-definido.
 - `sacar(<coso>, <indice>)`  
     Saca un valor de un coso en el índice especificado
 - `extender(<coso>, <coso>)`  
-    Extiende un coso con los valores de otro coso
-- `reemplazar(<coso>, <indice>, <valor>)`  
+    Extiende un coso con los valores de sino coso
+- `cambiaso(<coso>, <indice>, <valor>)`  
     Reemplaza un valor en un coso en el índice especificado
 - `insertar(<coso>, <indice>, <valor>)`  
     Inserta un valor en un coso en el índice especificado
-- `longitud(<coso>)`  
-    Devuelve la longitud de un coso
+- `longitud(<coso | chamuyo | mataburros>)`  
+    Devuelve la longitud de un coso | chamuyo | mataburros
+- `metele_en(<mataburros>, <clave>, <valor>)`  
+    Guarda un valor en la clave especificada de un mataburros.  
+    Si la clave no está presente, se crea.
+- `agarra_de(<mataburros>, <clave>)`  
+    Devuelve el valor de una clave de un mataburros.
+- `borra_de(<mataburros>, <clave>)`  
+    Borra una clave de un mataburros.
+- `existe_clave(<mataburros>, <clave>)`  
+    Devuelve 1 si la clave existe en el mataburros, 0 si no.
 - `num(<identificador | valor>)`  
     Convierte un chamuyo a numero
 - `chamu(<identificador | valor>)`  
     Convierte un numero a un chamuyo
 - `ejecutar(<chamuyo>)`  
-    Ejecuta el codigo de un archivo lunfardo
+    Ejecuta el codigo de un archivo Lunfardo
+- `renuncio()`  
+    Termina la ejecución del intérprete de Lunfardo.
 
 ## Errores
 
@@ -172,14 +189,14 @@ Un curro es un laburo pre-definido.
 
 ## Keywords
 
-- `cualca`
+- `poneleque`
 - `y`
 - `o`
 - `truchar`
 - `si`
 - `entonces`
 - `osi`
-- `otro`
+- `sino`
 - `para`
 - `hasta`
 - `entre`
@@ -189,6 +206,11 @@ Un curro es un laburo pre-definido.
 - `continuar`
 - `rajar`
 - `chau`
+
+## Comentarios
+- `#`  
+Ej: `# Esto es un comentario, y esta línea va a ser ignorada por el intérprete`  
+
 
 # Ejemplos 
 
@@ -202,13 +224,13 @@ Un curro es un laburo pre-definido.
 laburo factorial(n)
     si n <= 1 entonces
         devolver 1
-    otro
+    sino
         devolver n * factorial(n - 1)
     chau
 chau
 
-cualca numero = 10
-cualca resultado = factorial(numero)
+poneleque numero = 10
+poneleque resultado = factorial(numero)
 matear("El factorial de " + chamu(numero) + " es: " + chamu(resultado))
 ```
 
@@ -218,14 +240,14 @@ matear("El factorial de " + chamu(numero) + " es: " + chamu(resultado))
 laburo fibonacci(n)
     si n <= 1 entonces
         devolver n
-    otro
+    sino
         devolver fibonacci(n - 1) + fibonacci(n - 2)
     chau
 chau
 
 
-cualca var = 10
-cualca secuencia = []
+poneleque var = 10
+poneleque secuencia = []
 
 para i = 0 hasta var entonces
     guardar(secuencia, fibonacci(i))
@@ -237,71 +259,50 @@ matear("Secuencia de Fibonacci de longitud " + chamu(var) + ": " + chamu(secuenc
 ### Sistema bancario
 
 ```
-laburo crear_cuenta(nombres, balances, nombre, balance_inicial)
-    guardar(nombres, nombre)
-    guardar(balances, balance_inicial)
+laburo crear_cuenta(cuentas, nombre, balance_inicial)
+    metele_en(cuentas, nombre, balance_inicial)
     matear("Cuenta creada satisfactoriamente!")
 chau
 
-laburo deposito(nombres, balances, nombre, cantidad)
-    cualca cuenta_encontrada = trucho
-    para i = 0 hasta longitud(nombres) entonces
-        si nombres / i == nombre entonces
-            cualca nuevo_balance = balances / i + cantidad
-            reemplazar(balances, i, nuevo_balance)
+laburo deposito(cuentas, nombre, cantidad)
+    si existe_clave(cuentas, nombre) entonces
+        si cantidad > 0 entonces
+            poneleque balance_actual = agarra_de(cuentas, nombre)
+            poneleque nuevo_balance = balance_actual + cantidad
+            metele_en(cuentas, nombre, nuevo_balance)
             matear("Deposito realizado. Nuevo balance: " + chamu(nuevo_balance))
-            cualca cuenta_encontrada = posta
-            rajar
+        sino
+            matear("No se puede depositar una cantidad negativa")
         chau
-    chau
-
-    si cuenta_encontrada == trucho entonces
-        matear("No se encontro la cuenta")
+    sino
+        matear("La cuenta no existe")
     chau
 chau
 
-laburo retiro(nombres, balances, nombre, cantidad)
-    cualca cuenta_encontrada = trucho
-    para i = 0 hasta longitud(nombres) entonces
-        si nombres / i == nombre entonces
-            si cantidad <= 0 entonces
-                matear("No se puede retirar dinero negativo o cero")
-                devolver
-            osi cantidad > (balances / i) entonces
-                matear("No hay suficiente dinero en la cuenta")
-                devolver
-            otro
-                cualca nuevo_balance = balances / i - cantidad
-                reemplazar(balances, i, nuevo_balance)
-                matear("Retiro realizado. Nuevo balance: " + chamu(nuevo_balance))
-                cualca cuenta_encontrada = posta
-                rajar
-            chau
+laburo retiro(cuentas, nombre, cantidad)
+    si existe_clave(cuentas, nombre) entonces
+        si (cantidad >= 0) y (cantidad <= agarra_de(cuentas, nombre)) entonces
+            poneleque balance_actual = agarra_de(cuentas, nombre)
+            poneleque nuevo_balance = balance_actual - cantidad
+            metele_en(cuentas, nombre, nuevo_balance)
+            matear("Retiro realizado. Nuevo balance: " + chamu(nuevo_balance))
+        sino
+            matear("No se puede retirar una cantidad negativa o mayor al balance")
         chau
-    chau
-
-    si cuenta_encontrada == trucho entonces
-        matear("No se encontro la cuenta")
+    sino
+        matear("La cuenta no existe")
     chau
 chau
 
-laburo balance(nombres, balances, nombre)
-    cualca cuenta_encontrada = trucho
-    para i = 0 hasta longitud(nombres) entonces
-        si nombres / i == nombre entonces
-            matear("El balance de la cuenta de " + nombre + " es: " + chamu(balances / i))
-            cualca cuenta_encontrada = posta
-            rajar
-        chau
-    chau
-
-    si cuenta_encontrada == trucho entonces
-        matear("No se encontro la cuenta")
+laburo balance(cuentas, nombre)
+    si existe_clave(cuentas, nombre) entonces
+        matear("Balance: " + chamu(agarra_de(cuentas, nombre)))
+    sino
+        matear("La cuenta no existe")
     chau
 chau
 
-cualca nombres_de_cuentas = []
-cualca balances_de_cuentas = []
+poneleque cuentas_db = {}
 
 mientras posta entonces
     matear("1. Crear cuenta")
@@ -310,28 +311,35 @@ mientras posta entonces
     matear("4. Balance")
     matear("5. Salir")
 
-    cualca opcion = num(morfar("Seleccione una opcion: "))
+    poneleque opcion = num(morfar("Seleccione una opcion: "))
 
     si opcion == 1 entonces
-        cualca nombre = morfar("Nombre de la cuenta: ")
-        cualca balance_inicial = num(morfar("Balance inicial: "))
-        crear_cuenta(nombres_de_cuentas, balances_de_cuentas, nombre, balance_inicial)
+        poneleque nombre = morfar("Nombre de la cuenta: ")
+        poneleque balance_inicial = num(morfar("Balance inicial: "))
+        crear_cuenta(cuentas_db, nombre, balance_inicial)
     osi opcion == 2 entonces
-        cualca nombre = morfar("Nombre de la cuenta: ")
-        cualca cantidad = num(morfar("Cantidad a depositar: "))
-        deposito(nombres_de_cuentas, balances_de_cuentas, nombre, cantidad)
+        poneleque nombre = morfar("Nombre de la cuenta: ")
+        poneleque cantidad = num(morfar("Cantidad a depositar: "))
+        deposito(cuentas_db, nombre, cantidad)
     osi opcion == 3 entonces
-        cualca nombre = morfar("Nombre de la cuenta: ")
-        cualca cantidad = num(morfar("Cantidad a retirar: "))
-        retiro(nombres_de_cuentas, balances_de_cuentas, nombre, cantidad)
+        poneleque nombre = morfar("Nombre de la cuenta: ")
+        poneleque cantidad = num(morfar("Cantidad a retirar: "))
+        retiro(cuentas_db, nombre, cantidad)
     osi opcion == 4 entonces
-        cualca nombre = morfar("Nombre de la cuenta: ")
-        balance(nombres_de_cuentas, balances_de_cuentas, nombre)
+        poneleque nombre = morfar("Nombre de la cuenta: ")
+        balance(cuentas_db, nombre)
     osi opcion == 5 entonces
         matear("Gracias por confiar en nuestro banco.")
         rajar
-    otro
+    sino
         matear("Opcion invalida")
     chau
 chau
 ```
+
+# Siguientes pasos
+
+- Importar archivos de código.
+- Más tipos de errores, como errores que comprueben tipos de dato.
+- OOP, herencia.
+- Que el lenguaje valide a `Numero` hace que programar sea más complicado. El tipo de dato `nada` debería ser un dato a parte, en lugar de ser `0`. Lo mismo con `posta` y `trucho`.

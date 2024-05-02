@@ -23,10 +23,9 @@ global_symbol_table.set("num", Curro.num)
 # Coso related
 global_symbol_table.set("guardar", Curro.guardar)
 global_symbol_table.set("insertar", Curro.insertar)
-global_symbol_table.set("reemplazar", Curro.reemplazar)
+global_symbol_table.set("cambiaso", Curro.cambiaso)
 global_symbol_table.set("sacar", Curro.sacar)
 global_symbol_table.set("extender", Curro.extender)
-global_symbol_table.set("longitud", Curro.longitud)
 # Mataburros related
 global_symbol_table.set("agarra_de", Curro.agarra_de)
 global_symbol_table.set("metele_en", Curro.metele_en)
@@ -35,6 +34,7 @@ global_symbol_table.set("existe_clave", Curro.existe_clave)
 # Misc
 global_symbol_table.set("linpiavidrios", Curro.limpiavidrios)
 global_symbol_table.set("winpiavidrios", Curro.limpiavidrios)
+global_symbol_table.set("longitud", Curro.longitud)
 global_symbol_table.set("ejecutar", Curro.ejecutar)
 global_symbol_table.set("renuncio", Curro.renuncio)
 

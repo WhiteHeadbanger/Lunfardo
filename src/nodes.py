@@ -39,7 +39,7 @@ class MataburrosNode:
     def __repr__(self):
         return f'({self.keys_nodes}, {self.values_nodes})'
     
-class CualcaAccessNode:
+class PoneleQueAccessNode:
 
     def __init__(self, var_name_tok):
         self.var_name_tok = var_name_tok
@@ -49,7 +49,7 @@ class CualcaAccessNode:
     def __repr__(self):
         return f'({self.var_name_tok})'
 
-class CualcaAssignNode:
+class PoneleQueAssignNode:
 
     def __init__(self, var_name_tok, value_node):
         self.var_name_tok = var_name_tok

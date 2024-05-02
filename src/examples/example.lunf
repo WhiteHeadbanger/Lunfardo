@@ -4,28 +4,28 @@ laburo suma(a, b): a + b
 # laburo multiline
 laburo grande(prefix, lista)
     si lista == 1 entonces 
-        cualca resultado = [prefix + " es grande"]
+        poneleque resultado = [prefix + " es grande"]
     osi lista == 0 entonces 
-        cualca resultado = prefix + " es grande"
+        poneleque resultado = prefix + " es grande"
     chau
 
     devolver resultado 
 chau
 
 laburo join(elements, separator)
-    cualca result = ""
-    cualca len = longitud(elements)
+    poneleque result = ""
+    poneleque len = longitud(elements)
 
     para i = 0 hasta len entonces
-        cualca result = result + elements / i
-        si i != len - 1 entonces cualca result = result + separator
+        poneleque result = result + elements / i
+        si i != len - 1 entonces poneleque result = result + separator
     chau
 
     devolver result
 chau
 
 laburo map(elementos, lab)
-    cualca nuevos_elementos = []
+    poneleque nuevos_elementos = []
 
     para i = 0 hasta longitud(elementos) entonces
         extender(nuevos_elementos, lab(elementos / i, 1))

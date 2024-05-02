@@ -1,12 +1,12 @@
 KEYWORDS = [
-    'cualca', # variable
+    'poneleque', # variable
     'y', # and
     'o', # or
     'truchar', # not
     'si', # if
     'entonces', # then
     'osi', # elif
-    'otro', # else
+    'sino', # else
     'para', # for
     'hasta', # to
     'entre', # step
