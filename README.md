@@ -1,3 +1,5 @@
+![Logo de Lunfardo mostrando un mate argentino](https://i.ibb.co/cQZhPMf/lunfardo-logo-small.png)
+
 # Lunfardo: el lenguaje de programación basado en el lunfardo argentino
 
 ## Sobre Lunfardo
