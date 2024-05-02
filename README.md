@@ -42,59 +42,59 @@ Ej: `1`, `1.5`
 
 ## Variables
 
-- `cualca <identificador> = <valor>`  
-    Ej: `cualca numero = 10`
+- `poneleque <identificador> = <valor>`  
+    Ej: `poneleque numero = 10`
 
 ## Estructuras de datos
 
 - `Coso`: _lista_ = `[]`  
-Ej: `cualca lista = [1, 2, 3]`
+Ej: `poneleque lista = [1, 2, 3]`
 - `Mataburros`: _dict_ = `{}`  
-Ej: `cualca dict = {"1": 1, 2: "dos", var: otra_var}`
+Ej: `poneleque dict = {"1": 1, 2: "dos", var: otra_var}`
 
 ## Operadores
 
 ### Operadores aritméticos
 
 - `+`: _sumar_  
-    Ej: `cualca numero = 10 + 10`
+    Ej: `poneleque numero = 10 + 10`
 - `-`: _restar_  
-    Ej: `cualca numero = 10 - 10`
+    Ej: `poneleque numero = 10 - 10`
 - `*`: _multiplicar_  
-    Ej: `cualca numero = 10 * 10`
+    Ej: `poneleque numero = 10 * 10`
 - `/`: _dividir_  
-    Ej: `cualca numero = 10 / 10`
+    Ej: `poneleque numero = 10 / 10`
 - `^`: _potencia_  
-    Ej: `cualca numero = 10 ^ 10`
+    Ej: `poneleque numero = 10 ^ 10`
 
 ### Operadores lógicos
 
 - `y`  
-    Ej: `cualca valor = 10 y 10`
+    Ej: `poneleque valor = 10 y 10`
 - `o`  
-    Ej: `cualca valor = 10 o 10`
+    Ej: `poneleque valor = 10 o 10`
 - `truchar`  
-    Ej: `cualca valor = truchar 10`
+    Ej: `poneleque valor = truchar 10`
 
 ### Operadores de asignación
 
 - `=`  
-    Ej: `cualca numero = 10`
+    Ej: `poneleque numero = 10`
 
 ### Operadores de comparación
 
 - `==`  
-    Ej: `si 10 == 10 entonces cualca valor = 10`
+    Ej: `si 10 == 10 entonces poneleque valor = 10`
 - `!=`  
-    Ej: `si 10 != 10 entonces cualca valor = 245`
+    Ej: `si 10 != 10 entonces poneleque valor = 245`
 - `<`  
-    Ej: `si 0 < 10 entonces cualca valor = 9`
+    Ej: `si 0 < 10 entonces poneleque valor = 9`
 - `>`  
-    Ej: `si 20 > 10 entonces cualca valor = 20`
+    Ej: `si 20 > 10 entonces poneleque valor = 20`
 - `<=`  
-    Ej: `si 4 <= 10 entonces cualca valor = 4`
+    Ej: `si 4 <= 10 entonces poneleque valor = 4`
 - `>=`  
-    Ej: `si 14 >= 10 entonces cualca valor = 14`
+    Ej: `si 14 >= 10 entonces poneleque valor = 14`
 
 ## Flujo de datos
 
@@ -102,7 +102,7 @@ Ej: `cualca dict = {"1": 1, 2: "dos", var: otra_var}`
 
 - `si <condicion> entonces <sentencia>`
 - `[osi <condicion> entonces <sentencia>]` 
-- `[otro <sentencia>]`
+- `[sino <sentencia>]`
 
 ### Bucle `para`
 
@@ -152,8 +152,8 @@ Un curro es un laburo pre-definido.
 - `sacar(<coso>, <indice>)`  
     Saca un valor de un coso en el índice especificado
 - `extender(<coso>, <coso>)`  
-    Extiende un coso con los valores de otro coso
-- `reemplazar(<coso>, <indice>, <valor>)`  
+    Extiende un coso con los valores de sino coso
+- `cambiaso(<coso>, <indice>, <valor>)`  
     Reemplaza un valor en un coso en el índice especificado
 - `insertar(<coso>, <indice>, <valor>)`  
     Inserta un valor en un coso en el índice especificado
@@ -189,14 +189,14 @@ Un curro es un laburo pre-definido.
 
 ## Keywords
 
-- `cualca`
+- `poneleque`
 - `y`
 - `o`
 - `truchar`
 - `si`
 - `entonces`
 - `osi`
-- `otro`
+- `sino`
 - `para`
 - `hasta`
 - `entre`
@@ -224,13 +224,13 @@ Ej: `# Esto es un comentario, y esta línea va a ser ignorada por el intérprete
 laburo factorial(n)
     si n <= 1 entonces
         devolver 1
-    otro
+    sino
         devolver n * factorial(n - 1)
     chau
 chau
 
-cualca numero = 10
-cualca resultado = factorial(numero)
+poneleque numero = 10
+poneleque resultado = factorial(numero)
 matear("El factorial de " + chamu(numero) + " es: " + chamu(resultado))
 ```
 
@@ -240,14 +240,14 @@ matear("El factorial de " + chamu(numero) + " es: " + chamu(resultado))
 laburo fibonacci(n)
     si n <= 1 entonces
         devolver n
-    otro
+    sino
         devolver fibonacci(n - 1) + fibonacci(n - 2)
     chau
 chau
 
 
-cualca var = 10
-cualca secuencia = []
+poneleque var = 10
+poneleque secuencia = []
 
 para i = 0 hasta var entonces
     guardar(secuencia, fibonacci(i))
@@ -267,14 +267,14 @@ chau
 laburo deposito(cuentas, nombre, cantidad)
     si existe_clave(cuentas, nombre) entonces
         si cantidad > 0 entonces
-            cualca balance_actual = agarra_de(cuentas, nombre)
-            cualca nuevo_balance = balance_actual + cantidad
+            poneleque balance_actual = agarra_de(cuentas, nombre)
+            poneleque nuevo_balance = balance_actual + cantidad
             metele_en(cuentas, nombre, nuevo_balance)
             matear("Deposito realizado. Nuevo balance: " + chamu(nuevo_balance))
-        otro
+        sino
             matear("No se puede depositar una cantidad negativa")
         chau
-    otro
+    sino
         matear("La cuenta no existe")
     chau
 chau
@@ -282,14 +282,14 @@ chau
 laburo retiro(cuentas, nombre, cantidad)
     si existe_clave(cuentas, nombre) entonces
         si (cantidad >= 0) y (cantidad <= agarra_de(cuentas, nombre)) entonces
-            cualca balance_actual = agarra_de(cuentas, nombre)
-            cualca nuevo_balance = balance_actual - cantidad
+            poneleque balance_actual = agarra_de(cuentas, nombre)
+            poneleque nuevo_balance = balance_actual - cantidad
             metele_en(cuentas, nombre, nuevo_balance)
             matear("Retiro realizado. Nuevo balance: " + chamu(nuevo_balance))
-        otro
+        sino
             matear("No se puede retirar una cantidad negativa o mayor al balance")
         chau
-    otro
+    sino
         matear("La cuenta no existe")
     chau
 chau
@@ -297,12 +297,12 @@ chau
 laburo balance(cuentas, nombre)
     si existe_clave(cuentas, nombre) entonces
         matear("Balance: " + chamu(agarra_de(cuentas, nombre)))
-    otro
+    sino
         matear("La cuenta no existe")
     chau
 chau
 
-cualca cuentas_db = {}
+poneleque cuentas_db = {}
 
 mientras posta entonces
     matear("1. Crear cuenta")
@@ -311,27 +311,27 @@ mientras posta entonces
     matear("4. Balance")
     matear("5. Salir")
 
-    cualca opcion = num(morfar("Seleccione una opcion: "))
+    poneleque opcion = num(morfar("Seleccione una opcion: "))
 
     si opcion == 1 entonces
-        cualca nombre = morfar("Nombre de la cuenta: ")
-        cualca balance_inicial = num(morfar("Balance inicial: "))
+        poneleque nombre = morfar("Nombre de la cuenta: ")
+        poneleque balance_inicial = num(morfar("Balance inicial: "))
         crear_cuenta(cuentas_db, nombre, balance_inicial)
     osi opcion == 2 entonces
-        cualca nombre = morfar("Nombre de la cuenta: ")
-        cualca cantidad = num(morfar("Cantidad a depositar: "))
+        poneleque nombre = morfar("Nombre de la cuenta: ")
+        poneleque cantidad = num(morfar("Cantidad a depositar: "))
         deposito(cuentas_db, nombre, cantidad)
     osi opcion == 3 entonces
-        cualca nombre = morfar("Nombre de la cuenta: ")
-        cualca cantidad = num(morfar("Cantidad a retirar: "))
+        poneleque nombre = morfar("Nombre de la cuenta: ")
+        poneleque cantidad = num(morfar("Cantidad a retirar: "))
         retiro(cuentas_db, nombre, cantidad)
     osi opcion == 4 entonces
-        cualca nombre = morfar("Nombre de la cuenta: ")
+        poneleque nombre = morfar("Nombre de la cuenta: ")
         balance(cuentas_db, nombre)
     osi opcion == 5 entonces
         matear("Gracias por confiar en nuestro banco.")
         rajar
-    otro
+    sino
         matear("Opcion invalida")
     chau
 chau

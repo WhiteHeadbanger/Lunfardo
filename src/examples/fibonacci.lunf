@@ -1,14 +1,14 @@
 laburo fibonacci(n)
     si n <= 1 entonces
         devolver n
-    otro
+    sino
         devolver fibonacci(n - 1) + fibonacci(n - 2)
     chau
 chau
 
 
-cualca var = 10
-cualca secuencia = []
+poneleque var = 10
+poneleque secuencia = []
 
 para i = 0 hasta var entonces
     guardar(secuencia, fibonacci(i))

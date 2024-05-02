@@ -23,7 +23,7 @@ global_symbol_table.set("num", Curro.num)
 # Coso related
 global_symbol_table.set("guardar", Curro.guardar)
 global_symbol_table.set("insertar", Curro.insertar)
-global_symbol_table.set("reemplazar", Curro.reemplazar)
+global_symbol_table.set("cambiaso", Curro.cambiaso)
 global_symbol_table.set("sacar", Curro.sacar)
 global_symbol_table.set("extender", Curro.extender)
 # Mataburros related

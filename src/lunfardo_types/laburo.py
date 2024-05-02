@@ -326,7 +326,7 @@ class Curro(BaseLaburo):
     
     exec_insertar.arg_names = ['list', 'index', 'value']
 
-    def exec_reemplazar(self, exec_ctx):
+    def exec_cambiaso(self, exec_ctx):
         from . import Coso, Numero
         list_ = exec_ctx.symbol_table.get('list')
         index = exec_ctx.symbol_table.get('index')
@@ -360,7 +360,7 @@ class Curro(BaseLaburo):
         
         return RTResult().success(Numero.nada)
         
-    exec_reemplazar.arg_names = ['list', 'index', 'value']
+    exec_cambiaso.arg_names = ['list', 'index', 'value']
     
     def exec_sacar(self, exec_ctx):
         from . import Numero, Coso
@@ -641,7 +641,7 @@ Curro.num             = Curro('num')
 # Coso related
 Curro.guardar         = Curro('guardar')
 Curro.insertar        = Curro('insertar')
-Curro.reemplazar      = Curro('reemplazar')
+Curro.cambiaso        = Curro('cambiaso')
 Curro.sacar           = Curro('sacar')
 Curro.extender        = Curro('extender')
 Curro.longitud        = Curro('longitud')

@@ -33,7 +33,7 @@ class Interpreter:
         return method(node, context)
     
     def no_visit_method(self, node, context):
-        raise Exception(f'No visit_{type(node).__name__} method defined')
+        raise Exception(f"No se encuentra definido ningun 'visit_{type(node).__name__}' metodo")
     
     def visit_NumeroNode(self, node, context):
         return RTResult().success(
@@ -47,7 +47,7 @@ class Interpreter:
             Chamuyo(node.tok.value).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
     
-    def visit_CualcaAccessNode(self, node, context):
+    def visit_PoneleQueAccessNode(self, node, context):
         res = RTResult()
         var_name = node.var_name_tok.value
         value = context.symbol_table.get(var_name)
@@ -56,14 +56,14 @@ class Interpreter:
             return res.failure(RTError(
                 node.pos_start, 
                 node.pos_end,
-                f"'{var_name}' no está definido",
+                f"'{var_name}' no esta definido",
                 context
             ))
         
         value = value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
         return res.success(value)
     
-    def visit_CualcaAssignNode(self, node, context):
+    def visit_PoneleQueAssignNode(self, node, context):
         res = RTResult()
         var_name = node.var_name_tok.value
         value = res.register(self.visit(node.value_node, context))

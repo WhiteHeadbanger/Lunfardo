@@ -6,14 +6,14 @@ chau
 laburo deposito(cuentas, nombre, cantidad)
     si existe_clave(cuentas, nombre) entonces
         si cantidad > 0 entonces
-            cualca balance_actual = agarra_de(cuentas, nombre)
-            cualca nuevo_balance = balance_actual + cantidad
+            poneleque balance_actual = agarra_de(cuentas, nombre)
+            poneleque nuevo_balance = balance_actual + cantidad
             metele_en(cuentas, nombre, nuevo_balance)
             matear("Deposito realizado. Nuevo balance: " + chamu(nuevo_balance))
-        otro
+        sino
             matear("No se puede depositar una cantidad negativa")
         chau
-    otro
+    sino
         matear("La cuenta no existe")
     chau
 chau
@@ -21,14 +21,14 @@ chau
 laburo retiro(cuentas, nombre, cantidad)
     si existe_clave(cuentas, nombre) entonces
         si (cantidad >= 0) y (cantidad <= agarra_de(cuentas, nombre)) entonces
-            cualca balance_actual = agarra_de(cuentas, nombre)
-            cualca nuevo_balance = balance_actual - cantidad
+            poneleque balance_actual = agarra_de(cuentas, nombre)
+            poneleque nuevo_balance = balance_actual - cantidad
             metele_en(cuentas, nombre, nuevo_balance)
             matear("Retiro realizado. Nuevo balance: " + chamu(nuevo_balance))
-        otro
+        sino
             matear("No se puede retirar una cantidad negativa o mayor al balance")
         chau
-    otro
+    sino
         matear("La cuenta no existe")
     chau
 chau
@@ -36,12 +36,12 @@ chau
 laburo balance(cuentas, nombre)
     si existe_clave(cuentas, nombre) entonces
         matear("Balance: " + chamu(agarra_de(cuentas, nombre)))
-    otro
+    sino
         matear("La cuenta no existe")
     chau
 chau
 
-cualca cuentas_db = {}
+poneleque cuentas_db = {}
 
 mientras posta entonces
     matear("1. Crear cuenta")
@@ -50,27 +50,27 @@ mientras posta entonces
     matear("4. Balance")
     matear("5. Salir")
 
-    cualca opcion = num(morfar("Seleccione una opcion: "))
+    poneleque opcion = num(morfar("Seleccione una opcion: "))
 
     si opcion == 1 entonces
-        cualca nombre = morfar("Nombre de la cuenta: ")
-        cualca balance_inicial = num(morfar("Balance inicial: "))
+        poneleque nombre = morfar("Nombre de la cuenta: ")
+        poneleque balance_inicial = num(morfar("Balance inicial: "))
         crear_cuenta(cuentas_db, nombre, balance_inicial)
     osi opcion == 2 entonces
-        cualca nombre = morfar("Nombre de la cuenta: ")
-        cualca cantidad = num(morfar("Cantidad a depositar: "))
+        poneleque nombre = morfar("Nombre de la cuenta: ")
+        poneleque cantidad = num(morfar("Cantidad a depositar: "))
         deposito(cuentas_db, nombre, cantidad)
     osi opcion == 3 entonces
-        cualca nombre = morfar("Nombre de la cuenta: ")
-        cualca cantidad = num(morfar("Cantidad a retirar: "))
+        poneleque nombre = morfar("Nombre de la cuenta: ")
+        poneleque cantidad = num(morfar("Cantidad a retirar: "))
         retiro(cuentas_db, nombre, cantidad)
     osi opcion == 4 entonces
-        cualca nombre = morfar("Nombre de la cuenta: ")
+        poneleque nombre = morfar("Nombre de la cuenta: ")
         balance(cuentas_db, nombre)
     osi opcion == 5 entonces
         matear("Gracias por confiar en nuestro banco.")
         rajar
-    otro
+    sino
         matear("Opcion invalida")
     chau
 chau
