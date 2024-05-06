@@ -17,6 +17,9 @@ class Posta(Boolean):
     def __repr__(self):
         return "posta"
     
+    def is_true(self):
+        return True
+    
     def copy(self):
         copy = Posta(self.value)
         copy.set_pos(self.pos_start, self.pos_end)
@@ -33,6 +36,9 @@ class Trucho(Boolean):
     
     def __repr__(self):
         return "trucho"
+    
+    def is_true(self):
+        return False
     
     def copy(self):
         copy = Trucho(self.value)
