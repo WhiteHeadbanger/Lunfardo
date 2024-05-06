@@ -1,6 +1,6 @@
 from lunfardo_parser import RTResult
 from constants.tokens import *
-from lunfardo_types import Numero
+from lunfardo_types import Numero, Nada
 from errors.errors import RTError
 
 #TODO RTResult deberia estar acá en vez de en el parser.
@@ -161,7 +161,7 @@ class Interpreter:
                 if res.should_return():
                     return res
                 
-                return res.success(Numero.nada if should_return_null else expr_value)
+                return res.success(Nada.nada if should_return_null else expr_value)
         
         if node.else_case:
             expr, should_return_null = node.else_case
@@ -170,9 +170,9 @@ class Interpreter:
             if res.should_return():
                 return res
             
-            return res.success(Numero.nada if should_return_null else expr_value)
+            return res.success(Nada.nada if should_return_null else expr_value)
         
-        return res.success(Numero.nada)
+        return res.success(Nada.nada)
     
     def visit_ParaNode(self, node, context):
         from lunfardo_types import Coso
@@ -218,7 +218,7 @@ class Interpreter:
             elements.append(value)
             
         return res.success(
-            Numero.nada if node.should_return_null else
+            Nada.nada if node.should_return_null else
             Coso(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
     
@@ -249,7 +249,7 @@ class Interpreter:
             elements.append(value)
         
         return res.success(
-            Numero.nada if node.should_return_null else
+            Nada.nada if node.should_return_null else
             Coso(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
     
@@ -300,7 +300,7 @@ class Interpreter:
             if res.should_return():
                 return res
         else:
-            value = Numero.nada
+            value = Nada.nada
 
         return res.success_return(value)
     

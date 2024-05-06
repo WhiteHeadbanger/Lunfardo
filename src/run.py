@@ -1,14 +1,14 @@
 from lexer import Lexer
 from lunfardo_parser import Parser
-from lunfardo_types import Numero, Curro
+from lunfardo_types import Numero, Curro, Posta, Trucho, Nada
 from interpreter import Interpreter, SymbolTable
 from context import Context
 
 global_symbol_table = SymbolTable()
 # Bools and null
-global_symbol_table.set("nada", Numero.nada) #null, none
-global_symbol_table.set("posta", Numero.posta) #true
-global_symbol_table.set("trucho", Numero.trucho) #false
+global_symbol_table.set("nada", Nada.nada) #null, none
+global_symbol_table.set("posta", Posta.posta) #true
+global_symbol_table.set("trucho", Trucho.trucho) #false
 # I/O
 global_symbol_table.set("matear", Curro.matear)
 global_symbol_table.set("morfar", Curro.morfar)
@@ -43,8 +43,8 @@ def execute(fn, text):
     tokens, error = lexer.make_tokens()
     if error:
         return None, error
-    elif error is None: #handling comments in an awful way, but it works for now
-        return None, None
+    #elif error is None: #handling comments in an awful way, but it works for now
+        #return None, None
 
     # Generate AST
     parser = Parser(tokens)
@@ -70,8 +70,8 @@ def run():
 
         if error:
             print(error.as_string())
-        elif error is None: # this is a hacky/horrible way to handle comments, but it works for now
-            continue
+        #elif error is None: # this is a hacky/horrible way to handle comments, but it works for now
+            #continue
         elif result:
             if len(result.elements) == 1:
                 print(repr(result.elements[0]))
