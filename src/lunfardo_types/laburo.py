@@ -207,10 +207,13 @@ class Curro(BaseLaburo):
     exec_num.arg_names = ['value']
     
     def exec_matear(self, exec_ctx):
-        from . import Numero
+        from . import Numero, Coso, Mataburros
         value = exec_ctx.symbol_table.get('value')
         if value is not None:
-            print(value)
+            if isinstance(value, (Coso, Mataburros)):
+                print(value)
+            else:
+                print(value.value)
         else:
             print()
         return RTResult().success(Numero.nada)
