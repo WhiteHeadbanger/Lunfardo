@@ -24,6 +24,7 @@ class Lexer:
 
             elif self.current_char == '#':
                 self.skip_comment()
+                self.advance()
 
             elif self.current_char in ';\n':
                 tokens.append(Token(TT_NEWLINE, pos_start = self.pos))
@@ -220,9 +221,7 @@ class Lexer:
     def skip_comment(self):
         self.advance()
 
-        while self.current_char != '\n':
+        while self.current_char not in ('\n', None):
             self.advance()
-
-        self.advance()
-        #TODO fix infinite loop while having a comment as the last line of a file
     
+        return None, None

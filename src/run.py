@@ -43,6 +43,8 @@ def execute(fn, text):
     tokens, error = lexer.make_tokens()
     if error:
         return None, error
+    elif error is None: #handling comments in an awful way, but it works for now
+        return None, None
 
     # Generate AST
     parser = Parser(tokens)
@@ -68,6 +70,8 @@ def run():
 
         if error:
             print(error.as_string())
+        elif error is None: # this is a hacky/horrible way to handle comments, but it works for now
+            continue
         elif result:
             if len(result.elements) == 1:
                 print(repr(result.elements[0]))
