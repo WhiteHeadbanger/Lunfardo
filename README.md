@@ -141,15 +141,15 @@ Un curro es un laburo pre-definido.
 - `linpiavidrios()`  
     Limpia la pantalla para linux
 - `es_num(<identificador | valor>)`  
-    Devuelve 1 si es un numero, 0 si es falso
+    Devuelve `posta` si es un numero, `trucho` si no lo es.
 - `es_chamu(<identificador | valor>)`  
-    Devuelve 1 si es un chamuyo, 0 si es falso
+    Devuelve `posta` si es un chamuyo, `trucho` si no lo es.
 - `es_coso(<identificador | valor>)`  
-    Devuelve 1 si es un coso, 0 si es falso
+    Devuelve `posta` si es un coso, `trucho` si no lo es.
 - `es_mataburros(<identificador | valor>)`  
-    Devuelve 1 si es un mataburros, 0 si es falso
+    Devuelve `posta` si es un mataburros, `trucho` si no lo es.
 - `es_laburo(<identificador | valor>)`  
-    Devuelve 1 si es un laburo, 0 si es falso
+    Devuelve `posta` si es un laburo, `trucho` si no lo es.
 - `guardar(<coso>, <valor>)`  
     Guarda un valor en un coso
 - `sacar(<coso>, <indice>)`  
@@ -170,7 +170,7 @@ Un curro es un laburo pre-definido.
 - `borra_de(<mataburros>, <clave>)`  
     Borra una clave de un mataburros.
 - `existe_clave(<mataburros>, <clave>)`  
-    Devuelve 1 si la clave existe en el mataburros, 0 si no.
+    Devuelve `posta` si la clave existe en el mataburros, `trucho` si no.
 - `num(<identificador | valor>)`  
     Convierte un chamuyo a numero
 - `chamu(<identificador | valor>)`  
