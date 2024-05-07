@@ -1,11 +1,10 @@
 from .value import Value
 from .numero import Numero
-from .chamuyo import Chamuyo
+from .boolean import Boolean
 from errors import RTError
 
 from typing import List
 
-# to avoid override List python type
 class Coso(Value):
 
     def __init__(self, elements: List):
@@ -84,8 +83,8 @@ class Coso(Value):
                 
             return new_list, None
         
-        else:
-            return None, Value.illegal_operation(self, other)
+        
+        return None, Value.illegal_operation(self, other)
     
     def divided_by(self, other):
         """  with int -> return element at index <int> """
@@ -100,8 +99,7 @@ class Coso(Value):
                     self.context
                 )
         
-        else:
-            return None, Value.illegal_operation(self, other)
+        return None, Value.illegal_operation(self, other)
         
     def copy(self):
         copy = Coso(self.elements)
@@ -110,7 +108,7 @@ class Coso(Value):
         return copy
     
     def is_true(self):
-        return len(self.elements) > 0
+        return Boolean(len(self.elements) > 0).set_context(self.context), None
     
     def __str__(self):
         return f'{self.elements}'

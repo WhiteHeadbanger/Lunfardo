@@ -67,7 +67,7 @@ class Laburo(BaseLaburo):
         self.should_auto_return = should_auto_return
 
     def execute(self, args, current_context):
-        from .numero import Numero
+        from . import Nada
         res = RTResult()
         # Cada vez que creamos una nueva funcion, es necesario crear un nuevo contexto con una nueva symbol table, que son destruidos una vez que la funcion retorna.
         interpreter = Interpreter()
@@ -82,7 +82,7 @@ class Laburo(BaseLaburo):
         if res.should_return() and res.func_return_value is None:
             return res
         
-        return_value = (value if self.should_auto_return else None) or res.func_return_value or Numero.nada
+        return_value = (value if self.should_auto_return else None) or res.func_return_value or Nada.nada
         return res.success(return_value)
     
     def copy(self):
@@ -207,7 +207,7 @@ class Curro(BaseLaburo):
     exec_num.arg_names = ['value']
     
     def exec_matear(self, exec_ctx):
-        from . import Numero, Coso, Mataburros
+        from . import Coso, Mataburros, Nada
         value = exec_ctx.symbol_table.get('value')
         if value is not None:
             if isinstance(value, (Coso, Mataburros)):
@@ -216,7 +216,7 @@ class Curro(BaseLaburo):
                 print(value.value)
         else:
             print()
-        return RTResult().success(Numero.nada)
+        return RTResult().success(Nada.nada)
     
     exec_matear.arg_names = ['value']
     
@@ -234,49 +234,49 @@ class Curro(BaseLaburo):
     exec_morfar.arg_names = ['value']
 
     def exec_limpiavidrios(self, exec_ctx):
-        from . import Numero
+        from . import Nada
         os.system('cls' if os.name == 'nt' else 'clear')
-        return RTResult().success(Numero.nada)
+        return RTResult().success(Nada.nada)
     
     exec_limpiavidrios.arg_names = []
     
     def exec_es_num(self, exec_ctx):
-        from . import Numero
+        from . import Boolean, Numero
         is_number = isinstance(exec_ctx.symbol_table.get('value'), Numero)
-        return RTResult().success(Numero.posta if is_number else Numero.trucho)
+        return RTResult().success(Boolean.posta if is_number else Boolean.trucho)
     
     exec_es_num.arg_names = ['value']
     
     def exec_es_chamu(self, exec_ctx):
-        from . import Numero, Chamuyo
+        from . import Boolean, Chamuyo
         is_string = isinstance(exec_ctx.symbol_table.get('value'), Chamuyo)
-        return RTResult().success(Numero.posta if is_string else Numero.trucho)
+        return RTResult().success(Boolean.posta if is_string else Boolean.trucho)
     
     exec_es_chamu.arg_names = ['value']
     
     def exec_es_coso(self, exec_ctx):
-        from . import Numero, Coso
+        from . import Boolean, Coso
         is_list = isinstance(exec_ctx.symbol_table.get('value'), Coso)
-        return RTResult().success(Numero.posta if is_list else Numero.trucho)
+        return RTResult().success(Boolean.posta if is_list else Boolean.trucho)
     
     exec_es_coso.arg_names = ['value']
     
     def exec_es_laburo(self, exec_ctx):
-        from . import Numero
+        from . import Boolean
         is_func = isinstance(exec_ctx.symbol_table.get('value'), BaseLaburo)
-        return RTResult().success(Numero.posta if is_func else Numero.trucho)
+        return RTResult().success(Boolean.posta if is_func else Boolean.trucho)
     
     exec_es_laburo.arg_names = ['value']
     
     def exec_es_mataburros(self, exec_ctx):
-        from . import Numero, Mataburros
+        from . import Boolean, Mataburros
         is_dict = isinstance(exec_ctx.symbol_table.get('value'), Mataburros)
-        return RTResult().success(Numero.posta if is_dict else Numero.trucho)
+        return RTResult().success(Boolean.posta if is_dict else Boolean.trucho)
     
     exec_es_mataburros.arg_names = ['value']
     
     def exec_guardar(self, exec_ctx):
-        from . import Numero, Coso
+        from . import Nada, Coso
         list_ = exec_ctx.symbol_table.get('list')
         value = exec_ctx.symbol_table.get('value')
 
@@ -289,12 +289,12 @@ class Curro(BaseLaburo):
             ))
         
         list_.elements.append(value)
-        return RTResult().success(Numero.nada)
+        return RTResult().success(Nada.nada)
     
     exec_guardar.arg_names = ['list', 'value']
 
     def exec_insertar(self, exec_ctx):
-        from . import Coso, Numero
+        from . import Coso, Numero, Nada
         list_ = exec_ctx.symbol_table.get('list')
         index = exec_ctx.symbol_table.get('index')
         value = exec_ctx.symbol_table.get('value')
@@ -325,12 +325,12 @@ class Curro(BaseLaburo):
                 exec_ctx
             ))
 
-        return RTResult().success(Numero.nada)
+        return RTResult().success(Nada.nada)
     
     exec_insertar.arg_names = ['list', 'index', 'value']
 
     def exec_cambiaso(self, exec_ctx):
-        from . import Coso, Numero
+        from . import Coso, Numero, Nada
         list_ = exec_ctx.symbol_table.get('list')
         index = exec_ctx.symbol_table.get('index')
         value = exec_ctx.symbol_table.get('value')
@@ -361,7 +361,7 @@ class Curro(BaseLaburo):
                 exec_ctx
             ))
         
-        return RTResult().success(Numero.nada)
+        return RTResult().success(Nada.nada)
         
     exec_cambiaso.arg_names = ['list', 'index', 'value']
     
@@ -401,7 +401,7 @@ class Curro(BaseLaburo):
     exec_sacar.arg_names = ['list', 'index']
 
     def exec_extender(self, exec_ctx):
-        from . import Numero, Coso
+        from . import Nada, Coso
         listA = exec_ctx.symbol_table.get('listA')
         listB = exec_ctx.symbol_table.get('listB')
 
@@ -423,12 +423,12 @@ class Curro(BaseLaburo):
         
         listA.elements.extend(listB.elements)
 
-        return RTResult().success(Numero.nada)
+        return RTResult().success(Nada.nada)
 
     exec_extender.arg_names = ['listA', 'listB']
 
     def exec_agarra_de(self, exec_ctx):
-        from . import Chamuyo, Numero, Mataburros
+        from . import Chamuyo, Numero, Mataburros, Nada
         dict_ = exec_ctx.symbol_table.get('dict')
         key = exec_ctx.symbol_table.get('key')
 
@@ -452,12 +452,12 @@ class Curro(BaseLaburo):
             if dictkey.value == key.value:
                 return RTResult().success(dict_.values[i])
         
-        return RTResult().success(Numero.nada)
+        return RTResult().success(Nada.nada)
 
     exec_agarra_de.arg_names = ['dict', 'key']
 
     def exec_metele_en(self, exec_ctx):
-        from . import Chamuyo, Numero, Mataburros
+        from . import Chamuyo, Numero, Mataburros, Nada
         dict_ = exec_ctx.symbol_table.get('dict')
         key = exec_ctx.symbol_table.get('key')
         value = exec_ctx.symbol_table.get('value')
@@ -481,16 +481,16 @@ class Curro(BaseLaburo):
         for i, dictkey in enumerate(dict_.keys):
             if dictkey.value == key.value:
                 dict_.values[i] = value
-                return RTResult().success(Numero.nada)
+                return RTResult().success(Nada.nada)
             
         dict_.keys.append(key)
         dict_.values.append(value)
-        return RTResult().success(Numero.nada)
+        return RTResult().success(Nada.nada)
             
     exec_metele_en.arg_names = ['dict', 'key', 'value']
 
     def exec_borra_de(self, exec_ctx):
-        from . import Chamuyo, Numero, Mataburros
+        from . import Chamuyo, Numero, Mataburros, Nada
         dict_ = exec_ctx.symbol_table.get('dict')
         key = exec_ctx.symbol_table.get('key')
 
@@ -514,7 +514,7 @@ class Curro(BaseLaburo):
             if dictkey.value == key.value:
                 del dict_.keys[i]
                 del dict_.values[i]
-                return RTResult().success(Numero.nada)
+                return RTResult().success(Nada.nada)
             
         return RTResult().failure(RTError(
                 self.pos_start,
@@ -526,7 +526,7 @@ class Curro(BaseLaburo):
     exec_borra_de.arg_names = ['dict', 'key']
 
     def exec_existe_clave(self, exec_ctx):
-        from . import Chamuyo, Numero, Mataburros, Laburo, Curro
+        from . import Chamuyo, Numero, Mataburros, Laburo, Curro, Nada, Boolean
         dict_ = exec_ctx.symbol_table.get('dict')
         key = exec_ctx.symbol_table.get('key')
 
@@ -548,14 +548,14 @@ class Curro(BaseLaburo):
         
         for _, dictkey in enumerate(dict_.keys):
             if dictkey.value == key.value:
-                return RTResult().success(Numero.posta)
+                return RTResult().success(Boolean.posta)
         
-        return RTResult().success(Numero.nada)
+        return RTResult().success(Nada.nada)
     
     exec_existe_clave.arg_names = ['dict', 'key']
 
     def exec_longitud(self, exec_ctx):
-        from . import Numero, Coso, Mataburros, Chamuyo
+        from . import Numero, Coso, Mataburros, Chamuyo, Nada
         arg = exec_ctx.symbol_table.get('arg')
 
         if not isinstance(arg, (Coso, Mataburros, Chamuyo)):
@@ -575,12 +575,12 @@ class Curro(BaseLaburo):
         if isinstance(arg, Coso):
             return RTResult().success(Numero(len(arg.elements)))
         
-        return RTResult().success(Numero.nada)
+        return RTResult().success(Nada.nada)
         
     exec_longitud.arg_names = ['arg']
 
     def exec_ejecutar(self, exec_ctx):
-        from . import Chamuyo, Numero
+        from . import Chamuyo, Nada
         fn = exec_ctx.symbol_table.get('fn')
 
         if not isinstance(fn, Chamuyo):
@@ -620,7 +620,7 @@ class Curro(BaseLaburo):
                 exec_ctx
             ))
         
-        return RTResult().success(Numero.nada)
+        return RTResult().success(Nada.nada)
 
     exec_ejecutar.arg_names = ['fn']
 

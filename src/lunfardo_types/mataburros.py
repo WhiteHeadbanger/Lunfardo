@@ -1,5 +1,5 @@
-from errors import RTError
 from .value import Value
+from .boolean import Boolean
 
 class Mataburros(Value):
 
@@ -15,7 +15,7 @@ class Mataburros(Value):
         return copy
     
     def is_true(self):
-        return len(self.keys) and len(self.values) > 0
+        return Boolean(len(self.keys) > 0 and len(self.values) > 0).set_context(self.context), None
     
     def __str__(self):
         return f'{{{", ".join([f"{k}: {v}" for k, v in zip(self.keys, self.values)])}}}'

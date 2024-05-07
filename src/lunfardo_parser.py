@@ -163,7 +163,7 @@ class Parser:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start,
                 self.current_tok.pos_end,
-                "Se esperaba 'devolver', 'continuar', 'rajar', 'poneleque', 'si', 'para', 'mientras', 'laburo', int, float, identifier, '+', '-', '(', '[' ó 'truchar'"
+                "Se esperaba 'devolver', 'continuar', 'rajar', 'poneleque', 'si', 'para', 'mientras', 'laburo', numero, identificador, '+', '-', '(', '[' ó 'truchar'"
             ))
         
         return res.success(expr)
@@ -196,7 +196,7 @@ class Parser:
                     return res.failure(InvalidSyntaxError(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
-                        "Se esperaba ')', 'poneleque', 'si', 'para', 'mientras', 'laburo', int, float, identifier, '+', '-', '(', '[' ó 'truchar'"
+                        "Se esperaba ')', 'poneleque', 'si', 'para', 'mientras', 'laburo', numero, identificador, '+', '-', '(', '[' ó 'truchar'"
                     ))
                 
                 while self.current_tok.type == TT_COMMA:
@@ -362,7 +362,7 @@ class Parser:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start,
                 self.current_tok.pos_end,
-                "Se esperaba int, float, identifier, '+', '-', '(', '[' ó truchar'"
+                "Se esperaba numero, identificador, '+', '-', '(', '[' ó truchar'"
             ))
         
         return res.success(node)
@@ -398,7 +398,7 @@ class Parser:
                 return res.failure(InvalidSyntaxError(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
-                    "Se esperaba ']', 'poneleque', 'si', 'para', 'mientras', 'laburo', int, float, identifier, '+', '-', '(', '[' ó 'truchar'"
+                    "Se esperaba ']', 'poneleque', 'si', 'para', 'mientras', 'laburo', numero, identificador, '+', '-', '(', '[' ó 'truchar'"
                 ))
             
             while self.current_tok.type == TT_COMMA:

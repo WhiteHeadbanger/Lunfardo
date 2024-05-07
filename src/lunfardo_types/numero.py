@@ -1,5 +1,6 @@
 from errors import RTError
 from .value import Value
+from .boolean import Boolean
 
 class Numero(Value):
 
@@ -11,19 +12,19 @@ class Numero(Value):
         if isinstance(other, Numero):
             return Numero(self.value + other.value).set_context(self.context), None
         
-        return None, Value.illegal_operation(self.pos_start, other.pos_end)
+        return None, Value.illegal_operation(self, other)
     
     def subtracted_by(self, other):
         if isinstance(other, Numero):
             return Numero(self.value - other.value).set_context(self.context), None
         
-        return None, Value.illegal_operation(self.pos_start, other.pos_end)
+        return None, Value.illegal_operation(self, other)
     
     def multiplied_by(self, other):
         if isinstance(other, Numero):
             return Numero(self.value * other.value).set_context(self.context), None
         
-        return None, Value.illegal_operation(self.pos_start, other.pos_end)
+        return None, Value.illegal_operation(self, other)
     
     def divided_by(self, other):
         if isinstance(other, Numero):
@@ -36,69 +37,69 @@ class Numero(Value):
                 )
             return Numero(self.value / other.value).set_context(self.context), None 
         
-        return None, Value.illegal_operation(self.pos_start, other.pos_end)
+        return None, Value.illegal_operation(self, other)
     
     def powered_by(self, other):
         if isinstance(other, Numero):
             return Numero(self.value ** other.value).set_context(self.context), None
     
-        return None, Value.illegal_operation(self.pos_start, other.pos_end)
+        return None, Value.illegal_operation(self, other)
     
     def get_comparison_eq(self, other):
-        if isinstance(other, Numero):
-            return Numero(int(self.value == other.value)).set_context(self.context), None
+        if isinstance(other, (Numero, Boolean)):
+            return Boolean(self.value == other.value).set_context(self.context), None
     
-        return None, Value.illegal_operation(self.pos_start, other.pos_end)
+        return None, Value.illegal_operation(self, other)
     
     def get_comparison_ne(self, other):
-        if isinstance(other, Numero):
-            return Numero(int(self.value != other.value)).set_context(self.context), None
+        if isinstance(other, (Numero, Boolean)):
+            return Boolean(self.value != other.value).set_context(self.context), None
     
-        return None, Value.illegal_operation(self.pos_start, other.pos_end)
+        return None, Value.illegal_operation(self, other)
     
     def get_comparison_lt(self, other):
         if isinstance(other, Numero):
-            return Numero(int(self.value < other.value)).set_context(self.context), None
+            return Boolean(self.value < other.value).set_context(self.context), None
     
-        return None, Value.illegal_operation(self.pos_start, other.pos_end)
+        return None, Value.illegal_operation(self, other)
     
     def get_comparison_gt(self, other):
         if isinstance(other, Numero):
-            return Numero(int(self.value > other.value)).set_context(self.context), None
+            return Boolean(self.value > other.value).set_context(self.context), None
     
-        return None, Value.illegal_operation(self.pos_start, other.pos_end)
+        return None, Value.illegal_operation(self, other)
     
     def get_comparison_lte(self, other):
         if isinstance(other, Numero):
-            return Numero(int(self.value <= other.value)).set_context(self.context), None
+            return Boolean(self.value <= other.value).set_context(self.context), None
     
-        return None, Value.illegal_operation(self.pos_start, other.pos_end)
+        return None, Value.illegal_operation(self, other)
     
     def get_comparison_gte(self, other):
         if isinstance(other, Numero):
-            return Numero(int(self.value >= other.value)).set_context(self.context), None
+            return Boolean(self.value >= other.value).set_context(self.context), None
     
-        return None, Value.illegal_operation(self.pos_start, other.pos_end)
+        return None, Value.illegal_operation(self, other)
     
     def anded_by(self, other):
-        if isinstance(other, Numero):
-            return Numero(int(self.value and other.value)).set_context(self.context), None
+        if isinstance(other, (Numero, Boolean)):
+            return Boolean(self.value and other.value).set_context(self.context), None
     
-        return None, Value.illegal_operation(self.pos_start, other.pos_end)
+        return None, Value.illegal_operation(self, other)
     
     def ored_by(self, other):
-        if isinstance(other, Numero):
-            return Numero(int(self.value or other.value)).set_context(self.context), None
+        if isinstance(other, (Numero, Boolean)):
+            return Boolean(self.value or other.value).set_context(self.context), None
     
-        return None, Value.illegal_operation(self.pos_start, other.pos_end)
+        return None, Value.illegal_operation(self, other)
     
+    #Deprecated. There's Posta and Trucho boolean types now, instead of just numbers so it doesn't make sense to have this method.
     def notted(self):
         if isinstance(self, Numero):
-            return Numero(1 if self.value == 0 else 0).set_context(self.context), None
-            #return Numero(not self.value).set_context(self.context), None
+            return Boolean(not self.value).set_context(self.context), None
     
     def is_true(self):
-        return self.value != 0
+        return Boolean(self.value != 0).set_context(self.context), None
     
     def copy(self):
         copy = Numero(self.value)
@@ -111,8 +112,3 @@ class Numero(Value):
     
     def __repr__(self):
         return str(self.value)
-
-#TODO hacer esto de una mejor forma 
-Numero.nada = Numero(0)
-Numero.trucho = Numero(0)
-Numero.posta = Numero(1)
