@@ -38,7 +38,9 @@ Nota: los `[]` significa que es un parámetro opcional.
 
 - `Numero`: _entero_ | _float_  
 Ej: `1`, `1.5`
-- `Boolean`:  = `posta` | `trucho`
+- `Chamuyo`: _string_  
+Ej: `"Hola Argentina!"`
+- `Boolean`: _bool_ = `posta` | `trucho`
 - `Nada`: _null_ = `nada`
 
 ## Variables
@@ -338,9 +340,20 @@ mientras posta entonces
 chau
 ```
 
+# Quiero contribuir!
+
+Se acepta todo tipo de sugerencias y pull requests. Si tenés alguna idea, o si lo probaste y te encontraste con [muchos bugs](https://www.youtube.com/watch?v=SiMHTK15Pik):
+
+1. Forkeá el proyecto
+2. Codeá tu código lindis
+3. Hacé un pull request
+
+Si tenés alguna idea pero no tenés código, o por la razón que sea no podés contribuir de esa manera, podés abrir un Issue.
+
+También recibo mensajes de correo electrónico en: sebastianper2018@gmail.com con ideas, sugerencias y preguntas.
+
 # Siguientes pasos
 
-- Importar archivos de código.
-- Más tipos de errores, como errores que comprueben tipos de dato.
-- OOP, herencia.
-- Que el lenguaje valide a `Numero` hace que programar sea más complicado. El tipo de dato `nada` debería ser un dato a parte, en lugar de ser `0`. Lo mismo con `posta` y `trucho`.
+- [] Importar archivos de código. 
+- [] Más tipos de errores, como errores que comprueben tipos de dato.
+- [] OOP, herencia.
