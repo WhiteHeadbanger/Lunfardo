@@ -32,20 +32,19 @@ el método `exec_ejecutar()` en donde se comprueba esta ruta.
 
 # Características
 
-## Tipos de dato
+Nota: los `[]` significa que es un parámetro opcional.
 
-Todos los tipos de dato validan a Numero y devuelven un número, por ejemplo si escribimos en el intérprete: `trucho` devolverá `0`.
+## Tipos de dato
 
 - `Numero`: _entero_ | _float_  
 Ej: `1`, `1.5`
-- `trucho`: _entero_ = `0`
-- `nada`: _entero_ = `0`
-- `posta`: _entero != 0_ = `n > 0`
+- `Boolean`:  = `posta` | `trucho`
+- `Nada`: _null_ = `nada`
 
 ## Variables
 
-- `poneleque <identificador> = <valor>`  
-    Ej: `poneleque numero = 10`
+- `poneleque <identificador> = <expresión> | <valor>`  
+    Ej: `poneleque numero = 10`, `poneleque variable = (10 + 10) y trucho`
 
 ## Estructuras de datos
 
@@ -72,11 +71,11 @@ Ej: `poneleque dict = {"1": 1, 2: "dos", var: otra_var}`
 ### Operadores lógicos
 
 - `y`  
-    Ej: `poneleque valor = 10 y 10`
+    Ej: `poneleque valor = 10 y 10` -> retorna: `posta`
 - `o`  
-    Ej: `poneleque valor = 10 o 10`
+    Ej: `poneleque valor = 10 o 10` -> retorna: `posta`
 - `truchar`  
-    Ej: `poneleque valor = truchar 10`
+    Ej: `poneleque valor = truchar 10 == 10` -> retorna: `trucho` porque `10 == 10` es `posta`. 
 
 ### Operadores de asignación
 
@@ -123,7 +122,7 @@ Las funciones se pueden referenciar.
 
 ### Laburos
 
-- `laburo [<identificador>]([identificador[, identificador]]): <sentencia> chau`
+- `laburo <identificador>([identificador[, identificador]]): <sentencia> chau`
 
 Laburos definidos por el usuario.
 
