@@ -1,14 +1,14 @@
 from lexer import Lexer
 from lunfardo_parser import Parser
-from lunfardo_types import Numero, Curro, Posta, Trucho, Nada
+from lunfardo_types import Curro, Boolean, Nada
 from interpreter import Interpreter, SymbolTable
 from context import Context
 
 global_symbol_table = SymbolTable()
 # Bools and null
-global_symbol_table.set("nada", Nada.nada) #null, none
-global_symbol_table.set("posta", Posta.posta) #true
-global_symbol_table.set("trucho", Trucho.trucho) #false
+global_symbol_table.set("nada", Nada.nada)
+global_symbol_table.set("posta", Boolean.posta)
+global_symbol_table.set("trucho", Boolean.trucho)
 # I/O
 global_symbol_table.set("matear", Curro.matear)
 global_symbol_table.set("morfar", Curro.morfar)

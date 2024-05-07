@@ -67,7 +67,7 @@ class Laburo(BaseLaburo):
         self.should_auto_return = should_auto_return
 
     def execute(self, args, current_context):
-        from . import Nada, Numero
+        from . import Nada
         res = RTResult()
         # Cada vez que creamos una nueva funcion, es necesario crear un nuevo contexto con una nueva symbol table, que son destruidos una vez que la funcion retorna.
         interpreter = Interpreter()
@@ -241,37 +241,37 @@ class Curro(BaseLaburo):
     exec_limpiavidrios.arg_names = []
     
     def exec_es_num(self, exec_ctx):
-        from . import Posta, Trucho, Numero
+        from . import Boolean, Numero
         is_number = isinstance(exec_ctx.symbol_table.get('value'), Numero)
-        return RTResult().success(Posta.posta if is_number else Trucho.trucho)
+        return RTResult().success(Boolean.posta if is_number else Boolean.trucho)
     
     exec_es_num.arg_names = ['value']
     
     def exec_es_chamu(self, exec_ctx):
-        from . import Posta, Trucho, Chamuyo
+        from . import Boolean, Chamuyo
         is_string = isinstance(exec_ctx.symbol_table.get('value'), Chamuyo)
-        return RTResult().success(Posta.posta if is_string else Trucho.trucho)
+        return RTResult().success(Boolean.posta if is_string else Boolean.trucho)
     
     exec_es_chamu.arg_names = ['value']
     
     def exec_es_coso(self, exec_ctx):
-        from . import Posta, Trucho, Coso
+        from . import Boolean, Coso
         is_list = isinstance(exec_ctx.symbol_table.get('value'), Coso)
-        return RTResult().success(Posta.posta if is_list else Trucho.trucho)
+        return RTResult().success(Boolean.posta if is_list else Boolean.trucho)
     
     exec_es_coso.arg_names = ['value']
     
     def exec_es_laburo(self, exec_ctx):
-        from . import Posta, Trucho
+        from . import Boolean
         is_func = isinstance(exec_ctx.symbol_table.get('value'), BaseLaburo)
-        return RTResult().success(Posta.posta if is_func else Trucho.trucho)
+        return RTResult().success(Boolean.posta if is_func else Boolean.trucho)
     
     exec_es_laburo.arg_names = ['value']
     
     def exec_es_mataburros(self, exec_ctx):
-        from . import Posta, Trucho, Mataburros
+        from . import Boolean, Mataburros
         is_dict = isinstance(exec_ctx.symbol_table.get('value'), Mataburros)
-        return RTResult().success(Posta.posta if is_dict else Trucho.trucho)
+        return RTResult().success(Boolean.posta if is_dict else Boolean.trucho)
     
     exec_es_mataburros.arg_names = ['value']
     
@@ -526,7 +526,7 @@ class Curro(BaseLaburo):
     exec_borra_de.arg_names = ['dict', 'key']
 
     def exec_existe_clave(self, exec_ctx):
-        from . import Chamuyo, Numero, Mataburros, Laburo, Curro, Nada, Posta
+        from . import Chamuyo, Numero, Mataburros, Laburo, Curro, Nada, Boolean
         dict_ = exec_ctx.symbol_table.get('dict')
         key = exec_ctx.symbol_table.get('key')
 
@@ -548,7 +548,7 @@ class Curro(BaseLaburo):
         
         for _, dictkey in enumerate(dict_.keys):
             if dictkey.value == key.value:
-                return RTResult().success(Posta.posta)
+                return RTResult().success(Boolean.posta)
         
         return RTResult().success(Nada.nada)
     

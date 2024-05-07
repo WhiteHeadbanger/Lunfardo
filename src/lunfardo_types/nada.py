@@ -6,6 +6,20 @@ class Nada(Value):
         super().__init__()
         self.value = value
 
+    def get_comparison_eq(self, other):
+        from . import Numero, Chamuyo, Nada, Boolean
+        if isinstance(other, (Numero, Boolean, Chamuyo, Nada)):
+            return Boolean(self.value == other.value).set_context(self.context), None
+    
+        return None, Value.illegal_operation(self, other)
+    
+    def get_comparison_ne(self, other):
+        from . import Numero, Chamuyo, Nada, Boolean
+        if isinstance(other, (Numero, Boolean, Chamuyo, Nada)):
+            return Boolean(self.value != other.value).set_context(self.context), None
+    
+        return None, Value.illegal_operation(self, other)
+
     def __str__(self):
         return "nada"
     

@@ -5,46 +5,38 @@ class Boolean(Value):
     def __init__(self, value):
         super().__init__()
         self.value = value
-    
-class Posta(Boolean):
 
-    def __init__(self, value):
-        super().__init__(value)
+    def get_comparison_eq(self, other):
+        from . import Numero, Chamuyo, Nada
+        if isinstance(other, (Numero, Boolean, Chamuyo, Nada)):
+            return Boolean(self.value == other.value).set_context(self.context), None
+    
+        return None, Value.illegal_operation(self, other)
+    
+    def get_comparison_ne(self, other):
+        from . import Numero, Chamuyo, Nada
+        if isinstance(other, (Numero, Boolean, Chamuyo, Nada)):
+            return Boolean(self.value != other.value).set_context(self.context), None
+    
+        return None, Value.illegal_operation(self, other)
+    
+    def notted(self):
+        return Boolean(not self.value).set_context(self.context), None
 
-    def __str__(self):
-        return "posta"
-    
-    def __repr__(self):
-        return "posta"
-    
     def is_true(self):
-        return True
-    
+        return self.value
+
     def copy(self):
-        copy = Posta(self.value)
+        copy = Boolean(self.value)
         copy.set_pos(self.pos_start, self.pos_end)
         copy.set_context(self.context)
         return copy
     
-class Trucho(Boolean):
-
-    def __init__(self, value):
-        super().__init__(value)
-
     def __str__(self):
-        return "trucho"
+        return "posta" if self.value else "trucho"
     
     def __repr__(self):
-        return "trucho"
+        return "posta" if self.value else "trucho"
     
-    def is_true(self):
-        return False
-    
-    def copy(self):
-        copy = Trucho(self.value)
-        copy.set_pos(self.pos_start, self.pos_end)
-        copy.set_context(self.context)
-        return copy
-    
-Posta.posta = Posta(True)
-Trucho.trucho = Trucho(False)
+Boolean.posta = Boolean(True)
+Boolean.trucho = Boolean(False)

@@ -1,6 +1,6 @@
 from .value import Value
 from .numero import Numero
-from .boolean import Posta, Trucho
+from .boolean import Boolean
 from errors import RTError
 
 from typing import List
@@ -108,10 +108,7 @@ class Coso(Value):
         return copy
     
     def is_true(self):
-        if len(self.elements) > 0:
-            return Posta(True).set_context(self.context), None
-
-        return Trucho(False).set_context(self.context), None
+        return Boolean(len(self.elements) > 0).set_context(self.context), None
     
     def __str__(self):
         return f'{self.elements}'
