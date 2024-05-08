@@ -79,13 +79,16 @@ class Parser:
             self.current_tok = self.tokens[self.tok_idx]
     
     def parse(self):
+        if self.current_tok.type == TT_EOF:
+            return None, True
+        
         res = self.statements()
         if not res.error and self.current_tok.type != TT_EOF:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start, 
                 self.current_tok.pos_end, 
                 "Se esperaba '+', '-', '*', '/', '^', '==', '!=', '<', '>', '<=', '>=', 'y' ó 'o'"))
-        return res
+        return res, False
     # MARK: Parser.statements
     def statements(self):
         res = ParseResult()
