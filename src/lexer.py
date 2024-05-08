@@ -223,5 +223,3 @@ class Lexer:
 
         while self.current_char not in ('\n', None):
             self.advance()
-    
-        return None, None
