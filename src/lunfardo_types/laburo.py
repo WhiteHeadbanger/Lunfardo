@@ -15,7 +15,7 @@ class BaseLaburo(Value):
         new_context.symbol_table = SymbolTable(new_context.parent.symbol_table)
         return new_context
     
-    def check_args(self, arg_names, args):
+    def check_args(self, arg_names, args, arg_values = None):
         res = RTResult()
 
         if args:
@@ -47,9 +47,13 @@ class BaseLaburo(Value):
             arg_value.set_context(exec_ctx)
             exec_ctx.symbol_table.set(arg_name, arg_value)
 
-    def check_and_populate_args(self, arg_names, args, exec_ctx):
+    def check_and_populate_args(self, arg_names, args, exec_ctx, arg_values = None):
         res = RTResult()
-        res.register(self.check_args(arg_names, args))
+
+        if arg_values is None:
+            res.register(self.check_args(arg_names, args))
+        else:
+            res.register(self.check_args(arg_names, arg_values, args)) #checkear esto
         
         if res.should_return():
             return res
@@ -60,10 +64,11 @@ class BaseLaburo(Value):
 
 class Laburo(BaseLaburo):
 
-    def __init__(self, name, body_node, arg_names, should_auto_return):
+    def __init__(self, name, body_node, arg_names, arg_values, should_auto_return):
         super().__init__(name)
         self.body_node = body_node
         self.arg_names = arg_names
+        self.arg_values = arg_values
         self.should_auto_return = should_auto_return
 
     def execute(self, args, current_context):
@@ -73,7 +78,7 @@ class Laburo(BaseLaburo):
         interpreter = Interpreter()
         execution_context = self.generate_new_context()
 
-        res.register(self.check_and_populate_args(self.arg_names, args, execution_context))
+        res.register(self.check_and_populate_args(self.arg_names, args, execution_context, self.arg_values))
         
         if res.should_return():
             return res

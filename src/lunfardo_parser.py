@@ -901,12 +901,31 @@ class Parser:
         
         res.register_advance()
         self.advance()
-        arg_name_toks = []
+        
+        arg_name_and_values = {}
 
         if self.current_tok.type == TT_IDENTIFIER:
-            arg_name_toks.append(self.current_tok)
+            arg_name_tok = self.current_tok
+            
             res.register_advance()
             self.advance()
+            
+            if self.current_tok.type == TT_EQ:
+                res.register_advance()
+                self.advance()
+
+                value = res.register(self.expr())
+
+                if res.error:
+                    return res
+                
+                arg_name_and_values[arg_name_tok] = value
+
+                res.register_advance()
+                self.advance()
+
+            else:
+                arg_name_and_values[arg_name_tok] = None
 
             while self.current_tok.type == TT_COMMA:
                 res.register_advance()
@@ -919,9 +938,24 @@ class Parser:
                         "Se esperaba identificador"
                     ))
                 
-                arg_name_toks.append(self.current_tok)
+                arg_name_tok = self.current_tok
+                
                 res.register_advance()
                 self.advance()
+                
+                if self.current_tok.type == TT_EQ:
+                    res.register_advance()
+                    self.advance()
+
+                    value = res.register(self.expr())
+
+                    if res.error:
+                        return res
+                    
+                    arg_name_and_values[arg_name_tok] = value
+                
+                else:
+                    arg_name_and_values[arg_name_tok] = None
             
             if self.current_tok.type != TT_RPAREN:
                 return res.failure(InvalidSyntaxError(
@@ -954,7 +988,7 @@ class Parser:
             
             return res.success(LaburoDefNode(
                 var_name_tok,
-                arg_name_toks,
+                arg_name_and_values,
                 body,
                 True
             ))
@@ -985,7 +1019,7 @@ class Parser:
 
         return res.success(LaburoDefNode(
             var_name_tok,
-            arg_name_toks,
+            arg_name_and_values,
             body,
             False
         ))
