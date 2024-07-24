@@ -921,8 +921,8 @@ class Parser:
                 
                 arg_name_and_values[arg_name_tok] = value
 
-                res.register_advance()
-                self.advance()
+                #res.register_advance()
+                #self.advance()
 
             else:
                 arg_name_and_values[arg_name_tok] = None
