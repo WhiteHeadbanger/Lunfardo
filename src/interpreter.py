@@ -257,11 +257,21 @@ class Interpreter:
         from lunfardo_types import Laburo
         res = RTResult()
 
-        # si la funcion es anonima, func_name = None
         func_name = node.var_name_tok.value if node.var_name_tok else None
         body_node = node.body_node
-        arg_names = [arg_name.value for arg_name in node.arg_name_toks]
-        func_value = Laburo(func_name, body_node, arg_names, node.should_auto_return).set_context(context).set_pos(node.pos_start, node.pos_end)
+        arg_names = [arg_name.value for arg_name in node.arg_name_toks.keys()]
+        
+        # Evaluate default values
+        arg_values = []
+        for arg_value in node.arg_name_toks.values():
+            if arg_value:
+                evaluated_value = res.register(self.visit(arg_value, context))
+                if res.should_return(): return res
+                arg_values.append(evaluated_value)
+            else:
+                arg_values.append(None)
+
+        func_value = Laburo(func_name, body_node, arg_names, arg_values, node.should_auto_return).set_context(context).set_pos(node.pos_start, node.pos_end)
 
         if node.var_name_tok:
             context.symbol_table.set(func_name, func_value)

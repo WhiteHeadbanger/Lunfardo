@@ -57,7 +57,7 @@ while-expr      :       KEYWORD:MIENTRAS expr KEYWORD:ENTONCES expr
                 |       (NEWLINE statements KEYWORD:CHAU)
 
 func-def        :       KEYWORD:LABURO IDENTIFIER? 
-                        LPAREN (IDENTIFIER (COMMA IDENTIFIER)*)? RPAREN
+                        LPAREN (IDENTIFIER (EQ expr)? (COMMA IDENTIFIER (EQ expr)?)*)? RPAREN
                         (COLON expr)
                 |       (NEWLINE statements KEYWORD:CHAU)
 

@@ -15,55 +15,67 @@ class BaseLaburo(Value):
         new_context.symbol_table = SymbolTable(new_context.parent.symbol_table)
         return new_context
     
-    def check_args(self, arg_names, args):
+    def check_args(self, arg_names, args, arg_values = None):
         res = RTResult()
 
-        if args:
-            if len(args) > len(arg_names):
-                return res.failure(RTError(
-                    self.pos_start, 
-                    self.pos_end,
-                    f"demasiados argumentos pasados a '{self.name}'() (esperados {len(arg_names)}, recibidos {len(args)})",
-                    self.context
-                ))
-        
-        
-            if len(args) < len(arg_names):
+        if not arg_names:
+            return res.success(None)
+
+        if arg_values is None:
+            arg_values = [None] * len(arg_names)
+
+        if len(args) > len(arg_names):
+            return res.failure(RTError(
+                self.pos_start,
+                self.pos_end,
+                f"demasiados argumentos pasados a '{self.name}'() (esperados {len(arg_names)}, recibidos {len(args)})",
+                self.context
+            ))
+
+        if len(args) < len(arg_names):
+            if len(args) > len([arg_value for arg_value in arg_values if arg_value is None]):
                 return res.failure(RTError(
                     self.pos_start,
                     self.pos_end,
                     f"pocos argumentos pasados a '{self.name}'() (esperados {len(arg_names)}, recibidos {len(args)})",
                     self.context
                 ))
-        
+
         return res.success(None)
     
-    def populate_args(self, arg_names, args, exec_ctx):
-        if not args:
-            return
-        
-        for i, arg_name in enumerate(arg_names):
-            arg_value = args[i]
+    def populate_args(self, arg_names, args, exec_ctx, arg_values = None):
+        for i in range(len(arg_names)):
+            arg_name = arg_names[i]
+            if i < len(args):
+                arg_value = args[i]
+            else:
+                arg_value = arg_values[i]
+            
             arg_value.set_context(exec_ctx)
             exec_ctx.symbol_table.set(arg_name, arg_value)
 
-    def check_and_populate_args(self, arg_names, args, exec_ctx):
+    def check_and_populate_args(self, arg_names, args, exec_ctx, arg_values = None):
         res = RTResult()
-        res.register(self.check_args(arg_names, args))
+
+        if arg_values is None:
+            res.register(self.check_args(arg_names, args))
+        else:
+            res.register(self.check_args(arg_names, args, arg_values)) #checkear esto
         
         if res.should_return():
             return res
         
-        self.populate_args(arg_names, args, exec_ctx)
+        self.populate_args(arg_names, args, exec_ctx, arg_values)
 
         return res.success(None)
 
 class Laburo(BaseLaburo):
 
-    def __init__(self, name, body_node, arg_names, should_auto_return):
+    def __init__(self, name, body_node, arg_names, arg_values, should_auto_return):
         super().__init__(name)
         self.body_node = body_node
         self.arg_names = arg_names
+        self.arg_values = arg_values
         self.should_auto_return = should_auto_return
 
     def execute(self, args, current_context):
@@ -73,7 +85,7 @@ class Laburo(BaseLaburo):
         interpreter = Interpreter()
         execution_context = self.generate_new_context()
 
-        res.register(self.check_and_populate_args(self.arg_names, args, execution_context))
+        res.register(self.check_and_populate_args(self.arg_names, args, execution_context, self.arg_values))
         
         if res.should_return():
             return res
@@ -86,7 +98,7 @@ class Laburo(BaseLaburo):
         return res.success(return_value)
     
     def copy(self):
-        copy = Laburo(self.name, self.body_node, self.arg_names, self.should_auto_return)
+        copy = Laburo(self.name, self.body_node, self.arg_names, self.arg_values, self.should_auto_return)
         copy.set_context(self.context)
         copy.set_pos(self.pos_start, self.pos_end)
         return copy
