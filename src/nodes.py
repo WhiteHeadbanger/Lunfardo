@@ -135,7 +135,7 @@ class LaburoDefNode:
         if self.var_name_tok:
             self.pos_start = self.var_name_tok.pos_start
         elif len(self.arg_name_toks) > 0:
-            self.pos_start = self.arg_name_toks[0].pos_start
+            self.pos_start = list(self.arg_name_toks.keys())[0].pos_start
         else:
             self.pos_start = self.body_node.pos_start
 
