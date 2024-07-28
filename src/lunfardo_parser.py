@@ -243,6 +243,8 @@ class Parser:
         if tok.type == TT_IDENTIFIER:
             res.register_advance()
             self.advance()
+            if self.current_tok.type == TT_DOT:
+                return self.method_call_expr(tok)
             
             return res.success(PoneleQueAccessNode(tok))
         
@@ -315,10 +317,26 @@ class Parser:
             
             return res.success(func_def)
         
+        if tok.matches(TT_KEYWORD, 'cheto'):
+            class_def = res.register(self.class_def())
+
+            if res.error:
+                return res
+
+            return res.success(class_def)
+        
+        if tok.matches(TT_KEYWORD, 'nuevo'):
+            instance = res.register(self.instance_expr())
+
+            if res.error:
+                return res
+            
+            return res.success(instance)
+        
         return res.failure(InvalidSyntaxError(
             tok.pos_start,
             tok.pos_end,
-            "Se esperaba int, float, identifier, '+', '-', '(', '[', 'si', 'para', 'mientras' ó 'laburo'"
+            "Se esperaba int, float, identifier, '+', '-', '(', '[', 'si', 'para', 'mientras', 'laburo' ó 'cheto'"
         ))
    
     def power(self):
@@ -1024,6 +1042,141 @@ class Parser:
             False
         ))
     
+    def instance_expr(self):
+        res = ParseResult()
+        
+        if not self.current_tok.matches(TT_KEYWORD, 'nuevo'):
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                "Expected 'nuevo'"
+            ))
+
+        res.register_advance()
+        self.advance()
+
+        if self.current_tok.type != TT_IDENTIFIER:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                "Expected identifier"
+            ))
+
+        class_name = self.current_tok
+        res.register_advance()
+        self.advance()
+
+        return res.success(InstanceNode(class_name))
+
+    def class_def(self):
+        res = ParseResult()
+        
+        if not self.current_tok.matches(TT_KEYWORD, 'cheto'):
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                "Se esperaba 'cheto'"
+            ))
+
+        res.register_advance()
+        self.advance()
+
+        if self.current_tok.type != TT_IDENTIFIER:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                "Se esperaba nombre de cheto"
+            ))
+
+        class_name = self.current_tok
+        res.register_advance()
+        self.advance()
+
+        if self.current_tok.type != TT_NEWLINE:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                "Se esperaba nueva linea despues del nombre de cheto"
+            ))
+
+        methods = []
+        while self.current_tok.type == TT_NEWLINE:
+            res.register_advance()
+            self.advance()
+
+            if self.current_tok.matches(TT_KEYWORD, 'laburo'):
+                method = res.register(self.func_def())
+                if res.error: return res
+                methods.append(method)
+            elif self.current_tok.matches(TT_KEYWORD, 'chau'):
+                break
+            else:
+                return res.failure(InvalidSyntaxError(
+                    self.current_tok.pos_start, self.current_tok.pos_end,
+                    "Se esperaba 'laburo' o 'chau'"
+                ))
+
+        if not self.current_tok.matches(TT_KEYWORD, 'chau'):
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                "Se esperaba 'chau'"
+            ))
+
+        res.register_advance()
+        self.advance()
+
+        return res.success(ChetoDefNode(class_name, methods, None))
+    
+    def method_call_expr(self, object_tok):
+        res = ParseResult()
+
+        res.register_advance()
+        self.advance() # Consume the dot notation
+
+        if self.current_tok.type != TT_IDENTIFIER:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                "Se esperaba nombre de metodo"
+            ))
+
+        method_name = self.current_tok
+        res.register_advance()
+        self.advance()
+
+        if self.current_tok.type != TT_LPAREN:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                "Se esperaba '('"
+            ))
+
+        res.register_advance()
+        self.advance()
+        arg_nodes = []
+
+        if self.current_tok.type == TT_RPAREN:
+            res.register_advance()
+            self.advance()
+        else:
+            arg_nodes.append(res.register(self.expr()))
+            if res.error:
+                return res.failure(InvalidSyntaxError(
+                    self.current_tok.pos_start, self.current_tok.pos_end,
+                    "Se esperaba ')', 'poneleque', 'si', 'para', 'mientras', 'laburo', int, float, identifier, '+', '-', '(', '[' o 'truchar'"
+                ))
+
+            while self.current_tok.type == TT_COMMA:
+                res.register_advance()
+                self.advance()
+
+                arg_nodes.append(res.register(self.expr()))
+                if res.error: return res
+
+            if self.current_tok.type != TT_RPAREN:
+                return res.failure(InvalidSyntaxError(
+                    self.current_tok.pos_start, self.current_tok.pos_end,
+                    "Se esperaba ',' o ')'"
+                ))
+
+            res.register_advance()
+            self.advance()
+
+        return res.success(MethodCallNode(object_tok, method_name, arg_nodes))
+
     # MARK: Parse.expr
     def expr(self):
         res = ParseResult()

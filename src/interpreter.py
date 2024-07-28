@@ -278,6 +278,24 @@ class Interpreter:
         
         return res.success(func_value)
     
+    def visit_ChetoDefNode(self, node, context):
+        from lunfardo_types import Cheto
+        res = RTResult()
+
+        class_name = node.var_name_tok.value
+        methods = {}
+
+        for method_node in node.methods:
+            method_name = method_node.var_name_tok.value
+            method_value = res.register(self.visit(method_node, context))
+            if res.should_return(): return res
+            methods[method_name] = method_value
+
+        cheto_value = Cheto(class_name, methods)
+        context.symbol_table.set(class_name, cheto_value)
+
+        return res.success(cheto_value)
+    
     def visit_CallNode(self, node, context):
         res = RTResult()
         args = []
@@ -300,6 +318,64 @@ class Interpreter:
         return_value = return_value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
         
         return res.success(return_value)
+    
+    def visit_MethodCallNode(self, node, context):
+        from lunfardo_types import Cheto
+        from nodes import PoneleQueAccessNode
+
+        res = RTResult()
+
+        object_value = res.register(self.visit(PoneleQueAccessNode(node.object_tok), context))
+        if res.should_return(): return res
+
+        if not isinstance(object_value, Cheto):
+            return res.failure(RTError(
+                node.pos_start, node.pos_end,
+                f"'{node.object_tok.value}' no es un objeto cheto",
+                context
+            ))
+
+        method = object_value.methods.get(node.method_name_tok.value)
+        if not method:
+            return res.failure(RTError(
+                node.pos_start, node.pos_end,
+                f"'{node.method_name_tok.value}' no es un método de '{node.object_tok.value}'",
+                context
+            ))
+
+        args = []
+        for arg_node in node.arg_nodes:
+            args.append(res.register(self.visit(arg_node, context)))
+            if res.should_return(): return res
+
+        return_value = res.register(method.execute(args, context))
+        if res.should_return(): return res
+
+        return res.success(return_value)
+    
+    def visit_InstanceNode(self, node, context):
+        from lunfardo_types import Cheto
+        res = RTResult()
+
+        class_name = node.class_name_tok.value
+        class_value = context.symbol_table.get(class_name)
+
+        if not class_value:
+            return res.failure(RTError(
+                node.pos_start, node.pos_end,
+                f"La clase '{class_name}' no existe",
+                context
+            ))
+        
+        if not isinstance(class_value, Cheto):
+            return res.failure(RTError(
+                node.pos_start, node.pos_end,
+                f"'{class_name}' no es un objeto cheto",
+                context
+            ))
+        
+        instance = class_value.copy().set_context(context).set_pos(node.pos_start, node.pos_end)
+        return res.success(instance)
     
     def visit_DevolverNode(self, node, context):
         res = RTResult()

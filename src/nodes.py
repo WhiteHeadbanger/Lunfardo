@@ -144,6 +144,42 @@ class LaburoDefNode:
     def __repr__(self):
         return f'({self.var_name_tok}, {self.arg_name_toks}, {self.body_node})'
     
+class ChetoDefNode:
+    
+    def __init__(self, var_name_tok, methods, body_node):
+        self.var_name_tok = var_name_tok
+        self.methods = methods
+        self.body_node = body_node
+        self.pos_start = self.var_name_tok.pos_start
+        #self.pos_end = self.body_node.pos_end
+        self.pos_end = self.methods[len(self.methods) - 1].pos_end
+
+    def __repr__(self):
+        return f'{self.var_name_tok}, {self.methods})'
+    
+class MethodCallNode:
+
+    def __init__(self, object_tok, method_name_tok, arg_nodes):
+        self.object_tok = object_tok
+        self.method_name_tok = method_name_tok
+        self.arg_nodes = arg_nodes
+
+        self.pos_start = self.object_tok.pos_start
+        self.pos_end = (self.arg_nodes[-1].pos_end if self.arg_nodes else self.method_name_tok.pos_end)
+
+    def __repr__(self):
+        return f'MethodCallNode({self.object_tok}, {self.method_name_tok}, {self.arg_nodes})'
+    
+class InstanceNode:
+
+    def __init__(self, class_name_tok):
+        self.class_name_tok = class_name_tok
+        self.pos_start = self.class_name_tok.pos_start
+        self.pos_end = self.class_name_tok.pos_end
+
+    def __repr__(self):
+        return f'InstanceNode({self.class_name_tok})'
+    
 class CallNode:
 
     def __init__(self, node_to_call, arg_nodes):

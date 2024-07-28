@@ -44,15 +44,14 @@ class BaseLaburo(Value):
         return res.success(None)
     
     def populate_args(self, arg_names, args, exec_ctx, arg_values = None):
-        for i in range(len(arg_names)):
-            arg_name = arg_names[i]
+        for i, arg in enumerate(arg_names):
             if i < len(args):
                 arg_value = args[i]
             else:
                 arg_value = arg_values[i]
-            
+
             arg_value.set_context(exec_ctx)
-            exec_ctx.symbol_table.set(arg_name, arg_value)
+            exec_ctx.symbol_table.set(arg, arg_value)
 
     def check_and_populate_args(self, arg_names, args, exec_ctx, arg_values = None):
         res = RTResult()
