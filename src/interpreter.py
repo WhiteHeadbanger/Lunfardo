@@ -271,10 +271,14 @@ class Interpreter:
             else:
                 arg_values.append(None)
 
-        func_value = Laburo(func_name, body_node, arg_names, arg_values, node.should_auto_return).set_context(context).set_pos(node.pos_start, node.pos_end)
+        func_value = Laburo(func_name, body_node, arg_names, arg_values, node.should_auto_return).set_pos(node.pos_start, node.pos_end)
+        func_value.is_method = node.is_method
 
-        if node.var_name_tok:
+        if not node.is_method:
             context.symbol_table.set(func_name, func_value)
+
+        """ if node.var_name_tok:
+            context.symbol_table.set(func_name, func_value) """
         
         return res.success(func_value)
     
@@ -286,12 +290,13 @@ class Interpreter:
         methods = {}
 
         for method_node in node.methods:
+            method_node.is_method = True
             method_name = method_node.var_name_tok.value
             method_value = res.register(self.visit(method_node, context))
             if res.should_return(): return res
             methods[method_name] = method_value
 
-        cheto_value = Cheto(class_name, methods)
+        cheto_value = Cheto(class_name, methods, context)
         context.symbol_table.set(class_name, cheto_value)
 
         return res.success(cheto_value)
@@ -335,7 +340,7 @@ class Interpreter:
                 context
             ))
 
-        method = object_value.methods.get(node.method_name_tok.value)
+        method = object_value.get_method(node.method_name_tok.value)
         if not method:
             return res.failure(RTError(
                 node.pos_start, node.pos_end,
@@ -348,7 +353,7 @@ class Interpreter:
             args.append(res.register(self.visit(arg_node, context)))
             if res.should_return(): return res
 
-        return_value = res.register(method.execute(args, context))
+        return_value = res.register(method.execute(args, object_value.context))
         if res.should_return(): return res
 
         return res.success(return_value)
