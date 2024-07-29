@@ -180,6 +180,35 @@ Un curro es un laburo pre-definido.
 - `renuncio()`  
     Termina la ejecución del intérprete de Lunfardo.
 
+## Clases
+
+En Lunfardo, las clases se denominan `Chetos`.
+Para declarar un nuevo `Cheto` se utiliza la palabra reservada `cheto`.
+
+Los métodos de un `Cheto` se definen con la palabra reservada `laburo`, como si se definiese un `laburo` normal.
+
+Para acceder a un método de un `Cheto` se utiliza la notación `cheto.nombre_del_metodo`, donde `cheto` es la instancia del cheto y `nombre_del_metodo` es el nombre del método.
+
+### Ejemplo
+
+```
+# Declaración de un Cheto
+cheto Persona
+    laburo saludar(nombre)
+        matear("Hola, mi nombre es " + nombre)
+    chau
+chau
+
+# Instanciación de un Cheto
+poneleque persona = nuevo Persona
+
+# Llamada al método saludar
+persona.saludar("Juancito")
+```
+
+Output: `Hola, mi nombre es Juancito`
+
+
 ## Errores
 
 - `Flaco, fijate que metiste un carácter mal`  
@@ -205,23 +234,26 @@ Un curro es un laburo pre-definido.
 - `entre`
 - `mientras`
 - `laburo`
+- `cheto`
+- `nuevo`
 - `devolver`
 - `continuar`
 - `rajar`
 - `chau`
 
 ## Comentarios
+
 - `#`  
 Ej: `# Esto es un comentario, y esta línea va a ser ignorada por el intérprete`  
 
 
 # Ejemplos 
 
-### "Hola mundo"
+## "Hola mundo"
 
 `matear("Hola, Mundo!")`
 
-### Factorial
+## Factorial
 
 ```
 laburo factorial(n)
@@ -237,7 +269,7 @@ poneleque resultado = factorial(numero)
 matear("El factorial de " + chamu(numero) + " es: " + chamu(resultado))
 ```
 
-### Fibonacci
+## Fibonacci
 
 ```
 laburo fibonacci(n)
@@ -259,7 +291,7 @@ chau
 matear("Secuencia de Fibonacci de longitud " + chamu(var) + ": " + chamu(secuencia))
 ```
 
-### Sistema bancario
+## Sistema bancario
 
 ```
 laburo crear_cuenta(cuentas, nombre, balance_inicial)
@@ -354,6 +386,8 @@ También recibo mensajes de correo electrónico en: sebastianper2018@gmail.com c
 
 # Siguientes pasos
 
-- [] Importar archivos de código. 
-- [] Más tipos de errores, como errores que comprueben tipos de dato.
-- [] OOP, herencia.
+- [ ] Importar archivos de código. 
+- [ ] Más tipos de errores, como errores que comprueben tipos de dato.
+- [x] Clases
+    - [ ] Herencia
+
