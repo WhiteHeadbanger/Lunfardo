@@ -120,8 +120,6 @@ Si no se especifica un valor para `entre`, su valor es 1.
 
 Hay dos tipos de funciones, que en Lunfardo se llaman: `Laburo` y `Curro`.
 
-Las funciones se pueden referenciar.
-
 ### Laburos
 
 - `laburo <identificador>([identificador[, identificador]]): <sentencia> chau`
