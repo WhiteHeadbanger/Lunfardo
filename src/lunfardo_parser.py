@@ -1098,6 +1098,8 @@ class Parser:
         while self.current_tok.type == TT_NEWLINE:
             res.register_advance()
             self.advance()
+            if self.current_tok.type == TT_NEWLINE:
+                continue
 
             if self.current_tok.matches(TT_KEYWORD, 'laburo'):
                 method = res.register(self.func_def())
