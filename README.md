@@ -106,6 +106,7 @@ Ej: `poneleque dict = {"1": 1, 2: "dos", var: otra_var}`
 - `si <condicion> entonces <sentencia>`
 - `[osi <condicion> entonces <sentencia>]` 
 - `[sino <sentencia>]`
+- `chau`
 
 ### Bucle `para`
 
@@ -120,13 +121,11 @@ Si no se especifica un valor para `entre`, su valor es 1.
 
 Hay dos tipos de funciones, que en Lunfardo se llaman: `Laburo` y `Curro`.
 
-Las funciones se pueden referenciar.
-
 ### Laburos
 
-- `laburo <identificador>([identificador[, identificador]]): <sentencia> chau`
+- `laburo <identificador>([identificador[=valor][, identificador[=valor]]]): <sentencia> chau`
 
-Laburos definidos por el usuario.
+Laburos definidos por el usuario. Pueden tener o no valores por default.
 
 ### Curros pre-definidos
 
@@ -180,6 +179,55 @@ Un curro es un laburo pre-definido.
 - `renuncio()`  
     Termina la ejecución del intérprete de Lunfardo.
 
+## Clases
+
+En Lunfardo, las clases se denominan `Chetos`.
+Para declarar un nuevo `Cheto` se utiliza la palabra reservada `cheto`.
+
+Los métodos de un `Cheto` se definen con la palabra reservada `laburo`, como si se definiese un `laburo` normal.
+
+### Instanciación de un Cheto
+
+Para instanciar un `Cheto` se utiliza la palabra reservada `nuevo` seguida del nombre del `Cheto`. No son necesarios los paréntesis.
+En un `Cheto` se puede definir un método llamado `arranque` que se ejecuta cuando se instancia el `Cheto`. Este método es el método constructor del cheto y va a definir las variables de instancia del mismo (si así se desea). En este caso, son necesarios los paréntesis para instanciar el cheto.  
+
+Para acceder a un método de un `Cheto` se utiliza la notación `cheto.nombre_del_metodo()`, donde `cheto` es la instancia del cheto y `nombre_del_metodo` es el nombre del método.
+
+### Ejemplo
+
+```
+# Declaración de un Cheto
+cheto Persona
+    # Declaración del método de arranque (constructor)
+    laburo arranque(mi, nombre, edad)
+        # Declaración de variables de instancia.
+        poneleque mi.nombre = nombre
+        poneleque mi.edad = edad
+    chau
+    # El método saludar accede a las variables de instancia
+    laburo saludar(mi)
+        matear("Hola, mi nombre es " + mi.nombre)
+        matear("Tengo " + chamu(mi.edad) + " anos")
+    chau
+chau
+
+# Instanciación de un Cheto
+poneleque chaboncito = nuevo Persona("Juan", 25)
+chaboncito.saludar()
+
+# Modificación de una variable de instancia
+poneleque chaboncito.nombre = "Pedro"
+chaboncito.saludar()
+```
+
+Output:
+```
+Hola, mi nombre es Juan
+Tengo 25 anos
+Hola, mi nombre es Pedro
+Tengo 25 anos
+```
+
 ## Errores
 
 - `Flaco, fijate que metiste un carácter mal`  
@@ -205,23 +253,26 @@ Un curro es un laburo pre-definido.
 - `entre`
 - `mientras`
 - `laburo`
+- `cheto`
+- `nuevo`
 - `devolver`
 - `continuar`
 - `rajar`
 - `chau`
 
 ## Comentarios
+
 - `#`  
 Ej: `# Esto es un comentario, y esta línea va a ser ignorada por el intérprete`  
 
 
 # Ejemplos 
 
-### "Hola mundo"
+## "Hola mundo"
 
 `matear("Hola, Mundo!")`
 
-### Factorial
+## Factorial
 
 ```
 laburo factorial(n)
@@ -237,7 +288,7 @@ poneleque resultado = factorial(numero)
 matear("El factorial de " + chamu(numero) + " es: " + chamu(resultado))
 ```
 
-### Fibonacci
+## Fibonacci
 
 ```
 laburo fibonacci(n)
@@ -259,7 +310,7 @@ chau
 matear("Secuencia de Fibonacci de longitud " + chamu(var) + ": " + chamu(secuencia))
 ```
 
-### Sistema bancario
+## Sistema bancario
 
 ```
 laburo crear_cuenta(cuentas, nombre, balance_inicial)
@@ -354,6 +405,8 @@ También recibo mensajes de correo electrónico en: sebastianper2018@gmail.com c
 
 # Siguientes pasos
 
-- [] Importar archivos de código. 
-- [] Más tipos de errores, como errores que comprueben tipos de dato.
-- [] OOP, herencia.
+- [ ] Importar archivos de código. 
+- [ ] Más tipos de errores, como errores que comprueben tipos de dato.
+- [x] Clases
+    - [ ] Herencia
+

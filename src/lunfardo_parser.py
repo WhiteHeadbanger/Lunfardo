@@ -77,6 +77,11 @@ class Parser:
     def update_current_tok(self):
         if self.tok_idx >= 0 and self.tok_idx < len(self.tokens):
             self.current_tok = self.tokens[self.tok_idx]
+
+    def peek_next_token(self):
+        if self.tok_idx + 1 < len(self.tokens):
+            return self.tokens[self.tok_idx + 1]
+        return None
     
     def parse(self):
         if self.current_tok.type == TT_EOF:
@@ -129,6 +134,7 @@ class Parser:
 
             statements.append(statement)
         
+        #TODO Checkear la pos_end, para "chetos.lunf" es linea 11, pero debería ser hasta donde termina la funcion
         return res.success(CosoNode(
             statements,
             pos_start,
@@ -193,7 +199,15 @@ class Parser:
                 self.advance()
             
             else:
-                arg_nodes.append(res.register(self.expr()))
+                arg_node = res.register(self.expr())
+                if res.error:
+                    return res.failure(InvalidSyntaxError(
+                        self.current_tok.pos_start,
+                        self.current_tok.pos_end,
+                        "Se esperaba ')', 'poneleque', 'si', 'para', 'mientras', 'laburo', numero, identificador, '+', '-', '(', '[' ó 'truchar'"
+                    ))
+                
+                arg_nodes.append(arg_node)
                 
                 if res.error:
                     return res.failure(InvalidSyntaxError(
@@ -201,6 +215,12 @@ class Parser:
                         self.current_tok.pos_end,
                         "Se esperaba ')', 'poneleque', 'si', 'para', 'mientras', 'laburo', numero, identificador, '+', '-', '(', '[' ó 'truchar'"
                     ))
+                
+                while self.current_tok.type == TT_NEWLINE:
+                    res.register_advance()
+                    self.advance()
+
+                    
                 
                 while self.current_tok.type == TT_COMMA:
                     res.register_advance()
@@ -243,7 +263,22 @@ class Parser:
         if tok.type == TT_IDENTIFIER:
             res.register_advance()
             self.advance()
-            
+            if self.current_tok.type == TT_DOT:
+                res.register_advance()
+                self.advance()
+                if self.current_tok.type == TT_IDENTIFIER:
+                    if self.current_tok.matches(TT_IDENTIFIER, 'arranque') or self.peek_next_token().type == TT_LPAREN:
+                        method_call_expr = res.register(self.method_call_expr(tok))
+                        if res.error:
+                            return res
+                        return res.success(method_call_expr)
+                    
+                    instance_var_expr = res.register(self.instance_var_expr(tok))
+                    
+                    if res.error:
+                        return res
+
+                    return res.success(instance_var_expr)
             return res.success(PoneleQueAccessNode(tok))
         
         if tok.type == TT_LPAREN:
@@ -315,10 +350,26 @@ class Parser:
             
             return res.success(func_def)
         
+        if tok.matches(TT_KEYWORD, 'cheto'):
+            class_def = res.register(self.class_def())
+
+            if res.error:
+                return res
+
+            return res.success(class_def)
+        
+        if tok.matches(TT_KEYWORD, 'nuevo'):
+            instance = res.register(self.instance_expr())
+
+            if res.error:
+                return res
+            
+            return res.success(instance)
+        
         return res.failure(InvalidSyntaxError(
             tok.pos_start,
             tok.pos_end,
-            "Se esperaba int, float, identifier, '+', '-', '(', '[', 'si', 'para', 'mientras' ó 'laburo'"
+            "Se esperaba int, float, identifier, '+', '-', '(', '[', 'si', 'para', 'mientras', 'laburo' ó 'cheto'"
         ))
    
     def power(self):
@@ -868,48 +919,40 @@ class Parser:
 
         if not self.current_tok.matches(TT_KEYWORD, 'laburo'):
             return res.failure(InvalidSyntaxError(
-                self.current_tok.pos_start,
-                self.current_tok.pos_end,
+                self.current_tok.pos_start, self.current_tok.pos_end,
                 "Se esperaba 'laburo'"
             ))
-        
+
         res.register_advance()
         self.advance()
 
-        if self.current_tok.type == TT_IDENTIFIER:
-            var_name_tok = self.current_tok
-            
-            res.register_advance()
-            self.advance()
+        if self.current_tok.type != TT_IDENTIFIER:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                "Se esperaba identificador"
+            ))
 
-            if self.current_tok.type != TT_LPAREN:
-                return res.failure(InvalidSyntaxError(
-                    self.current_tok.pos_start, 
-                    self.current_tok.pos_end,
-                    "Se esperaba '('"
-                ))
-        
-        else:
-            var_name_tok = None
-            
-            if self.current_tok.type != TT_LPAREN:
-                return res.failure(InvalidSyntaxError(
-                    self.current_tok.pos_start, 
-                    self.current_tok.pos_end,
-                    "Se esperaba identificador ó '('"
-                ))
-        
+        var_name_tok = self.current_tok
         res.register_advance()
         self.advance()
-        
+
+        if self.current_tok.type != TT_LPAREN:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                "Se esperaba '('"
+            ))
+
+        res.register_advance()
+        self.advance()
         arg_name_and_values = {}
+        value = None
 
         if self.current_tok.type == TT_IDENTIFIER:
             arg_name_tok = self.current_tok
             
             res.register_advance()
             self.advance()
-            
+
             if self.current_tok.type == TT_EQ:
                 res.register_advance()
                 self.advance()
@@ -918,31 +961,24 @@ class Parser:
 
                 if res.error:
                     return res
-                
-                arg_name_and_values[arg_name_tok] = value
 
-                #res.register_advance()
-                #self.advance()
-
-            else:
-                arg_name_and_values[arg_name_tok] = None
-
+            arg_name_and_values[arg_name_tok] = value
+            
             while self.current_tok.type == TT_COMMA:
                 res.register_advance()
                 self.advance()
 
                 if self.current_tok.type != TT_IDENTIFIER:
                     return res.failure(InvalidSyntaxError(
-                        self.current_tok.pos_start, 
-                        self.current_tok.pos_end,
+                        self.current_tok.pos_start, self.current_tok.pos_end,
                         "Se esperaba identificador"
                     ))
-                
+
                 arg_name_tok = self.current_tok
-                
+
                 res.register_advance()
                 self.advance()
-                
+
                 if self.current_tok.type == TT_EQ:
                     res.register_advance()
                     self.advance()
@@ -952,71 +988,38 @@ class Parser:
                     if res.error:
                         return res
                     
-                    arg_name_and_values[arg_name_tok] = value
-                
-                else:
-                    arg_name_and_values[arg_name_tok] = None
-            
-            if self.current_tok.type != TT_RPAREN:
-                return res.failure(InvalidSyntaxError(
-                    self.current_tok.pos_start,
-                    self.current_tok.pos_end,
-                    "Se esperaba ',' ó ')'"
-                ))
-            
-        else:
-            if self.current_tok.type != TT_RPAREN:
-                return res.failure(InvalidSyntaxError(
-                    self.current_tok.pos_start,
-                    self.current_tok.pos_end,
-                    "Se esperaba identificador ó ')'"
-                ))
-            
+                arg_name_and_values[arg_name_tok] = value
+
+        if self.current_tok.type != TT_RPAREN:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                "Se esperaba ',' o ')'"
+            ))
+
         res.register_advance()
         self.advance()
 
-        # Here we can change if we want laburos to always have to be defined with a colon. I personally think that it's a good idea to force one-liners
-        # and multiline with a return statement. If not provided, just return None.
-        if self.current_tok.type == TT_COLON:
-            res.register_advance()
-            self.advance()
-
-            body = res.register(self.expr())
-            
-            if res.error:
-                return res
-            
-            return res.success(LaburoDefNode(
-                var_name_tok,
-                arg_name_and_values,
-                body,
-                True
-            ))
-        
         if self.current_tok.type != TT_NEWLINE:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start, self.current_tok.pos_end,
-                "Se esperaba ':' ó una nueva linea"
+                "Se esperaba nueva línea"
             ))
-        
+
         res.register_advance()
         self.advance()
 
         body = res.register(self.statements())
-        
-        if res.error:
-            return res
+        if res.error: return 
         
         if not self.current_tok.matches(TT_KEYWORD, 'chau'):
             return res.failure(InvalidSyntaxError(
-                self.current_tok.pos_start,
-                self.current_tok.pos_end,
+                self.current_tok.pos_start, self.current_tok.pos_end,
                 "Se esperaba 'chau'"
             ))
-        
+
         res.register_advance()
         self.advance()
-
+        
         return res.success(LaburoDefNode(
             var_name_tok,
             arg_name_and_values,
@@ -1024,6 +1027,193 @@ class Parser:
             False
         ))
     
+    def instance_expr(self):
+        res = ParseResult()
+        
+        if not self.current_tok.matches(TT_KEYWORD, 'nuevo'):
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                "Expected 'nuevo'"
+            ))
+
+        res.register_advance()
+        self.advance()
+
+        if self.current_tok.type != TT_IDENTIFIER:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                "Expected identifier"
+            ))
+
+        class_name = self.current_tok
+        res.register_advance()
+        self.advance()
+
+        arg_nodes = []
+
+        if self.current_tok.type == TT_LPAREN:
+            res.register_advance()
+            self.advance()
+
+            if self.current_tok.type == TT_RPAREN:
+                res.register_advance()
+                self.advance()
+            else:
+                arg_nodes.append(res.register(self.expr()))
+                if res.error:
+                    return res.failure(InvalidSyntaxError(
+                        self.current_tok.pos_start, self.current_tok.pos_end,
+                        "Se esperaba ')', 'poneleque', 'si', 'para', 'mientras', 'laburo', int, float, identifier, '+', '-', '(', '[' o 'truchar'"
+                    ))
+
+                while self.current_tok.type == TT_COMMA:
+                    res.register_advance()
+                    self.advance()
+
+                    arg_nodes.append(res.register(self.expr()))
+                    if res.error: return res
+
+                if self.current_tok.type != TT_RPAREN:
+                    return res.failure(InvalidSyntaxError(
+                        self.current_tok.pos_start, self.current_tok.pos_end,
+                        "Se esperaba ',' o ')'"
+                    ))
+
+                res.register_advance()
+                self.advance()
+        
+
+        return res.success(InstanceNode(class_name, arg_nodes))
+
+    def class_def(self):
+        res = ParseResult()
+        
+        if not self.current_tok.matches(TT_KEYWORD, 'cheto'):
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                "Se esperaba 'cheto'"
+            ))
+
+        res.register_advance()
+        self.advance()
+
+        if self.current_tok.type != TT_IDENTIFIER:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                "Se esperaba nombre de cheto"
+            ))
+
+        class_name = self.current_tok
+        res.register_advance()
+        self.advance()
+
+        if self.current_tok.type != TT_NEWLINE:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                "Se esperaba nueva linea despues del nombre de cheto"
+            ))
+
+        methods = []
+        arranque_method = None
+        while self.current_tok.type == TT_NEWLINE:
+            res.register_advance()
+            self.advance()
+            if self.current_tok.type == TT_NEWLINE:
+                continue
+
+            if self.current_tok.matches(TT_KEYWORD, 'laburo'):
+                method = res.register(self.func_def())
+                if res.error: return res
+                if method.var_name_tok.value == 'arranque':
+                    arranque_method = method
+                else:
+                    methods.append(method)
+            elif self.current_tok.matches(TT_KEYWORD, 'chau'):
+                break
+            else:
+                return res.failure(InvalidSyntaxError(
+                    self.current_tok.pos_start, self.current_tok.pos_end,
+                    "Se esperaba 'laburo' o 'chau'"
+                ))
+
+        if not self.current_tok.matches(TT_KEYWORD, 'chau'):
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                "Se esperaba 'chau'"
+            ))
+
+        res.register_advance()
+        self.advance()
+
+        return res.success(ChetoDefNode(class_name, methods, arranque_method))
+    
+    def method_call_expr(self, object_tok):
+        res = ParseResult()
+
+        if self.current_tok.type != TT_IDENTIFIER:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                "Se esperaba nombre de metodo"
+            ))
+
+        method_name = self.current_tok
+        res.register_advance()
+        self.advance()
+
+        if self.current_tok.type != TT_LPAREN:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                "Se esperaba '('"
+            ))
+
+        res.register_advance()
+        self.advance()
+        arg_nodes = []
+
+        if self.current_tok.type == TT_RPAREN:
+            res.register_advance()
+            self.advance()
+        else:
+            arg_nodes.append(res.register(self.expr()))
+            if res.error:
+                return res.failure(InvalidSyntaxError(
+                    self.current_tok.pos_start, self.current_tok.pos_end,
+                    "Se esperaba ')', 'poneleque', 'si', 'para', 'mientras', 'laburo', int, float, identifier, '+', '-', '(', '[' o 'truchar'"
+                ))
+
+            while self.current_tok.type == TT_COMMA:
+                res.register_advance()
+                self.advance()
+
+                arg_nodes.append(res.register(self.expr()))
+                if res.error: return res
+
+            if self.current_tok.type != TT_RPAREN:
+                return res.failure(InvalidSyntaxError(
+                    self.current_tok.pos_start, self.current_tok.pos_end,
+                    "Se esperaba ',' o ')'"
+                ))
+
+            res.register_advance()
+            self.advance()
+
+        return res.success(MethodCallNode(object_tok, method_name, arg_nodes))
+    
+    def instance_var_expr(self, object_tok):
+        res = ParseResult()
+
+        if self.current_tok.type != TT_IDENTIFIER:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                "Se esperaba un identificador"
+            ))
+
+        var_name = self.current_tok
+        res.register_advance()
+        self.advance()
+
+        return res.success(InstanceVarAccessNode(object_tok, var_name))
+
     # MARK: Parse.expr
     def expr(self):
         res = ParseResult()
@@ -1043,6 +1233,36 @@ class Parser:
             
             res.register_advance()
             self.advance()
+
+            if self.current_tok.type == TT_DOT:
+                res.register_advance()
+                self.advance()
+
+                if self.current_tok.type != TT_IDENTIFIER:
+                    return res.failure(InvalidSyntaxError(
+                        self.current_tok.pos_start,
+                        self.current_tok.pos_end,
+                        "Se esperaba identificador"
+                    ))
+                
+                attr_name = self.current_tok
+                res.register_advance()
+                self.advance()
+
+                if self.current_tok.type != TT_EQ:
+                    return res.failure(InvalidSyntaxError(
+                        self.current_tok.pos_start,
+                        self.current_tok.pos_end,
+                        "Se esperaba '='"
+                    ))
+                
+                res.register_advance()
+                self.advance()
+                expr = res.register(self.expr())
+                if res.error:
+                    return res
+                
+                return res.success(InstanceVarAssignNode(var_name, attr_name, expr))
 
             if self.current_tok.type != TT_EQ:
                 return res.failure(InvalidSyntaxError(
