@@ -6,17 +6,24 @@ from errors import RTError
 
 class Cheto(Value):
     
-    def __init__(self, name, methods, context):
+    def __init__(self, name, methods, context, instance_vars = None):
         super().__init__()
         self.name = name
         self.methods = methods
+        self.instance_vars = {} if instance_vars is None else instance_vars
         self.context = context
 
     def get_method(self, method_name):
-        method = self.methods.get(method_name)
+        method = self.methods.get(method_name, None)
         if method:
             method.global_context = self.context
         return method
+    
+    def set_instance_var(self, name, value):
+        self.instance_vars[name] = value
+
+    def get_instance_var(self, name):
+        return self.instance_vars.get(name)
 
     def execute(self, args, context):
         res = RTResult()
@@ -44,7 +51,7 @@ class Cheto(Value):
         return res.success(return_value)
 
     def copy(self):
-        copy = Cheto(self.name, self.methods, self.context)
+        copy = Cheto(self.name, self.methods, self.context, self.instance_vars)
         copy.set_pos(self.pos_start, self.pos_end)
         copy.set_context(self.context)
         return copy

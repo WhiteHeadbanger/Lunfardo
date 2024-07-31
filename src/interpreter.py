@@ -287,17 +287,26 @@ class Interpreter:
         res = RTResult()
 
         class_name = node.var_name_tok.value
+        arranque_method_node = node.arranque_method
         methods = {}
+        if arranque_method_node:
+            arranque_method_node.is_method = True
+            arranque_method_value = res.register(self.visit(arranque_method_node, context))
+            if res.should_return(): return res
 
+            cheto_value = Cheto(class_name, methods, context)
+            context.symbol_table.set(class_name, cheto_value)
+        
         for method_node in node.methods:
             method_node.is_method = True
             method_name = method_node.var_name_tok.value
             method_value = res.register(self.visit(method_node, context))
             if res.should_return(): return res
-            methods[method_name] = method_value
 
-        cheto_value = Cheto(class_name, methods, context)
-        context.symbol_table.set(class_name, cheto_value)
+            methods[method_name] = method_value #TODO tal vez usar instance_vars en vez de methods
+
+        if arranque_method_node:
+            cheto_value.methods['arranque'] = arranque_method_value #TODO tal vez usar instance_vars en vez de methods
 
         return res.success(cheto_value)
     
@@ -326,37 +335,33 @@ class Interpreter:
     
     def visit_MethodCallNode(self, node, context):
         from lunfardo_types import Cheto
-        from nodes import PoneleQueAccessNode
+        from nodes import PoneleQueAccessNode, InstanceVarAccessNode, CallNode
 
         res = RTResult()
 
         object_value = res.register(self.visit(PoneleQueAccessNode(node.object_tok), context))
+        #object_value = res.register(self.visit(CallNode(node.method_name_tok, node.arg_nodes), context))
         if res.should_return(): return res
 
-        if not isinstance(object_value, Cheto):
+        if isinstance(object_value, Cheto):
+            method = object_value.get_method(node.method_name_tok.value)
+            if method:
+                args = [object_value] + [res.register(self.visit(arg_node, context)) for arg_node in node.arg_nodes]
+                if res.should_return(): return res
+                return_value = res.register(method.execute(args, context))
+                return res.success(return_value)
+            else:
+                return res.failure(RTError(
+                    node.pos_start, node.pos_end,
+                    f"El método '{node.method_name_tok.value}' no existe en el objeto '{node.object_tok.value}'",
+                    context
+                ))
+        else:
             return res.failure(RTError(
                 node.pos_start, node.pos_end,
                 f"'{node.object_tok.value}' no es un objeto cheto",
                 context
             ))
-
-        method = object_value.get_method(node.method_name_tok.value)
-        if not method:
-            return res.failure(RTError(
-                node.pos_start, node.pos_end,
-                f"'{node.method_name_tok.value}' no es un método de '{node.object_tok.value}'",
-                context
-            ))
-
-        args = []
-        for arg_node in node.arg_nodes:
-            args.append(res.register(self.visit(arg_node, context)))
-            if res.should_return(): return res
-
-        return_value = res.register(method.execute(args, object_value.context))
-        if res.should_return(): return res
-
-        return res.success(return_value)
     
     def visit_InstanceNode(self, node, context):
         from lunfardo_types import Cheto
@@ -379,8 +384,52 @@ class Interpreter:
                 context
             ))
         
+        args = []
+        for arg_node in node.arg_nodes:
+            args.append(res.register(self.visit(arg_node, context)))
+            if res.should_return(): return res
+
+        
         instance = class_value.copy().set_context(context).set_pos(node.pos_start, node.pos_end)
+        arranque_method = instance.get_method('arranque')
+
+        if arranque_method:
+            res.register(arranque_method.execute([instance] + args, context))
+            if res.should_return(): return res
+        
         return res.success(instance)
+    
+    def visit_InstanceVarAssignNode(self, node, context):
+        res = RTResult()
+
+        object_value = res.register(self.visit(node.value_node, context))
+        if res.should_return(): return res
+        
+        current_context = object_value.context.symbol_table.symbols[node.object_tok.value]
+        current_context.set_instance_var(node.var_name_tok.value, object_value)
+
+        instance_var = object_value.copy().set_pos(node.pos_start, node.pos_end).set_context(current_context)
+
+        return res.success(instance_var)
+    
+    def visit_InstanceVarAccessNode(self, node, context):
+        res = RTResult()
+        object_tok_name = node.object_tok.value
+        var_name = node.var_name_tok.value
+        
+        current_context = context.symbol_table.symbols[object_tok_name]
+        value = current_context.get_instance_var(var_name)
+
+        if not value:
+            return res.failure(RTError(
+                node.pos_start, 
+                node.pos_end,
+                f"'{var_name}' no esta definido",
+                context
+            ))
+        
+        value = value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
+        return res.success(value)
     
     def visit_DevolverNode(self, node, context):
         res = RTResult()

@@ -6,7 +6,7 @@ class NumeroNode:
         self.pos_end = self.tok.pos_end
 
     def __repr__(self):
-        return f'({self.tok})'
+        return f'NumeroNode({self.tok})'
 
 class ChamuyoNode:
 
@@ -16,7 +16,7 @@ class ChamuyoNode:
         self.pos_end = self.tok.pos_end
 
     def __repr__(self):
-        return f'({self.tok})'
+        return f'ChamuyoNode({self.tok})'
     
 class CosoNode:
 
@@ -26,7 +26,7 @@ class CosoNode:
         self.pos_end = pos_end
 
     def __repr__(self):
-        return f'({self.element_nodes})'
+        return f'CosoNode({self.element_nodes})'
     
 class MataburrosNode:
 
@@ -37,7 +37,7 @@ class MataburrosNode:
         self.pos_end = pos_end
 
     def __repr__(self):
-        return f'({self.keys_nodes}, {self.values_nodes})'
+        return f'MataburrosNode({self.keys_nodes}, {self.values_nodes})'
     
 class PoneleQueAccessNode:
 
@@ -47,7 +47,7 @@ class PoneleQueAccessNode:
         self.pos_end = self.var_name_tok.pos_end
 
     def __repr__(self):
-        return f'({self.var_name_tok})'
+        return f'PoneleQueAccessNode({self.var_name_tok})'
 
 class PoneleQueAssignNode:
 
@@ -58,7 +58,7 @@ class PoneleQueAssignNode:
         self.pos_end = self.value_node.pos_end
 
     def __repr__(self):
-        return f'({self.var_name_tok}, {self.value_node})'
+        return f'PoneleQueAssignNode({self.var_name_tok}, {self.value_node})'
 
     
 class BinOpNode:
@@ -71,7 +71,7 @@ class BinOpNode:
         self.pos_end = self.right_node.pos_end
 
     def __repr__(self):
-        return f'({self.left_node}, {self.op_tok}, {self.right_node})'
+        return f'BinOpNode({self.left_node}, {self.op_tok}, {self.right_node})'
     
 class UnaryOpNode:
     
@@ -82,7 +82,7 @@ class UnaryOpNode:
         self.pos_end = node.pos_end
 
     def __repr__(self):
-        return f'({self.op_tok}, {self.node})'
+        return f'UnaryOpNode({self.op_tok}, {self.node})'
     
 class SiNode:
 
@@ -93,7 +93,7 @@ class SiNode:
         self.pos_end = (self.else_case or self.cases[len(self.cases) -1])[0].pos_end
 
     def __repr__(self):
-        return f'({self.cases}, {self.else_case})'
+        return f'SiNode({self.cases}, {self.else_case})'
     
 class ParaNode:
 
@@ -109,7 +109,7 @@ class ParaNode:
         self.pos_end = self.body_node.pos_end
 
     def __repr__(self):
-        return f'({self.var_name_tok}, {self.start_value_node}, {self.end_value_node}, {self.step_value_node}, {self.body_node})'
+        return f'ParaNode({self.var_name_tok}, {self.start_value_node}, {self.end_value_node}, {self.step_value_node}, {self.body_node})'
 
 class MientrasNode:
 
@@ -122,7 +122,7 @@ class MientrasNode:
         self.pos_end = self.body_node.pos_end
 
     def __repr__(self):
-        return f'({self.condition_node}, {self.body_node})'
+        return f'MientrasNode({self.condition_node}, {self.body_node})'
     
 class LaburoDefNode:
 
@@ -143,20 +143,19 @@ class LaburoDefNode:
         self.pos_end = self.body_node.pos_end
 
     def __repr__(self):
-        return f'({self.var_name_tok}, {self.arg_name_toks}, {self.body_node})'
+        return f'LaburoDefNode({self.var_name_tok}, {self.arg_name_toks}, {self.body_node})'
     
 class ChetoDefNode:
     
-    def __init__(self, var_name_tok, methods, body_node):
+    def __init__(self, var_name_tok, methods, arranque_method):
         self.var_name_tok = var_name_tok
         self.methods = methods
-        self.body_node = body_node
+        self.arranque_method = arranque_method
         self.pos_start = self.var_name_tok.pos_start
-        #self.pos_end = self.body_node.pos_end
-        self.pos_end = self.methods[len(self.methods) - 1].pos_end
+        self.pos_end = self.methods[-1].pos_end if self.methods else self.var_name_tok.pos_end
 
     def __repr__(self):
-        return f'{self.var_name_tok}, {self.methods})'
+        return f'ChetoDefNode({self.var_name_tok}, {self.methods})'
     
 class MethodCallNode:
 
@@ -173,13 +172,37 @@ class MethodCallNode:
     
 class InstanceNode:
 
-    def __init__(self, class_name_tok):
+    def __init__(self, class_name_tok, arg_nodes = None):
         self.class_name_tok = class_name_tok
+        self.arg_nodes = arg_nodes
         self.pos_start = self.class_name_tok.pos_start
-        self.pos_end = self.class_name_tok.pos_end
+        self.pos_end = self.arg_nodes[-1].pos_end if self.arg_nodes else self.class_name_tok.pos_end
 
     def __repr__(self):
-        return f'InstanceNode({self.class_name_tok})'
+        return f'InstanceNode({self.class_name_tok}, {self.arg_nodes})'
+    
+class InstanceVarAssignNode:
+
+    def __init__(self, object_tok, var_name_tok, value_node):
+        self.object_tok = object_tok
+        self.var_name_tok = var_name_tok
+        self.value_node = value_node
+        self.pos_start = self.object_tok.pos_start
+        self.pos_end = self.value_node.pos_end
+
+    def __repr__(self):
+        return f'InstanceVarAssignNode({self.object_tok}, {self.var_name_tok}, {self.value_node})'
+
+class InstanceVarAccessNode:
+
+    def __init__(self, object_tok, var_name_tok):
+        self.object_tok = object_tok
+        self.var_name_tok = var_name_tok
+        self.pos_start = self.object_tok.pos_start
+        self.pos_end = self.var_name_tok.pos_end
+
+    def __repr__(self):
+        return f'InstanceVarAccessNode({self.object_tok}, {self.var_name_tok})'
     
 class CallNode:
 
@@ -190,12 +213,12 @@ class CallNode:
         self.pos_start = self.node_to_call.pos_start
 
         if len(self.arg_nodes) > 0:
-            self.pos_end = self.arg_nodes[len(self.arg_nodes) - 1].pos_end
+            self.pos_end = self.arg_nodes[-1].pos_end
         else:
             self.pos_end = self.node_to_call.pos_end
 
     def __repr__(self):
-        return f'({self.node_to_call}, {self.arg_nodes})'
+        return f'CallNode({self.node_to_call}, {self.arg_nodes})'
     
 class DevolverNode:
 
@@ -205,7 +228,7 @@ class DevolverNode:
         self.pos_end = pos_end
 
     def __repr__(self):
-        return f'({self.node_to_return})'
+        return f'DevolverNode({self.node_to_return})'
     
 class ContinuarNode:
 
