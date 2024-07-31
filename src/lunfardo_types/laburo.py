@@ -9,10 +9,11 @@ class BaseLaburo(Value):
     def __init__(self, name):
         super().__init__()
         self.name = name or "<injunable>"
+        self.parent_context = None
 
     def generate_new_context(self):
         new_context = Context(self.name, self.context, self.pos_start)
-        new_context.symbol_table = SymbolTable(new_context.parent.symbol_table)
+        new_context.symbol_table = SymbolTable(new_context.parent.symbol_table if new_context.parent else None)
         return new_context
     
     def check_args(self, arg_names, args, arg_values = None):
@@ -44,15 +45,14 @@ class BaseLaburo(Value):
         return res.success(None)
     
     def populate_args(self, arg_names, args, exec_ctx, arg_values = None):
-        for i in range(len(arg_names)):
-            arg_name = arg_names[i]
+        for i, arg in enumerate(arg_names):
             if i < len(args):
                 arg_value = args[i]
             else:
                 arg_value = arg_values[i]
-            
+
             arg_value.set_context(exec_ctx)
-            exec_ctx.symbol_table.set(arg_name, arg_value)
+            exec_ctx.symbol_table.set(arg, arg_value)
 
     def check_and_populate_args(self, arg_names, args, exec_ctx, arg_values = None):
         res = RTResult()
@@ -77,6 +77,7 @@ class Laburo(BaseLaburo):
         self.arg_names = arg_names
         self.arg_values = arg_values
         self.should_auto_return = should_auto_return
+        self.global_context = None
 
     def execute(self, args, current_context):
         from . import Nada
@@ -84,6 +85,9 @@ class Laburo(BaseLaburo):
         # Cada vez que creamos una nueva funcion, es necesario crear un nuevo contexto con una nueva symbol table, que son destruidos una vez que la funcion retorna.
         interpreter = Interpreter()
         execution_context = self.generate_new_context()
+
+        # Combine local and global contexts into one, this fixes the issue of not being able to access variables defined in the global context from inside a method.
+        execution_context.symbol_table = SymbolTable(current_context.symbol_table)
 
         res.register(self.check_and_populate_args(self.arg_names, args, execution_context, self.arg_values))
         
