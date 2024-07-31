@@ -106,6 +106,7 @@ Ej: `poneleque dict = {"1": 1, 2: "dos", var: otra_var}`
 - `si <condicion> entonces <sentencia>`
 - `[osi <condicion> entonces <sentencia>]` 
 - `[sino <sentencia>]`
+- `chau`
 
 ### Bucle `para`
 
@@ -122,9 +123,9 @@ Hay dos tipos de funciones, que en Lunfardo se llaman: `Laburo` y `Curro`.
 
 ### Laburos
 
-- `laburo <identificador>([identificador[, identificador]]): <sentencia> chau`
+- `laburo <identificador>([identificador[=valor][, identificador[=valor]]]): <sentencia> chau`
 
-Laburos definidos por el usuario.
+Laburos definidos por el usuario. Pueden tener o no valores por default.
 
 ### Curros pre-definidos
 
@@ -185,27 +186,47 @@ Para declarar un nuevo `Cheto` se utiliza la palabra reservada `cheto`.
 
 Los métodos de un `Cheto` se definen con la palabra reservada `laburo`, como si se definiese un `laburo` normal.
 
-Para acceder a un método de un `Cheto` se utiliza la notación `cheto.nombre_del_metodo`, donde `cheto` es la instancia del cheto y `nombre_del_metodo` es el nombre del método.
+### Instanciación de un Cheto
+
+Para instanciar un `Cheto` se utiliza la palabra reservada `nuevo` seguida del nombre del `Cheto`. No son necesarios los paréntesis.
+En un `Cheto` se puede definir un método llamado `arranque` que se ejecuta cuando se instancia el `Cheto`. Este método es el método constructor del cheto y va a definir las variables de instancia del mismo (si así se desea). En este caso, son necesarios los paréntesis para instanciar el cheto.  
+
+Para acceder a un método de un `Cheto` se utiliza la notación `cheto.nombre_del_metodo()`, donde `cheto` es la instancia del cheto y `nombre_del_metodo` es el nombre del método.
 
 ### Ejemplo
 
 ```
 # Declaración de un Cheto
 cheto Persona
-    laburo saludar(nombre)
-        matear("Hola, mi nombre es " + nombre)
+    # Declaración del método de arranque (constructor)
+    laburo arranque(mi, nombre, edad)
+        # Declaración de variables de instancia.
+        poneleque mi.nombre = nombre
+        poneleque mi.edad = edad
+    chau
+    # El método saludar accede a las variables de instancia
+    laburo saludar(mi)
+        matear("Hola, mi nombre es " + mi.nombre)
+        matear("Tengo " + chamu(mi.edad) + " anos")
     chau
 chau
 
 # Instanciación de un Cheto
-poneleque persona = nuevo Persona
+poneleque chaboncito = nuevo Persona("Juan", 25)
+chaboncito.saludar()
 
-# Llamada al método saludar
-persona.saludar("Juancito")
+# Modificación de una variable de instancia
+poneleque chaboncito.nombre = "Pedro"
+chaboncito.saludar()
 ```
 
-Output: `Hola, mi nombre es Juancito`
-
+Output:
+```
+Hola, mi nombre es Juan
+Tengo 25 anos
+Hola, mi nombre es Pedro
+Tengo 25 anos
+```
 
 ## Errores
 
