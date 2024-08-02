@@ -14,9 +14,9 @@ KEYWORDS = [
     'laburo', # def, func, function
     'cheto', # class
     'nuevo', # new instance of class
-    
     'chau', # end
     'devolver', # return
     'continuar', # continue
-    'rajar' # break
+    'rajar', # break
+    'importar', # import
 ]

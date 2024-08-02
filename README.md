@@ -103,19 +103,60 @@ Ej: `poneleque dict = {"1": 1, 2: "dos", var: otra_var}`
 
 ### Condicionales
 
-- `si <condicion> entonces <sentencia>`
-- `[osi <condicion> entonces <sentencia>]` 
-- `[sino <sentencia>]`
-- `chau`
+```
+si <condicion> entonces
+    <sentencia>
+[osi <condicion> entonces 
+    <sentencia>] 
+[sino 
+    <sentencia>]
+chau
+```
+
+```
+si a > b entonces
+    matear("a es mayor a b")
+osi a < b entonces
+    matear("a es menor a b")
+sino
+    matear("a es igual a b")
+chau
+```
 
 ### Bucle `para`
 
-- `para <identificador = valor> hasta <condicion> [entre <valor>] entonces <sentencia> chau`  
+```
+para <identificador> = <Numero> hasta <Numero> [entre <Numero>] entonces 
+    <sentencia> 
+chau
+```
+
+```
+para i = 0 hasta 10 entre 2 entonces
+    matear(i) # imprime: 0, 2, 4, 6, 8
+chau
+```
+
 Si no se especifica un valor para `entre`, su valor es 1.
 
 ### Bucle `mientras`
 
-- `mientras <condicion> entonces <sentencia> chau`
+```
+mientras <condicion> entonces 
+    <sentencia> 
+chau
+```
+
+```
+poneleque i = 0
+mientras i < 10 entonces
+    # imprime 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+    matear(i)
+    poneleque i = i + 1
+chau
+```
+
+
 
 ## Tipos de Funciones
 
@@ -123,9 +164,38 @@ Hay dos tipos de funciones, que en Lunfardo se llaman: `Laburo` y `Curro`.
 
 ### Laburos
 
-- `laburo <identificador>([identificador[=valor][, identificador[=valor]]]): <sentencia> chau`
-
 Laburos definidos por el usuario. Pueden tener o no valores por default.
+
+```
+laburo <identificador>([identificador[=valor][, identificador[=valor]]]) 
+    <sentencia> 
+chau
+```
+
+```
+laburo saludar()
+    matear("Hola, Lunfardo!")
+chau
+
+saludar() # imprime: "Hola, Mundo!"
+```
+
+```
+laburo saludar_con_nombre(nombre)
+    matear("Hola, " + nombre + "!")
+chau
+
+saludar_con_nombre("Lunfardo") # imprime: "Hola, Lunfardo!"
+```
+
+```
+laburo saludar_con_nombre_opcional(nombre = "Camila")
+    matear("Hola, " + nombre + "!")
+chau
+
+saludar_con_nombre_opcional() # imprime: "Hola, Camila!"
+saludar_con_nombre_opcional("Lunfardo") # imprime: "Hola, Lunfardo!"
+```
 
 ### Curros pre-definidos
 
@@ -228,6 +298,81 @@ Hola, mi nombre es Pedro
 Tengo 25 anos
 ```
 
+### Herencia
+
+Un `Cheto` puede heredar de otro `Cheto`, para ello se utilizan los paréntesis al momento de la declaración, y entre ellos, el nombre del `Cheto` padre.
+Cuando esto sucede, en Lunfardo decimos que el cheto hijo nació en cuna de oro del cheto padre. 
+
+```
+# Cheto padre
+cheto Animal
+    laburo arranque(mi, nombre)
+        poneleque mi.nombre = nombre
+    chau
+    laburo saludar(mi)
+        matear("Soy " + mi.nombre)
+    chau
+chau
+
+# Cheto hijo (hereda de Animal)
+cheto Perro(Animal)
+    laburo ladrar(mi, cantidad)
+        matear("Guau! " * cantidad)
+    chau
+chau
+
+poneleque rocco = nuevo Perro("Rocco")
+rocco.saludar()
+rocco.ladrar(5)
+```
+
+Output:
+```
+Soy Rocco
+Guau! Guau! Guau! Guau! Guau!
+```
+
+## Importar archivos
+
+Para importar un archivo se utiliza la palabra reservada `importar`, seguido del nombre del archivo, el cual debe ser un `Chamuyo`.
+Nota: Por el momento, solo se pueden importar archivos que estén dentro de la carpeta `examples`.
+
+`/examples/animal.lunf`
+```
+# Cheto padre
+cheto Animal
+    laburo arranque(mi, nombre)
+        poneleque mi.nombre = nombre
+    chau
+    laburo saludar(mi)
+        matear("Soy " + mi.nombre)
+    chau
+chau
+```
+
+`/examples/perro.lunf`
+```
+importar "animal.lunf"
+
+# Cheto hijo (hereda de Animal)
+cheto Perro(Animal)
+    laburo ladrar(mi, cantidad)
+        matear("Guau! " * cantidad)
+    chau
+chau
+
+poneleque rocco = nuevo Perro("Rocco")
+rocco.saludar()
+rocco.ladrar(5)
+```
+
+Output:
+```
+Soy Rocco
+Guau! Guau! Guau! Guau! Guau!
+```
+
+
 ## Errores
 
 - `Flaco, fijate que metiste un carácter mal`  
@@ -259,6 +404,7 @@ Tengo 25 anos
 - `continuar`
 - `rajar`
 - `chau`
+- `importar`
 
 ## Comentarios
 
@@ -405,8 +551,8 @@ También recibo mensajes de correo electrónico en: sebastianper2018@gmail.com c
 
 # Siguientes pasos
 
-- [ ] Importar archivos de código. 
-- [ ] Más tipos de errores, como errores que comprueben tipos de dato.
+- [x] Importar archivos de código. 
+- [ ] Más tipos de errores.
 - [x] Clases
-    - [ ] Herencia
+    - [x] Herencia
 

@@ -617,11 +617,11 @@ class Curro(BaseLaburo):
         try:
             with open(fn, "r") as f:
                 script = f.read()
-        except Exception as e:
+        except FileNotFoundError:
             return RTResult().failure(RTError(
                 self.pos_start,
                 self.pos_end,
-                f"Uy que rompimo! No pudimos abrir el archivo \'{fn}\'\n'{e}.",
+                f"Uy que rompimo! No pudimos abrir el archivo \'{fn}\'\n El archivo no existe.",
                 exec_ctx
             ))
         
