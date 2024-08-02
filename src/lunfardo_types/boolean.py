@@ -2,7 +2,7 @@ from .value import Value
 
 class Boolean(Value):
 
-    def __init__(self, value):
+    def __init__(self, value: bool):
         super().__init__()
         self.value = value
 

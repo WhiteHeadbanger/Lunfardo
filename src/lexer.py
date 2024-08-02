@@ -1,21 +1,52 @@
+"""
+Lexer module for the Lunfardo programming language.
+
+This module contains the Lexer class, which is responsible for tokenizing
+the input source code into a sequence of tokens that can be processed by
+the parser.
+"""
+
 from constants import *
 from lunfardo_token import Position, Token
 from errors.errors import IllegalCharError, ExpectedCharError
+from typing import Tuple, List
 
 class Lexer:
+    """
+    Lexer class for tokenizing Lunfardo source code.
 
-    def __init__(self, fn, text):
+    This class reads the input text and converts it into a sequence of tokens,
+    which represent the smallest units of meaning in the language.
+    """
+
+    def __init__(self, fn, text) -> None:
+        """
+        Initialize the Lexer with a filename and input text.
+
+        Args:
+            fn (str): The name of the file being processed.
+            text (str): The source code to be tokenized.
+        """
         self.fn = fn
         self.text = text
         self.pos = Position(-1, 0, -1, fn, text)
         self.current_char = None
         self.advance()
 
-    def advance(self):
+    def advance(self) -> None:
+        """
+        Advance the lexer's position to the next character in the input.
+        """
         self.pos.advance(self.current_char)
         self.current_char = self.text[self.pos.idx] if self.pos.idx < len(self.text) else None
 
-    def make_tokens(self):
+    def make_tokens(self) -> Tuple[List[Token], IllegalCharError | None]:
+        """
+        Generate a list of tokens from the input text.
+
+        Returns:
+            tuple: A tuple containing a list of tokens and an error (if any).
+        """
         tokens = []
 
         while self.current_char is not None:
@@ -119,7 +150,13 @@ class Lexer:
         tokens.append(Token(TT_EOF, pos_start = self.pos))
         return tokens, None
     
-    def make_number(self):
+    def make_number(self) -> Token:
+        """
+        Parse and create a number token (integer or float).
+
+        Returns:
+            Token: An INT or FLOAT token.
+        """
         num_str = ''
         dot_count = 0
         pos_start = self.pos.copy()
@@ -142,7 +179,13 @@ class Lexer:
         
         return Token(TT_FLOAT, float(num_str), pos_start, self.pos)
     
-    def make_string(self):
+    def make_string(self) -> Token:
+        """
+        Parse and create a string token.
+
+        Returns:
+            Token: A STRING token.
+        """
         string = ''
         pos_start = self.pos.copy()
         escape_char = False
@@ -167,7 +210,13 @@ class Lexer:
         self.advance()
         return Token(TT_STRING, string, pos_start, self.pos)
     
-    def make_identifier(self):
+    def make_identifier(self) -> Token:
+        """
+        Parse and create an identifier or keyword token.
+
+        Returns:
+            Token: An IDENTIFIER or KEYWORD token.
+        """
         id_str = ''
         pos_start = self.pos.copy()
 
@@ -178,7 +227,13 @@ class Lexer:
         tok_type = TT_KEYWORD if id_str in KEYWORDS else TT_IDENTIFIER
         return Token(tok_type, id_str, pos_start, self.pos)
     
-    def make_not_equals(self):
+    def make_not_equals(self) -> Tuple[Token | None, ExpectedCharError | None]:
+        """
+        Parse and create a not-equals token.
+
+        Returns:
+            tuple: A tuple containing the NE token and an error (if any).
+        """
         pos_start = self.pos.copy()
         self.advance()
 
@@ -189,7 +244,13 @@ class Lexer:
         self.advance()
         return None, ExpectedCharError(pos_start, self.pos, "'=' (después de '!')")
     
-    def make_equals(self):
+    def make_equals(self) -> Token:
+        """
+        Parse and create an equals or double-equals token.
+
+        Returns:
+            Token: An EQ or EE token.
+        """
         tok_type = TT_EQ
         pos_start = self.pos.copy()
         self.advance()
@@ -200,7 +261,13 @@ class Lexer:
 
         return Token(tok_type, pos_start = pos_start, pos_end = self.pos)
     
-    def make_less_than(self):
+    def make_less_than(self) -> Token:
+        """
+        Parse and create a less-than or less-than-or-equal token.
+
+        Returns:
+            Token: An LT or LTE token.
+        """
         tok_type = TT_LT
         pos_start = self.pos.copy()
         self.advance()
@@ -211,7 +278,13 @@ class Lexer:
 
         return Token(tok_type, pos_start = pos_start, pos_end = self.pos)
     
-    def make_greater_than(self):
+    def make_greater_than(self) -> Token:
+        """
+        Parse and create a greater-than or greater-than-or-equal token.
+
+        Returns:
+            Token: A GT or GTE token.
+        """
         tok_type = TT_GT
         pos_start = self.pos.copy()
         self.advance()
@@ -222,7 +295,7 @@ class Lexer:
 
         return Token(tok_type, pos_start = pos_start, pos_end = self.pos)
     
-    def skip_comment(self):
+    def skip_comment(self) -> None:
         self.advance()
 
         while self.current_char not in ('\n', None):
