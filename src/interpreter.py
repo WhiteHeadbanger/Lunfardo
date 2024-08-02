@@ -512,8 +512,25 @@ class Interpreter:
         res = RTResult()
 
         class_name = node.var_name_tok.value
-        arranque_method_node = node.arranque_method
+        parent_class = node.parent_class if node.parent_class else None
         methods = {}
+        if parent_class is not None:
+            cheto_value = context.symbol_table.get(parent_class.value)
+            cheto_value = cheto_value.copy()
+            cheto_value.name = class_name
+            context.symbol_table.set(class_name, cheto_value)
+
+            for method_node in node.methods:
+                method_node.is_method = True
+                method_name = method_node.var_name_tok.value
+                method_value = res.register(self.visit(method_node, context))
+                if res.should_return(): return res
+
+                cheto_value.methods[method_name] = method_value
+
+            return res.success(cheto_value)
+        
+        arranque_method_node = node.arranque_method
         if arranque_method_node:
             arranque_method_node.is_method = True
             arranque_method_value = res.register(self.visit(arranque_method_node, context))

@@ -260,7 +260,7 @@ class LaburoDefNode:
 class ChetoDefNode:
     """Represents a cheto (class) definition in the AST."""
     
-    def __init__(self, var_name_tok, methods, arranque_method) -> None:
+    def __init__(self, var_name_tok, methods, arranque_method, parent_class = None) -> None:
         """
         Initialize a ChetoDefNode.
 
@@ -268,10 +268,12 @@ class ChetoDefNode:
             var_name_tok (Token): Token representing the name of the cheto.
             methods (list): List of Nodes representing the methods of the cheto.
             arranque_method (Node): Node representing the "arranque" (constructor) method of the cheto.
+            parent_class (Node): Node representing the parent cheto of the cheto to inherit from.
         """
         self.var_name_tok = var_name_tok
         self.methods = methods
         self.arranque_method = arranque_method
+        self.parent_class = parent_class
         self.pos_start = self.var_name_tok.pos_start
         self.pos_end = self.methods[-1].pos_end if self.methods else self.var_name_tok.pos_end
 

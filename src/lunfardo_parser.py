@@ -141,7 +141,7 @@ class Parser:
             return self.tokens[self.tok_idx + 1]
         return None
     
-    def parse(self) -> Tuple[Optional["ParseResult"], bool] | "ParseResult":
+    def parse(self) -> Tuple[Optional["ParseResult"], bool]:
         """
         Parse the tokens and generate an AST.
 
@@ -156,7 +156,7 @@ class Parser:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start, 
                 self.current_tok.pos_end, 
-                "Se esperaba '+', '-', '*', '/', '^', '==', '!=', '<', '>', '<=', '>=', 'y' ó 'o'"))
+                "Se esperaba '+', '-', '*', '/', '^', '==', '!=', '<', '>', '<=', '>=', 'y' ó 'o'")), False
         return res, False
     # MARK: Parser.statements
     def statements(self) -> "ParseResult":
@@ -1464,8 +1464,33 @@ class Parser:
             ))
 
         class_name = self.current_tok
+        parent_class_name = None
         res.register_advance()
         self.advance()
+
+        # Check if the class has a parent class to inherit from
+        if self.current_tok.type == TT_LPAREN:
+            res.register_advance()
+            self.advance()
+
+            if self.current_tok.type != TT_IDENTIFIER:
+                return res.failure(InvalidSyntaxError(
+                    self.current_tok.pos_start, self.current_tok.pos_end,
+                    "Se esperaba identificador"
+                ))
+            
+            parent_class_name = self.current_tok
+            res.register_advance()
+            self.advance()
+
+            if self.current_tok.type != TT_RPAREN:
+                return res.failure(InvalidSyntaxError(
+                    self.current_tok.pos_start, self.current_tok.pos_end,
+                    "Se esperaba ')'"
+                ))
+            
+            res.register_advance()
+            self.advance()
 
         if self.current_tok.type != TT_NEWLINE:
             return res.failure(InvalidSyntaxError(
@@ -1505,7 +1530,7 @@ class Parser:
         res.register_advance()
         self.advance()
 
-        return res.success(ChetoDefNode(class_name, methods, arranque_method))
+        return res.success(ChetoDefNode(class_name, methods, arranque_method, parent_class_name))
     
     def method_call_expr(self, object_tok) -> "ParseResult":
         """
