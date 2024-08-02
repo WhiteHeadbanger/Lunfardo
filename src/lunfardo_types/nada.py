@@ -2,7 +2,7 @@ from .value import Value
 
 class Nada(Value):
 
-    def __init__(self, value):
+    def __init__(self, value: None) -> None:
         super().__init__()
         self.value = value
 
