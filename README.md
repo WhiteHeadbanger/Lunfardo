@@ -352,6 +352,8 @@ chau
 
 `/examples/perro.lunf`
 ```
+importar "animal.lunf"
+
 # Cheto hijo (hereda de Animal)
 cheto Perro(Animal)
     laburo ladrar(mi, cantidad)
