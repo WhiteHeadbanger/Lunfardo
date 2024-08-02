@@ -1,0 +1,8 @@
+cheto Animal
+    laburo arranque(mi, nombre)
+        poneleque mi.nombre = nombre
+    chau
+    laburo saludar(mi)
+        matear("Soy " + mi.nombre)
+    chau
+chau
