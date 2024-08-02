@@ -443,3 +443,23 @@ class RajarNode:
     
     def __str__(self) -> str:
         return f'RajarNode({self.pos_start, self.pos_end})'
+    
+class ImportarNode:
+    """Represents an import statement in the AST."""
+
+    def __init__(self, module_name_node: ChamuyoNode) -> None:
+        """
+        Initialize an ImportarNode.
+
+        Args:
+            module_name_node (ChamuyoNode): Node representing the module name.
+        """
+        self.module_name_node = module_name_node
+        self.pos_start = self.module_name_node.pos_start
+        self.pos_end = self.module_name_node.pos_end
+
+    def __repr__(self) -> str:
+        return f'ImportarNode({self.module_name_node})'
+    
+    def __str__(self) -> str:
+        return f'ImportarNode({self.module_name_node})'

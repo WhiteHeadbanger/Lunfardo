@@ -16,7 +16,7 @@ LunfardoNode = Union[NumeroNode, ChamuyoNode, CosoNode, MataburrosNode, PoneleQu
                      PoneleQueAssignNode, BinOpNode, UnaryOpNode, SiNode, ParaNode,
                      MientrasNode, LaburoDefNode, ChetoDefNode, MethodCallNode,
                      InstanceNode, InstanceVarAssignNode, InstanceVarAccessNode,
-                     CallNode, DevolverNode, ContinuarNode, RajarNode]
+                     CallNode, DevolverNode, ContinuarNode, RajarNode, ImportarNode]
     
 # Run Time Result
 class RTResult:
@@ -470,6 +470,14 @@ class Parser:
                 return res
             
             return res.success(instance)
+        
+        if tok.matches(TT_KEYWORD, 'importar'):
+            import_expr = res.register(self.import_expr())
+
+            if res.error:
+                return res
+            
+            return res.success(import_expr)
         
         return res.failure(InvalidSyntaxError(
             tok.pos_start,
@@ -1633,6 +1641,30 @@ class Parser:
         self.advance()
 
         return res.success(InstanceVarAccessNode(object_tok, var_name))
+    
+    def import_expr(self) -> "ParseResult":
+        """
+        Parse an import expression in the Lunfardo language.
+        """
+
+        res = ParseResult()
+        res.register_advance()
+        self.advance()
+
+        if self.current_tok.type != TT_STRING:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                "El nombre del modulo a importar debe ser un chamuyo"
+            ))
+        
+        import_module_node = res.register(self.atom())
+        if res.error: return res
+        
+        res.register_advance()
+        self.advance()
+
+        return res.success(ImportarNode(import_module_node))
+
 
     # MARK: Parse.expr
     def expr(self) -> "ParseResult":

@@ -10,7 +10,7 @@ LunfardoNode = Union[NumeroNode, ChamuyoNode, CosoNode, MataburrosNode, PoneleQu
                      PoneleQueAssignNode, BinOpNode, UnaryOpNode, SiNode, ParaNode,
                      MientrasNode, LaburoDefNode, ChetoDefNode, MethodCallNode,
                      InstanceNode, InstanceVarAssignNode, InstanceVarAccessNode,
-                     CallNode, DevolverNode, ContinuarNode, RajarNode]
+                     CallNode, DevolverNode, ContinuarNode, RajarNode, ImportarNode]
 
 #TODO RTResult deberia estar acá en vez de en el parser.
 
@@ -554,7 +554,7 @@ class Interpreter:
     
     def visit_CallNode(self, node: CallNode, context: Context) -> RTResult:
         """
-        Visit and interpret a CallNode (function or method call node) in the Lunfardo language.
+        Visit and interpret a CallNode (function call node) in the Lunfardo language.
 
         This method evaluates the callable object and its arguments, then executes the call.
 
@@ -886,6 +886,41 @@ class Interpreter:
         return res.success(
             Mataburros(keys, values).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
+    
+    def visit_ImportarNode(self, node: ImportarNode, context: Context) -> RTResult:
+        """
+        Visit and interpret an ImportarNode (import node) in the Lunfardo language.
+
+        This method imports a module by executing the file.
+
+        Args:
+            node (ImportarNode): The import node to interpret.
+            context (Context): The current execution context.
+
+        Returns:
+            RTResult: The result of the interpretation, containing the imported module.
+        """
+
+        res = RTResult()
+        file_name = res.register(self.visit(node.module_name_node, context))
+        if res.error:
+            return res
+        
+        # Use Curro.ejecutar to import and execute the file
+        ejecutar_func = context.symbol_table.get("ejecutar").set_pos(node.pos_start, node.pos_end)
+        if ejecutar_func:
+            res.register(ejecutar_func.execute([file_name], context))
+            if res.should_return():
+                return res
+        else:
+            return res.failure(RTError(
+                node.pos_start, node.pos_end,
+                "Function 'ejecutar' not found",
+                context
+            ))
+
+        return res.success(Nada.nada)
+
 
 
 

@@ -1,0 +1,11 @@
+importar "animal.lunf"
+
+cheto Perro(Animal)
+    laburo ladrar(mi, cantidad)
+        matear("Guau! " * cantidad)
+    chau
+chau
+
+poneleque rocco = nuevo Perro("Rocco")
+rocco.saludar()
+rocco.ladrar(5)
