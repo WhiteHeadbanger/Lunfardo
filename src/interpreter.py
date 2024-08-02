@@ -2,52 +2,155 @@ from lunfardo_parser import RTResult
 from constants.tokens import *
 from lunfardo_types import Numero, Nada
 from errors.errors import RTError
+from context import Context
+from nodes import *
+from typing import Optional, Union, NoReturn
+
+LunfardoNode = Union[NumeroNode, ChamuyoNode, CosoNode, MataburrosNode, PoneleQueAccessNode,
+                     PoneleQueAssignNode, BinOpNode, UnaryOpNode, SiNode, ParaNode,
+                     MientrasNode, LaburoDefNode, ChetoDefNode, MethodCallNode,
+                     InstanceNode, InstanceVarAssignNode, InstanceVarAccessNode,
+                     CallNode, DevolverNode, ContinuarNode, RajarNode]
 
 #TODO RTResult deberia estar acá en vez de en el parser.
 
 class SymbolTable:
+    """
+    Manages symbol tables for variable and function scoping in Lunfardo.
 
-    def __init__(self, parent = None):
+    This class implements a symbol table with support for nested scopes,
+    allowing for efficient symbol lookup and management across different
+    levels of the program execution.
+    """
+
+    def __init__(self, parent: Optional["SymbolTable"] = None) -> None:
+        """
+        Initialize a new SymbolTable.
+
+        Args:
+            parent (SymbolTable, optional): Parent symbol table for nested scopes.
+        """
         self.symbols = {}
         self.parent = parent
 
-    #TODO: capaz implementar getters y setters pythonicos.
-    def get(self, name):
+    #TODO: getters y setters pythonicos.
+    def get(self, name: str):
+        """
+        Retrieve a symbol's value from the current or parent scopes.
+
+        Args:
+            name (str): The name of the symbol to retrieve.
+
+        Returns:
+            The value associated with the symbol, or None if not found.
+        """
         value = self.symbols.get(name, None)
         if value is None and self.parent is not None:
             return self.parent.get(name)
         
         return value
     
-    def set(self, name, value):
+    def set(self, name: str, value):
+        """
+        Set a symbol's value in the current scope.
+
+        Args:
+            name (str): The name of the symbol.
+            value: The value to associate with the symbol.
+        """
         self.symbols[name] = value
 
     def remove(self, name):
+        """
+        Remove a symbol from the current scope.
+
+        Args:
+            name (str): The name of the symbol to remove.
+        """
         del self.symbols[name]
 
 class Interpreter:
+    """
+    Executes Lunfardo programs by interpreting the Abstract Syntax Tree (AST).
 
-    def visit(self, node, context):
+    This class contains methods to visit and evaluate different types of nodes
+    in the AST, implementing the runtime behavior of Lunfardo programs. It
+    handles variable assignments, function calls, arithmetic operations,
+    control structures, and other language features defined in the Lunfardo
+    specification.
+    """
+
+    def visit(self, node: LunfardoNode, context: Context) -> RTResult:
+        """
+        Visit and evaluate a node in the Abstract Syntax Tree.
+
+        Args:
+            node: The AST node to visit.
+            context: The current execution context.
+
+        Returns:
+            The result of evaluating the node.
+        """
         method_name = f'visit_{type(node).__name__}'
         method = getattr(self, method_name, self.no_visit_method)
         return method(node, context)
     
-    def no_visit_method(self, node, context):
+    def no_visit_method(self, node: LunfardoNode, context: Context) -> NoReturn:
+        """
+        Raise an exception for nodes without a defined visit method.
+
+        Args:
+            node: The AST node without a visit method.
+            context: The current execution context.
+
+        Raises:
+            Exception: Indicating that no visit method is defined for the node type.
+        """
         raise Exception(f"No se encuentra definido ningun 'visit_{type(node).__name__}' metodo")
     
-    def visit_NumeroNode(self, node, context):
+    def visit_NumeroNode(self, node: NumeroNode, context: Context) -> RTResult:
+        """
+        Evaluate a NumeroNode (number literal) in the AST.
+
+        Args:
+            node: The NumeroNode to evaluate.
+            context: The current execution context.
+
+        Returns:
+            RTResult: A runtime result containing the Numero value.
+        """
         return RTResult().success(
             Numero(node.tok.value).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
     
-    def visit_ChamuyoNode(self, node, context):
+    def visit_ChamuyoNode(self, node: ChamuyoNode, context: Context) -> RTResult:
+        """
+        Evaluate a ChamuyoNode (string literal) in the AST.
+
+        Args:
+            node: The ChamuyoNode to evaluate.
+            context: The current execution context.
+
+        Returns:
+            RTResult: A runtime result containing the Chamuyo value.
+        """
         from lunfardo_types import Chamuyo
         
         return RTResult().success(
             Chamuyo(node.tok.value).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
     
-    def visit_PoneleQueAccessNode(self, node, context):
+    def visit_PoneleQueAccessNode(self, node: PoneleQueAccessNode, context: Context) -> RTResult:
+        """
+        Evaluate a PoneleQueAccessNode (variable access) in the AST.
+
+        Args:
+            node: The PoneleQueAccessNode to evaluate.
+            context: The current execution context.
+
+        Returns:
+            RTResult: A runtime result containing the variable's value or RTError if not found.
+        """
         res = RTResult()
         var_name = node.var_name_tok.value
         value = context.symbol_table.get(var_name)
@@ -63,7 +166,17 @@ class Interpreter:
         value = value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
         return res.success(value)
     
-    def visit_PoneleQueAssignNode(self, node, context):
+    def visit_PoneleQueAssignNode(self, node: PoneleQueAssignNode, context: Context) -> RTResult:
+        """
+        Evaluate a PoneleQueAssignNode (variable assignment) in the AST.
+
+        Args:
+            node: The PoneleQueAssignNode to evaluate.
+            context: The current execution context.
+
+        Returns:
+            RTResult: A runtime result containing the assigned value.
+        """
         res = RTResult()
         var_name = node.var_name_tok.value
         value = res.register(self.visit(node.value_node, context))
@@ -74,7 +187,22 @@ class Interpreter:
         context.symbol_table.set(var_name, value)
         return res.success(value)
 
-    def visit_BinOpNode(self, node, context):
+    def visit_BinOpNode(self, node: BinOpNode, context: Context) -> RTResult:
+        """
+        Evaluate a BinOpNode (binary operation) in the AST.
+
+        This method handles various binary operations including:
+        - Arithmetic: addition, subtraction, multiplication, division, power
+        - Comparison: equality, inequality, less than, greater than, etc.
+        - Logical: 'y' (and), 'o' (or)
+
+        Args:
+            node: The BinOpNode to evaluate.
+            context: The current execution context.
+
+        Returns:
+            RTResult: A runtime result containing the outcome of the binary operation or RTError if an error occurs.
+        """
         res = RTResult()
         left = res.register(self.visit(node.left_node, context))
         if res.should_return():
@@ -128,7 +256,19 @@ class Interpreter:
         
         return res.success(result.set_pos(node.pos_start, node.pos_end).set_context(context))
 
-    def visit_UnaryOpNode(self, node, context):
+    def visit_UnaryOpNode(self, node: UnaryOpNode, context: Context) -> RTResult:
+        """
+        Evaluate a UnaryOpNode in the AST.
+
+        Handles unary operations such as negation and logical NOT ('truchar').
+
+        Args:
+            node: The UnaryOpNode to evaluate.
+            context: The current execution context.
+
+        Returns:
+            RTResult: A runtime result containing the outcome of the unary operation.
+        """
         res = RTResult()
         number = res.register(self.visit(node.node, context))
         if res.should_return():
@@ -146,7 +286,20 @@ class Interpreter:
         
         return res.success(number.set_pos(node.pos_start, node.pos_end).set_context(context))
     
-    def visit_SiNode(self, node, context):
+    def visit_SiNode(self, node: SiNode, context: Context) -> RTResult:
+        """
+        Evaluate a SiNode (if statement) in the AST.
+
+        Processes conditional statements, including 'si' (if), 'osi' (elif),
+        and 'sino' (else) clauses.
+
+        Args:
+            node: The SiNode to evaluate.
+            context: The current execution context.
+
+        Returns:
+            RTResult: A runtime result containing the value of the executed branch.
+        """
         res = RTResult()
 
         for condition, expr, should_return_null in node.cases:
@@ -174,7 +327,26 @@ class Interpreter:
         
         return res.success(Nada.nada)
     
-    def visit_ParaNode(self, node, context):
+    def visit_ParaNode(self, node: ParaNode, context: Context) -> RTResult:
+        """
+        Evaluate a ParaNode (for loop) in the AST.
+
+        Executes a for loop, iterating from a start value to an end value,
+        with an optional step value. Handles both numeric and custom iterable types.
+
+        Args:
+            node: The ParaNode to evaluate.
+            context: The current execution context.
+
+        Returns:
+            RTResult: A runtime result containing either Nada.nada if should_return_null
+                    is True, or a Coso (list) of elements generated during iteration.
+
+        Note:
+            - Supports both positive and negative step values.
+            - Handles continue and break statements within the loop.
+            - Creates a new variable in the context for each iteration.
+        """
         from lunfardo_types import Coso
         res = RTResult()
         elements = []
@@ -222,7 +394,25 @@ class Interpreter:
             Coso(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
     
-    def visit_MientrasNode(self, node, context):
+    def visit_MientrasNode(self, node: MientrasNode, context: Context) -> RTResult:
+        """
+        Evaluate a MientrasNode (while loop) in the AST.
+
+        Executes a while loop, repeatedly evaluating the condition and executing
+        the body until the condition becomes false.
+
+        Args:
+            node: The MientrasNode to evaluate.
+            context: The current execution context.
+
+        Returns:
+            RTResult: A runtime result containing either Nada.nada if should_return_null
+                    is True, or a Coso (list) of elements generated during iteration.
+
+        Note:
+            - Supports break and continue statements within the loop.
+            - Accumulates results of each iteration in a list if not returning Nada.
+        """
         from lunfardo_types import Coso
         res = RTResult()
         elements = []
@@ -253,7 +443,24 @@ class Interpreter:
             Coso(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
     
-    def visit_LaburoDefNode(self, node, context):
+    def visit_LaburoDefNode(self, node: LaburoDefNode, context: Context) -> RTResult:
+        """
+        Visit and interpret a LaburoDefNode (function definition node) in the Lunfardo language.
+
+        This method creates a Laburo (function) object from the given LaburoDefNode, evaluates
+        default argument values, and sets the function in the current context if it's not a method.
+
+        Args:
+            node (LaburoDefNode): The function definition node to interpret.
+            context (Context): The current execution context.
+
+        Returns:
+            RTResult: The result of the interpretation, containing the created Laburo object.
+
+        Note:
+            - Evaluates default argument values.
+            - Sets the function in the context's symbol table if it's not a method.
+        """
         from lunfardo_types import Laburo
         res = RTResult()
 
@@ -282,7 +489,25 @@ class Interpreter:
         
         return res.success(func_value)
     
-    def visit_ChetoDefNode(self, node, context):
+    def visit_ChetoDefNode(self, node: ChetoDefNode, context: Context) -> RTResult:
+        """
+        Visit and interpret a ChetoDefNode (class definition node) in the Lunfardo language.
+
+        This method creates a Cheto (class) object from the given ChetoDefNode, processes the
+        'arranque' (constructor) method if present, and adds all defined methods to the class.
+
+        Args:
+            node (ChetoDefNode): The class definition node to interpret.
+            context (Context): The current execution context.
+
+        Returns:
+            RTResult: The result of the interpretation, containing the created Cheto object.
+
+        Notes:
+            - The 'arranque' method, if present, is treated as the class constructor.
+            - All methods, including 'arranque', are marked as instance methods.
+            - The class is added to the current context's symbol table.
+        """
         from lunfardo_types import Cheto
         res = RTResult()
 
@@ -310,7 +535,23 @@ class Interpreter:
 
         return res.success(cheto_value)
     
-    def visit_CallNode(self, node, context):
+    def visit_CallNode(self, node: CallNode, context: Context) -> RTResult:
+        """
+        Visit and interpret a CallNode (function or method call node) in the Lunfardo language.
+
+        This method evaluates the callable object and its arguments, then executes the call.
+
+        Args:
+            node (CallNode): The function or method call node to interpret.
+            context (Context): The current execution context.
+
+        Returns:
+            RTResult: The result of the interpretation, containing the value returned by the call.
+
+        Notes:
+            - The callable object and all arguments are evaluated in the current context.
+            - The return value is copied and its position and context are set before being returned.
+        """
         res = RTResult()
         args = []
 
@@ -333,14 +574,32 @@ class Interpreter:
         
         return res.success(return_value)
     
-    def visit_MethodCallNode(self, node, context):
+    def visit_MethodCallNode(self, node: MethodCallNode, context: Context) -> RTResult:
+        """
+        Visit and interpret a MethodCallNode (object method call node) in the Lunfardo language.
+
+        This method evaluates the object, retrieves the specified method, and executes it with
+        the given arguments.
+
+        Args:
+            node (MethodCallNode): The method call node to interpret.
+            context (Context): The current execution context.
+
+        Returns:
+            RTResult: The result of the interpretation, containing the value returned by the method call.
+
+        Notes:
+            - The object must be an instance of Cheto (class object).
+            - The method is retrieved from the object using the method name.
+            - The object itself is passed as the first argument to the method.
+            - All other arguments are evaluated in the current context before being passed to the method.
+        """
         from lunfardo_types import Cheto
-        from nodes import PoneleQueAccessNode, InstanceVarAccessNode, CallNode
+        from nodes import PoneleQueAccessNode
 
         res = RTResult()
 
         object_value = res.register(self.visit(PoneleQueAccessNode(node.object_tok), context))
-        #object_value = res.register(self.visit(CallNode(node.method_name_tok, node.arg_nodes), context))
         if res.should_return(): return res
 
         if isinstance(object_value, Cheto):
@@ -363,7 +622,26 @@ class Interpreter:
                 context
             ))
     
-    def visit_InstanceNode(self, node, context):
+    def visit_InstanceNode(self, node: InstanceNode, context: Context) -> RTResult:
+        """
+        Visit and interpret an InstanceNode (object instantiation node) in the Lunfardo language.
+
+        This method creates a new instance of a Cheto (class) object, initializes it using the
+        'arranque' method if present, and returns the new instance.
+
+        Args:
+            node (InstanceNode): The object instantiation node to interpret.
+            context (Context): The current execution context.
+
+        Returns:
+            RTResult: The result of the interpretation, containing the newly created instance.
+
+        Notes:
+            - The class must exist in the current context and be a Cheto object.
+            - All arguments for the instance creation are evaluated in the current context.
+            - If an 'arranque' method exists, it's called with the new instance as the first argument,
+            followed by any additional arguments provided during instantiation.
+        """
         from lunfardo_types import Cheto
         res = RTResult()
 
@@ -399,7 +677,25 @@ class Interpreter:
         
         return res.success(instance)
     
-    def visit_InstanceVarAssignNode(self, node, context):
+    def visit_InstanceVarAssignNode(self, node: InstanceVarAssignNode, context: Context) -> RTResult:
+        """
+        Visit and interpret an InstanceVarAssignNode (instance variable assignment node) in the Lunfardo language.
+
+        This method evaluates the value to be assigned, retrieves the current context of the object,
+        and sets the instance variable with the evaluated value.
+
+        Args:
+            node (InstanceVarAssignNode): The instance variable assignment node to interpret.
+            context (Context): The current execution context.
+
+        Returns:
+            RTResult: The result of the interpretation, containing the assigned instance variable value.
+
+        Notes:
+            - The assigned value is evaluated in the current context.
+            - The instance variable is set in the object's own context.
+            - The returned value is a copy of the assigned value, with position and context set.
+        """
         res = RTResult()
 
         object_value = res.register(self.visit(node.value_node, context))
@@ -412,7 +708,24 @@ class Interpreter:
 
         return res.success(instance_var)
     
-    def visit_InstanceVarAccessNode(self, node, context):
+    def visit_InstanceVarAccessNode(self, node: InstanceVarAccessNode, context: Context) -> RTResult:
+        """
+        Visit and interpret an InstanceVarAccessNode (instance variable access node) in the Lunfardo language.
+
+        This method retrieves the value of an instance variable from a specified object.
+
+        Args:
+            node (InstanceVarAccessNode): The instance variable access node to interpret.
+            context (Context): The current execution context.
+
+        Returns:
+            RTResult: The result of the interpretation, containing the value of the accessed instance variable.
+
+        Notes:
+            - The method retrieves the object's context from the current symbol table.
+            - If the instance variable is not defined, an RTError is returned.
+            - The returned value is a copy of the instance variable, with position and context set.
+        """
         res = RTResult()
         object_tok_name = node.object_tok.value
         var_name = node.var_name_tok.value
@@ -431,7 +744,23 @@ class Interpreter:
         value = value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
         return res.success(value)
     
-    def visit_DevolverNode(self, node, context):
+    def visit_DevolverNode(self, node: DevolverNode, context: Context) -> RTResult:
+        """
+        Visit and interpret a DevolverNode (return node) in the Lunfardo language.
+
+        This method evaluates the expression to be returned, if any, and signals a return operation.
+
+        Args:
+            node (DevolverNode): The return node to interpret.
+            context (Context): The current execution context.
+
+        Returns:
+            RTResult: The result of the interpretation, containing the value to be returned.
+
+        Notes:
+            - If no expression is provided, returns Nada (None) value.
+            - Uses success_return to signal a return operation.
+        """
         res = RTResult()
 
         if node.node_to_return:
@@ -444,13 +773,54 @@ class Interpreter:
 
         return res.success_return(value)
     
-    def visit_ContinuarNode(self, node, context):
+    def visit_ContinuarNode(self, node: ContinuarNode, context: Context) -> RTResult:
+        """
+        Visit and interpret a ContinuarNode (continue node) in the Lunfardo language.
+
+        This method signals a continue operation in a loop.
+
+        Args:
+            node (ContinuarNode): The continue node to interpret.
+            context (Context): The current execution context.
+
+        Returns:
+            RTResult: The result of the interpretation, signaling a continue operation.
+        """
         return RTResult().success_continue()
     
-    def visit_RajarNode(self, node, context):
+    def visit_RajarNode(self, node: RajarNode, context: Context) -> RTResult:
+        """
+        Visit and interpret a RajarNode (break node) in the Lunfardo language.
+
+        This method signals a break operation in a loop.
+
+        Args:
+            node (RajarNode): The break node to interpret.
+            context (Context): The current execution context.
+
+        Returns:
+            RTResult: The result of the interpretation, signaling a break operation.
+        """
         return RTResult().success_break()
 
-    def visit_CosoNode(self, node, context):
+    def visit_CosoNode(self, node: CosoNode, context: Context) -> RTResult:
+        """
+        Visit and interpret a CosoNode (list node) in the Lunfardo language.
+
+        This method creates a Coso (list) object by evaluating each element node
+        and adding it to the list.
+
+        Args:
+            node (CosoNode): The list node to interpret.
+            context (Context): The current execution context.
+
+        Returns:
+            RTResult: The result of the interpretation, containing the created Coso object.
+
+        Notes:
+            - Each element in the list is evaluated in the current context.
+            - The resulting Coso object is set with the current context and position.
+        """
         from lunfardo_types import Coso
         res = RTResult()
 
@@ -464,7 +834,24 @@ class Interpreter:
             Coso(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
 
-    def visit_MataburrosNode(self, node, context):
+    def visit_MataburrosNode(self, node: MataburrosNode, context: Context) -> RTResult:
+        """
+        Visit and interpret a MataburrosNode (dictionary node) in the Lunfardo language.
+
+        This method creates a Mataburros (dictionary) object by evaluating each key-value pair
+        and adding them to the dictionary.
+
+        Args:
+            node (MataburrosNode): The dictionary node to interpret.
+            context (Context): The current execution context.
+
+        Returns:
+            RTResult: The result of the interpretation, containing the created Mataburros object.
+
+        Notes:
+            - Both keys and values are evaluated in the current context.
+            - The resulting Mataburros object is set with the current context and position.
+        """
         from lunfardo_types import Mataburros
         res = RTResult()
 

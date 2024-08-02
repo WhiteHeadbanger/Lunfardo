@@ -1,9 +1,18 @@
+"""
+Main execution module for the Lunfardo programming language.
+
+This module contains the global symbol table setup, execution function,
+and the main REPL (Read-Eval-Print Loop) for the Lunfardo interpreter.
+"""
+
 from lexer import Lexer
 from lunfardo_parser import Parser
 from lunfardo_types import Curro, Boolean, Nada
 from interpreter import Interpreter, SymbolTable
 from context import Context
+from typing import Optional, Tuple
 
+############### Global symbol table setup ###############
 global_symbol_table = SymbolTable()
 # Bools and null
 global_symbol_table.set("nada", Nada.nada)
@@ -38,7 +47,17 @@ global_symbol_table.set("longitud", Curro.longitud)
 global_symbol_table.set("ejecutar", Curro.ejecutar)
 global_symbol_table.set("renuncio", Curro.renuncio)
 
-def execute(fn, text):
+def execute(fn, text) -> Tuple:
+    """
+    Execute Lunfardo code.
+
+    Args:
+        fn (str): The filename or source identifier.
+        text (str): The Lunfardo code to execute.
+
+    Returns:
+        tuple: A tuple containing the execution result and any error encountered.
+    """
     lexer = Lexer(fn, text)
     tokens, error = lexer.make_tokens()
     if error:
@@ -63,7 +82,12 @@ def execute(fn, text):
 
     return result.value, result.error
 
-def run():
+def run() -> None:
+    """
+    Run the Lunfardo REPL (Read-Eval-Print Loop).
+
+    This function provides an interactive prompt for executing Lunfardo code.
+    """
     while True:
         text = input('Lunfardo > ')
         if text.strip() == "":
