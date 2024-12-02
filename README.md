@@ -19,16 +19,16 @@ La idea del lenguaje es divertirse!
 - `cd src`
 - `python3 run.py`
 
-Inmediatamente se puede empezar a usar el intérprete, pero también podemos escribir nuevos archivos.
+Inmediatamente se puede empezar a usar el intérprete, pero también podemos escribir nuevos archivos.  
 
 Para ejecutar archivos
 
 - `ejecutar(<nombre_del_archivo_en_strings>)`  
-  Ej: `ejecutar("factorial.lunf")`
+Ej: `ejecutar("factorial.lunf")`
 
 Nota: el archivo debe estar dentro de la carpeta `src/examples` por el momento.  
 Si querés cambiar esto, al final del archivo `src/lunfardo_types/laburo.py` podés encontrar  
-el método `exec_ejecutar()` en donde se comprueba esta ruta.
+el método `exec_ejecutar()` en donde se comprueba esta ruta. 
 
 # Características
 
@@ -37,67 +37,67 @@ Nota: los `[]` significa que es un parámetro opcional.
 ## Tipos de dato
 
 - `Numero`: _entero_ | _float_  
-  Ej: `1`, `1.5`
+Ej: `1`, `1.5`
 - `Chamuyo`: _string_  
-  Ej: `"Hola Argentina!"`
-- `Boloodean`: _bool_ = `posta` | `trucho`
+Ej: `"Hola Argentina!"`
+- `Boolean`: _bool_ = `posta` | `trucho`
 - `Nada`: _null_ = `nada`
 
 ## Variables
 
 - `poneleque <identificador> = <expresión> | <valor>`  
-   Ej: `poneleque numero = 10`, `poneleque variable = (10 + 10) y trucho`
+    Ej: `poneleque numero = 10`, `poneleque variable = (10 + 10) y trucho`
 
 ## Estructuras de datos
 
 - `Coso`: _lista_ = `[]`  
-  Ej: `poneleque lista = [1, 2, 3]`
+Ej: `poneleque lista = [1, 2, 3]`
 - `Mataburros`: _dict_ = `{}`  
-  Ej: `poneleque dict = {"1": 1, 2: "dos", var: otra_var}`
+Ej: `poneleque dict = {"1": 1, 2: "dos", var: otra_var}`
 
 ## Operadores
 
 ### Operadores aritméticos
 
 - `+`: _sumar_  
-   Ej: `poneleque numero = 10 + 10`
+    Ej: `poneleque numero = 10 + 10`
 - `-`: _restar_  
-   Ej: `poneleque numero = 10 - 10`
+    Ej: `poneleque numero = 10 - 10`
 - `*`: _multiplicar_  
-   Ej: `poneleque numero = 10 * 10`
+    Ej: `poneleque numero = 10 * 10`
 - `/`: _dividir_  
-   Ej: `poneleque numero = 10 / 10`
+    Ej: `poneleque numero = 10 / 10`
 - `^`: _potencia_  
-   Ej: `poneleque numero = 10 ^ 10`
+    Ej: `poneleque numero = 10 ^ 10`
 
 ### Operadores lógicos
 
 - `y`  
-   Ej: `poneleque valor = 10 y 10` -> retorna: `posta`
+    Ej: `poneleque valor = 10 y 10` -> retorna: `posta`
 - `o`  
-   Ej: `poneleque valor = 10 o 10` -> retorna: `posta`
+    Ej: `poneleque valor = 10 o 10` -> retorna: `posta`
 - `truchar`  
-   Ej: `poneleque valor = truchar 10 == 10` -> retorna: `trucho` porque `10 == 10` es `posta`.
+    Ej: `poneleque valor = truchar 10 == 10` -> retorna: `trucho` porque `10 == 10` es `posta`. 
 
 ### Operadores de asignación
 
 - `=`  
-   Ej: `poneleque numero = 10`
+    Ej: `poneleque numero = 10`
 
 ### Operadores de comparación
 
 - `==`  
-   Ej: `si 10 == 10 entonces poneleque valor = 10`
+    Ej: `si 10 == 10 entonces poneleque valor = 10`
 - `!=`  
-   Ej: `si 10 != 10 entonces poneleque valor = 245`
+    Ej: `si 10 != 10 entonces poneleque valor = 245`
 - `<`  
-   Ej: `si 0 < 10 entonces poneleque valor = 9`
+    Ej: `si 0 < 10 entonces poneleque valor = 9`
 - `>`  
-   Ej: `si 20 > 10 entonces poneleque valor = 20`
+    Ej: `si 20 > 10 entonces poneleque valor = 20`
 - `<=`  
-   Ej: `si 4 <= 10 entonces poneleque valor = 4`
+    Ej: `si 4 <= 10 entonces poneleque valor = 4`
 - `>=`  
-   Ej: `si 14 >= 10 entonces poneleque valor = 14`
+    Ej: `si 14 >= 10 entonces poneleque valor = 14`
 
 ## Flujo de datos
 
@@ -106,9 +106,9 @@ Nota: los `[]` significa que es un parámetro opcional.
 ```
 si <condicion> entonces
     <sentencia>
-[osi <condicion> entonces
-    <sentencia>]
-[sino
+[osi <condicion> entonces 
+    <sentencia>] 
+[sino 
     <sentencia>]
 chau
 ```
@@ -126,8 +126,8 @@ chau
 ### Bucle `para`
 
 ```
-para <identificador> = <Numero> hasta <Numero> [entre <Numero>] entonces
-    <sentencia>
+para <identificador> = <Numero> hasta <Numero> [entre <Numero>] entonces 
+    <sentencia> 
 chau
 ```
 
@@ -142,8 +142,8 @@ Si no se especifica un valor para `entre`, su valor es 1.
 ### Bucle `mientras`
 
 ```
-mientras <condicion> entonces
-    <sentencia>
+mientras <condicion> entonces 
+    <sentencia> 
 chau
 ```
 
@@ -156,6 +156,8 @@ mientras i < 10 entonces
 chau
 ```
 
+
+
 ## Tipos de Funciones
 
 Hay dos tipos de funciones, que en Lunfardo se llaman: `Laburo` y `Curro`.
@@ -165,8 +167,8 @@ Hay dos tipos de funciones, que en Lunfardo se llaman: `Laburo` y `Curro`.
 Laburos definidos por el usuario. Pueden tener o no valores por default.
 
 ```
-laburo <identificador>([identificador[=valor][, identificador[=valor]]])
-    <sentencia>
+laburo <identificador>([identificador[=valor][, identificador[=valor]]]) 
+    <sentencia> 
 chau
 ```
 
@@ -200,52 +202,52 @@ saludar_con_nombre_opcional("Lunfardo") # imprime: "Hola, Lunfardo!"
 Un curro es un laburo pre-definido.
 
 - `matear([identificador | valor])`  
-   Imprime en pantalla un valor
+    Imprime en pantalla un valor
 - `morfar([identificador | valor])`  
-   Toma un valor por teclado
+    Toma un valor por teclado
 - `winpiavidrios()`  
-   Limpia la pantalla para windows
+    Limpia la pantalla para windows
 - `linpiavidrios()`  
-   Limpia la pantalla para linux
+    Limpia la pantalla para linux
 - `es_num(<identificador | valor>)`  
-   Devuelve `posta` si es un numero, `trucho` si no lo es.
+    Devuelve `posta` si es un numero, `trucho` si no lo es.
 - `es_chamu(<identificador | valor>)`  
-   Devuelve `posta` si es un chamuyo, `trucho` si no lo es.
+    Devuelve `posta` si es un chamuyo, `trucho` si no lo es.
 - `es_coso(<identificador | valor>)`  
-   Devuelve `posta` si es un coso, `trucho` si no lo es.
+    Devuelve `posta` si es un coso, `trucho` si no lo es.
 - `es_mataburros(<identificador | valor>)`  
-   Devuelve `posta` si es un mataburros, `trucho` si no lo es.
+    Devuelve `posta` si es un mataburros, `trucho` si no lo es.
 - `es_laburo(<identificador | valor>)`  
-   Devuelve `posta` si es un laburo, `trucho` si no lo es.
+    Devuelve `posta` si es un laburo, `trucho` si no lo es.
 - `guardar(<coso>, <valor>)`  
-   Guarda un valor en un coso
+    Guarda un valor en un coso
 - `sacar(<coso>, <indice>)`  
-   Saca un valor de un coso en el índice especificado
+    Saca un valor de un coso en el índice especificado
 - `extender(<coso>, <coso>)`  
-   Extiende un coso con los valores de sino coso
+    Extiende un coso con los valores de sino coso
 - `cambiaso(<coso>, <indice>, <valor>)`  
-   Reemplaza un valor en un coso en el índice especificado
+    Reemplaza un valor en un coso en el índice especificado
 - `insertar(<coso>, <indice>, <valor>)`  
-   Inserta un valor en un coso en el índice especificado
+    Inserta un valor en un coso en el índice especificado
 - `longitud(<coso | chamuyo | mataburros>)`  
-   Devuelve la longitud de un coso | chamuyo | mataburros
+    Devuelve la longitud de un coso | chamuyo | mataburros
 - `metele_en(<mataburros>, <clave>, <valor>)`  
-   Guarda un valor en la clave especificada de un mataburros.  
-   Si la clave no está presente, se crea.
+    Guarda un valor en la clave especificada de un mataburros.  
+    Si la clave no está presente, se crea.
 - `agarra_de(<mataburros>, <clave>)`  
-   Devuelve el valor de una clave de un mataburros.
+    Devuelve el valor de una clave de un mataburros.
 - `borra_de(<mataburros>, <clave>)`  
-   Borra una clave de un mataburros.
+    Borra una clave de un mataburros.
 - `existe_clave(<mataburros>, <clave>)`  
-   Devuelve `posta` si la clave existe en el mataburros, `trucho` si no.
+    Devuelve `posta` si la clave existe en el mataburros, `trucho` si no.
 - `num(<identificador | valor>)`  
-   Convierte un chamuyo a numero
+    Convierte un chamuyo a numero
 - `chamu(<identificador | valor>)`  
-   Convierte un numero a un chamuyo
+    Convierte un numero a un chamuyo
 - `ejecutar(<chamuyo>)`  
-   Ejecuta el codigo de un archivo Lunfardo
+    Ejecuta el codigo de un archivo Lunfardo
 - `renuncio()`  
-   Termina la ejecución del intérprete de Lunfardo.
+    Termina la ejecución del intérprete de Lunfardo.
 
 ## Clases
 
@@ -257,7 +259,7 @@ Los métodos de un `Cheto` se definen con la palabra reservada `laburo`, como si
 ### Instanciación de un Cheto
 
 Para instanciar un `Cheto` se utiliza la palabra reservada `nuevo` seguida del nombre del `Cheto`. No son necesarios los paréntesis.
-En un `Cheto` se puede definir un método llamado `arranque` que se ejecuta cuando se instancia el `Cheto`. Este método es el método constructor del cheto y va a definir las variables de instancia del mismo (si así se desea). En este caso, son necesarios los paréntesis para instanciar el cheto.
+En un `Cheto` se puede definir un método llamado `arranque` que se ejecuta cuando se instancia el `Cheto`. Este método es el método constructor del cheto y va a definir las variables de instancia del mismo (si así se desea). En este caso, son necesarios los paréntesis para instanciar el cheto.  
 
 Para acceder a un método de un `Cheto` se utiliza la notación `cheto.nombre_del_metodo()`, donde `cheto` es la instancia del cheto y `nombre_del_metodo` es el nombre del método.
 
@@ -289,7 +291,6 @@ chaboncito.saludar()
 ```
 
 Output:
-
 ```
 Hola, mi nombre es Juan
 Tengo 25 anos
@@ -300,7 +301,7 @@ Tengo 25 anos
 ### Herencia
 
 Un `Cheto` puede heredar de otro `Cheto`, para ello se utilizan los paréntesis al momento de la declaración, y entre ellos, el nombre del `Cheto` padre.
-Cuando esto sucede, en Lunfardo decimos que el cheto hijo nació en cuna de oro del cheto padre.
+Cuando esto sucede, en Lunfardo decimos que el cheto hijo nació en cuna de oro del cheto padre. 
 
 ```
 # Cheto padre
@@ -326,7 +327,6 @@ rocco.ladrar(5)
 ```
 
 Output:
-
 ```
 Soy Rocco
 Guau! Guau! Guau! Guau! Guau!
@@ -338,7 +338,6 @@ Para importar un archivo se utiliza la palabra reservada `importar`, seguido del
 Nota: Por el momento, solo se pueden importar archivos que estén dentro de la carpeta `examples`.
 
 `/examples/animal.lunf`
-
 ```
 # Cheto padre
 cheto Animal
@@ -352,7 +351,6 @@ chau
 ```
 
 `/examples/perro.lunf`
-
 ```
 importar "animal.lunf"
 
@@ -369,20 +367,20 @@ rocco.ladrar(5)
 ```
 
 Output:
-
 ```
 Soy Rocco
 Guau! Guau! Guau! Guau! Guau!
 ```
 
+
 ## Errores
 
 - `Flaco, fijate que metiste un carácter mal`  
-   Caracter Ilegal
+    Caracter Ilegal
 - `No te entiendo nada, boludo`  
-   Sintaxis Incorrecta
+    Sintaxis Incorrecta
 - `Flaco, fijate que te olvidaste de un carácter`  
-   Se esperaba un carácter
+    Se esperaba un carácter
 - `Error en tiempo de ejecución`
 
 ## Keywords
@@ -411,9 +409,10 @@ Guau! Guau! Guau! Guau! Guau!
 ## Comentarios
 
 - `#`  
-  Ej: `# Esto es un comentario, y esta línea va a ser ignorada por el intérprete`
+Ej: `# Esto es un comentario, y esta línea va a ser ignorada por el intérprete`  
 
-# Ejemplos
+
+# Ejemplos 
 
 ## "Hola mundo"
 
@@ -552,7 +551,8 @@ También recibo mensajes de correo electrónico en: sebastianper2018@gmail.com c
 
 # Siguientes pasos
 
-- [x] Importar archivos de código.
+- [x] Importar archivos de código. 
 - [ ] Más tipos de errores.
 - [x] Clases
-  - [x] Herencia
+    - [x] Herencia
+

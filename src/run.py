@@ -7,7 +7,7 @@ and the main REPL (Read-Eval-Print Loop) for the Lunfardo interpreter.
 
 from lexer import Lexer
 from lunfardo_parser import Parser
-from lunfardo_types import Curro, Boloodean, Nada
+from lunfardo_types import Curro, Boolean, Nada
 from interpreter import Interpreter, SymbolTable
 from context import Context
 from typing import Optional, Tuple
@@ -16,8 +16,8 @@ from typing import Optional, Tuple
 global_symbol_table = SymbolTable()
 # Bools and null
 global_symbol_table.set("nada", Nada.nada)
-global_symbol_table.set("posta", Boloodean.posta)
-global_symbol_table.set("trucho", Boloodean.trucho)
+global_symbol_table.set("posta", Boolean.posta)
+global_symbol_table.set("trucho", Boolean.trucho)
 # I/O
 global_symbol_table.set("matear", Curro.matear)
 global_symbol_table.set("morfar", Curro.morfar)
@@ -47,7 +47,6 @@ global_symbol_table.set("longitud", Curro.longitud)
 global_symbol_table.set("ejecutar", Curro.ejecutar)
 global_symbol_table.set("renuncio", Curro.renuncio)
 
-
 def execute(fn, text) -> Tuple:
     """
     Execute Lunfardo code.
@@ -67,22 +66,21 @@ def execute(fn, text) -> Tuple:
     # Generate AST
     parser = Parser(tokens)
     ast, eof = parser.parse()
-
+    
     # Fixing bug with only EOF token
     if eof:
         return None, None
-
+    
     if ast.error:
         return None, ast.error
 
     # Run
     interpreter = Interpreter()
-    context = Context("<programa>")
+    context = Context('<programa>')
     context.symbol_table = global_symbol_table
     result = interpreter.visit(ast.node, context)
 
     return result.value, result.error
-
 
 def run() -> None:
     """
@@ -91,11 +89,11 @@ def run() -> None:
     This function provides an interactive prompt for executing Lunfardo code.
     """
     while True:
-        text = input("Lunfardo > ")
+        text = input('Lunfardo > ')
         if text.strip() == "":
             continue
-
-        result, error = execute("<stdin>", text)
+        
+        result, error = execute('<stdin>', text)
 
         if error:
             print(error.as_string())
@@ -107,6 +105,5 @@ def run() -> None:
             else:
                 print(repr(result))
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     run()
