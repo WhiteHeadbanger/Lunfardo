@@ -1,5 +1,5 @@
 from .numero import Numero
-from .boolean import Boolean
+from .boloodean import Boloodean
 from .nada import Nada
 from .laburo import Laburo, Curro
 from .chamuyo import Chamuyo
