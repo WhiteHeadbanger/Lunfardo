@@ -1,6 +1,6 @@
 from .value import Value
 from .numero import Numero
-from .boolean import Boolean
+from .boloodean import Boloodean
 
 class Chamuyo(Value):
 
@@ -22,18 +22,18 @@ class Chamuyo(Value):
     
     def get_comparison_eq(self, other):
         if isinstance(other, (Chamuyo, Numero)):
-            return Boolean(self.value == other.value).set_context(self.context), None
+            return Boloodean(self.value == other.value).set_context(self.context), None
     
         return None, Value.illegal_operation(self, other)
     
     def get_comparison_ne(self, other):
         if isinstance(other, (Chamuyo, Numero)):
-            return Boolean(self.value != other.value).set_context(self.context), None
+            return Boloodean(self.value != other.value).set_context(self.context), None
     
         return None, Value.illegal_operation(self, other)
     
     def is_true(self):
-        return Boolean(len(self.value) > 0).set_context(self.context), None
+        return Boloodean(len(self.value) > 0).set_context(self.context), None
     
     def copy(self):
         copy = Chamuyo(self.value)
