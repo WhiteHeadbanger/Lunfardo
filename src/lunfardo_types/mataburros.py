@@ -9,6 +9,21 @@ class Mataburros(Value):
         self.keys = keys
         self.values = values
 
+    @classmethod
+    def _from_dict(cls, _dict):
+        """
+        Crea un Mataburros a partir de un diccionario Python estándar.
+
+        Args:
+            python_dict (dict): El diccionario de Python a convertir.
+
+        Returns:
+            Mataburros: Una instancia de Mataburros con claves y valores separados.
+        """
+        keys = list(_dict.keys())
+        values = list(_dict.values())
+        return cls(keys, values)
+
     def copy(self):
         copy = Mataburros(self.keys, self.values)
         copy.set_pos(self.pos_start, self.pos_end)

@@ -756,6 +756,23 @@ class Curro(BaseLaburo):
 
     exec_renuncio.arg_names = []
 
+    def exec_contexto_global(self, exec_ctx):
+        from . import Mataburros, Boloodean
+
+        _local = exec_ctx.symbol_table.get("local")
+        if isinstance(_local, Boloodean):
+            if _local.value == False:
+                current_context = exec_ctx
+                while current_context.parent is not None:
+                    current_context = current_context.parent
+            else:
+                current_context = exec_ctx
+
+        ctx = Mataburros._from_dict(current_context.symbol_table.symbols)
+        return RTResult().success(ctx)
+    
+    exec_contexto_global.arg_names = ['local']
+
 
 # I/O
 Curro.matear = Curro("matear")
@@ -784,3 +801,4 @@ Curro.existe_clave = Curro("existe_clave")
 Curro.limpiavidrios = Curro("limpiavidrios")
 Curro.ejecutar = Curro("ejecutar")
 Curro.renuncio = Curro("renuncio")
+Curro.contexto_global = Curro("contexto_global")

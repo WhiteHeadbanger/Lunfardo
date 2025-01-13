@@ -246,6 +246,9 @@ Un curro es un laburo pre-definido.
    Ejecuta el codigo de un archivo Lunfardo
 - `renuncio()`  
    Termina la ejecución del intérprete de Lunfardo.
+- `contexto(local = <boloodean>)`  
+   Devuelve el contexto local si `local` es `posta`.
+   Devuelve el contexto global si `local` es `trucho`.
 
 ## Clases
 
