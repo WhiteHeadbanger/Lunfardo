@@ -46,6 +46,7 @@ global_symbol_table.set("winpiavidrios", Curro.limpiavidrios)
 global_symbol_table.set("longitud", Curro.longitud)
 global_symbol_table.set("ejecutar", Curro.ejecutar)
 global_symbol_table.set("renuncio", Curro.renuncio)
+global_symbol_table.set("contexto", Curro.contexto_global)
 
 
 def execute(fn, text) -> Tuple:
