@@ -1,7 +1,7 @@
 from .value import Value
 from .numero import Numero
 from .boloodean import Boloodean
-from errors import RTError
+from src.errors import RTError
 
 from typing import List
 

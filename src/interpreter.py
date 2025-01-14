@@ -1,10 +1,10 @@
-from lunfardo_parser import RTResult
-from constants.tokens import *
-from lunfardo_types import Numero, Nada
-from errors.errors import RTError
-from context import Context
-from nodes import *
-from typing import Optional, Union, NoReturn
+from src.lunfardo_parser import RTResult
+from src.constants.tokens import *
+from src.lunfardo_types import Numero, Nada
+from src.errors.errors import RTError
+from src.context import Context
+from src.nodes import *
+from typing import Union, NoReturn
 
 LunfardoNode = Union[NumeroNode, ChamuyoNode, CosoNode, MataburrosNode, PoneleQueAccessNode,
                      PoneleQueAssignNode, BinOpNode, UnaryOpNode, SiNode, ParaNode,
@@ -13,61 +13,6 @@ LunfardoNode = Union[NumeroNode, ChamuyoNode, CosoNode, MataburrosNode, PoneleQu
                      CallNode, DevolverNode, ContinuarNode, RajarNode, ImportarNode]
 
 #TODO RTResult deberia estar acá en vez de en el parser.
-
-class SymbolTable:
-    """
-    Manages symbol tables for variable and function scoping in Lunfardo.
-
-    This class implements a symbol table with support for nested scopes,
-    allowing for efficient symbol lookup and management across different
-    levels of the program execution.
-    """
-
-    def __init__(self, parent: Optional["SymbolTable"] = None) -> None:
-        """
-        Initialize a new SymbolTable.
-
-        Args:
-            parent (SymbolTable, optional): Parent symbol table for nested scopes.
-        """
-        self.symbols = {}
-        self.parent = parent
-
-    #TODO: getters y setters pythonicos.
-    def get(self, name: str):
-        """
-        Retrieve a symbol's value from the current or parent scopes.
-
-        Args:
-            name (str): The name of the symbol to retrieve.
-
-        Returns:
-            The value associated with the symbol, or None if not found.
-        """
-        value = self.symbols.get(name, None)
-        if value is None and self.parent is not None:
-            return self.parent.get(name)
-        
-        return value
-    
-    def set(self, name: str, value):
-        """
-        Set a symbol's value in the current scope.
-
-        Args:
-            name (str): The name of the symbol.
-            value: The value to associate with the symbol.
-        """
-        self.symbols[name] = value
-
-    def remove(self, name):
-        """
-        Remove a symbol from the current scope.
-
-        Args:
-            name (str): The name of the symbol to remove.
-        """
-        del self.symbols[name]
 
 class Interpreter:
     """
@@ -347,7 +292,7 @@ class Interpreter:
             - Handles continue and break statements within the loop.
             - Creates a new variable in the context for each iteration.
         """
-        from lunfardo_types import Coso
+        from src.lunfardo_types import Coso
         res = RTResult()
         elements = []
         
@@ -413,7 +358,7 @@ class Interpreter:
             - Supports break and continue statements within the loop.
             - Accumulates results of each iteration in a list if not returning Nada.
         """
-        from lunfardo_types import Coso
+        from src.lunfardo_types import Coso
         res = RTResult()
         elements = []
 
@@ -461,7 +406,7 @@ class Interpreter:
             - Evaluates default argument values.
             - Sets the function in the context's symbol table if it's not a method.
         """
-        from lunfardo_types import Laburo
+        from src.lunfardo_types import Laburo
         res = RTResult()
 
         func_name = node.var_name_tok.value if node.var_name_tok else None
@@ -508,7 +453,7 @@ class Interpreter:
             - All methods, including 'arranque', are marked as instance methods.
             - The class is added to the current context's symbol table.
         """
-        from lunfardo_types import Cheto
+        from src.lunfardo_types import Cheto
         res = RTResult()
 
         class_name = node.var_name_tok.value
@@ -611,8 +556,8 @@ class Interpreter:
             - The object itself is passed as the first argument to the method.
             - All other arguments are evaluated in the current context before being passed to the method.
         """
-        from lunfardo_types import Cheto
-        from nodes import PoneleQueAccessNode
+        from src.lunfardo_types import Cheto
+        from src.nodes import PoneleQueAccessNode
 
         res = RTResult()
 
@@ -659,7 +604,7 @@ class Interpreter:
             - If an 'arranque' method exists, it's called with the new instance as the first argument,
             followed by any additional arguments provided during instantiation.
         """
-        from lunfardo_types import Cheto
+        from src.lunfardo_types import Cheto
         res = RTResult()
 
         class_name = node.class_name_tok.value
@@ -838,7 +783,7 @@ class Interpreter:
             - Each element in the list is evaluated in the current context.
             - The resulting Coso object is set with the current context and position.
         """
-        from lunfardo_types import Coso
+        from src.lunfardo_types import Coso
         res = RTResult()
 
         elements = []
@@ -869,7 +814,7 @@ class Interpreter:
             - Both keys and values are evaluated in the current context.
             - The resulting Mataburros object is set with the current context and position.
         """
-        from lunfardo_types import Mataburros
+        from src.lunfardo_types import Mataburros
         res = RTResult()
 
         keys, values = [], []

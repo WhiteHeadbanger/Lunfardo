@@ -1,8 +1,8 @@
 from .value import Value
-from lunfardo_parser import RTResult
-from interpreter import SymbolTable, Interpreter
-from context import Context
-from errors import RTError
+from src.lunfardo_parser import RTResult
+from src.symbol_table import SymbolTable
+from src.context import Context
+from src.errors import RTError
 import os
 
 
@@ -91,6 +91,7 @@ class Laburo(BaseLaburo):
 
     def execute(self, args, current_context):
         from . import Nada
+        from src.interpreter import Interpreter
 
         res = RTResult()
         # Cada vez que creamos una nueva funcion, es necesario crear un nuevo contexto con una nueva symbol table, que son destruidos una vez que la funcion retorna.

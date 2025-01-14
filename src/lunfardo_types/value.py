@@ -1,6 +1,6 @@
 # TODO: implentar Value como una abstract class
-from errors import RTError
-from lunfardo_parser import RTResult
+from src.errors import RTError
+from src.lunfardo_parser import RTResult
 from typing import Self, Optional, Tuple, NoReturn
 
 

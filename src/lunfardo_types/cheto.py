@@ -1,8 +1,6 @@
 from .value import Value
-from lunfardo_parser import RTResult
-from interpreter import SymbolTable, Interpreter
-from context import Context
-from errors import RTError
+from src.lunfardo_parser import RTResult
+from src.errors import RTError
 
 class Cheto(Value):
     
