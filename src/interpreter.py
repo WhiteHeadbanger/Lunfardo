@@ -901,23 +901,101 @@ class Interpreter:
             RTResult: The result of the interpretation, containing the imported module.
         """
 
+        from constants import BUILTINS
         res = RTResult()
-        file_name = res.register(self.visit(node.module_name_node, context))
-        if res.error:
-            return res
-        
-        # Use Curro.ejecutar to import and execute the file
-        ejecutar_func = context.symbol_table.get("ejecutar").set_pos(node.pos_start, node.pos_end)
-        if ejecutar_func:
-            res.register(ejecutar_func.execute([file_name], context))
-            if res.should_return():
-                return res
+        module_name = node.module_name_node.tok.value
+
+        if module_name.replace(".lunf", "") in BUILTINS:
+
+            file_name = f"builtin/{module_name}"
+
+            try:
+                with open(file_name, "r", encoding="utf-8") as f:
+                    script = f.read()
+            except FileNotFoundError:
+                return res.failure(RTError(
+                    node.pos_start, node.pos_end,
+                    f"Fichero '{module_name}' no encontrado",
+                    context
+                ))
+            except Exception as e:
+                return res.failure(RTError(
+                    node.pos_start, node.pos_end,
+                    f"Error al abrir el fichero '{module_name}'\n" + str(e),
+                    context
+                ))
+
+            module_context = Context(f"<module {module_name}>", context)
+            module_context.symbol_table = SymbolTable(context.symbol_table)
+
+            try:
+                from builtin.lib.gualichos import Gualichos, addstr_adapter, getch_adapter, clear_adapter, quit_adapter
+                wrapper_instance = Gualichos()
+
+                from lunfardo_types import Curro
+
+                # Define a dictionary to hold the Lunfardo-compatible functions
+                gualichos_functions = {
+                    "addstr": lambda exec_ctx: addstr_adapter(wrapper_instance, exec_ctx.symbol_table.get("texto").value),
+                    "getch": lambda exec_ctx: getch_adapter(wrapper_instance),
+                    "clear": lambda exec_ctx: clear_adapter(wrapper_instance),
+                    "quit": lambda exec_ctx: quit_adapter(wrapper_instance)
+                }
+
+                # Create and inject the Curro instances
+                for name, func in gualichos_functions.items():
+                    curro_instance = Curro(name, func)
+                    module_context.symbol_table.set(name, curro_instance)
+
+                from lunfardo_parser import Parser
+                from lexer import Lexer
+                lexer = Lexer(file_name, script)
+                tokens, error = lexer.make_tokens()
+                if error:
+                    return res.failure(error)
+
+                parser = Parser(tokens)
+                ast, error = parser.parse()
+                if error:
+                    return res.failure(error)
+
+                for expression in ast.node.element_nodes:
+                    result = res.register(self.visit(expression, module_context))
+                    if res.error:
+                        return res
+
+            except ImportError as e:
+                return res.failure(RTError(
+                    node.pos_start, node.pos_end,
+                    f"Error al importar el modulo '{module_name}', {str(e)}",
+                    context
+                ))
+            except AttributeError:
+                return res.failure(RTError(
+                    node.pos_start, node.pos_end,
+                    f"Error al importar el modulo '{module_name}'",
+                    context
+                ))
+
+            for name, value in module_context.symbol_table.symbols.items():
+                context.symbol_table.set(name, value)
+
         else:
-            return res.failure(RTError(
-                node.pos_start, node.pos_end,
-                "Function 'ejecutar' not found",
-                context
-            ))
+            modulo = res.register(self.visit(node.module_name_node, context))
+            if res.error:
+                return res
+
+            ejecutar_func = context.symbol_table.get("ejecutar").set_pos(node.pos_start, node.pos_end)
+            if ejecutar_func:
+                res.register(ejecutar_func.execute([modulo], context))
+                if res.should_return():
+                    return res
+            else:
+                return res.failure(RTError(
+                    node.pos_start, node.pos_end,
+                    f"El modulo '{module_name}' no tiene una función 'ejecutar'",
+                    context
+                ))
 
         return res.success(Nada.nada)
 
