@@ -779,6 +779,24 @@ class Curro(BaseLaburo):
     
     exec_contexto_global.arg_names = ['local']
 
+    def exec_asciiAchamu(self, exec_ctx):
+        from . import Chamuyo, Numero
+
+        code = exec_ctx.symbol_table.get("ascii_code")
+        if not isinstance(code, Numero):
+            return RTResult().failure(
+                RTError(
+                    self.pos_start,
+                    self.pos_end,
+                    "El argumento debe ser de tipo número.",
+                    exec_ctx,
+                )
+            )
+
+        return RTResult().success(Chamuyo(chr(code.value)))
+    
+    exec_asciiAchamu.arg_names = ['ascii_code']
+
 
 # I/O
 Curro.matear = Curro("matear")
@@ -808,3 +826,4 @@ Curro.limpiavidrios = Curro("limpiavidrios")
 Curro.ejecutar = Curro("ejecutar")
 Curro.renuncio = Curro("renuncio")
 Curro.contexto_global = Curro("contexto_global")
+Curro.asciiAchamu = Curro("asciiAchamu")

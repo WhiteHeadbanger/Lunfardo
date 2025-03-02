@@ -1,5 +1,6 @@
 import curses
 from lunfardo_parser import RTResult
+from lunfardo_types import Numero
 
 # Facade
 class Gualichos:
@@ -33,7 +34,7 @@ def addstr_adapter(facade, text):
 
 def getch_adapter(facade):
     value = facade.getch()
-    return RTResult().success(value)
+    return RTResult().success(Numero(value))
 
 def clear_adapter(facade):
     facade.clear()

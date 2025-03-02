@@ -1,0 +1,15 @@
+laburo gmatear(texto)
+    addstr(texto)
+chau
+
+laburo gmorfarch()
+    devolver getch()
+chau
+
+laburo glimpiavidrios()
+    clear()
+chau
+
+laburo grenuncia()
+    quit()
+chau
