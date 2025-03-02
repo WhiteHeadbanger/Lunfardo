@@ -928,54 +928,25 @@ class Interpreter:
             module_context = Context(f"<module {module_name}>", context)
             module_context.symbol_table = SymbolTable(context.symbol_table)
 
-            try:
-                from builtin.lib.gualichos import Gualichos, addstr_adapter, getch_adapter, clear_adapter, quit_adapter
-                wrapper_instance = Gualichos()
+            # Delegate library-specific handling to a static method.
+            lib_result = Interpreter.handle_library_import(module_name.replace(".lunf", ""), node, module_context, context)
+            if lib_result.error:
+                return res.failure(lib_result.error)
 
-                from lunfardo_types import Curro
-
-                # Define a dictionary to hold the Lunfardo-compatible functions
-                gualichos_functions = {
-                    "addstr": lambda exec_ctx: addstr_adapter(wrapper_instance, exec_ctx.symbol_table.get("texto").value),
-                    "getch": lambda exec_ctx: getch_adapter(wrapper_instance),
-                    "clear": lambda exec_ctx: clear_adapter(wrapper_instance),
-                    "quit": lambda exec_ctx: quit_adapter(wrapper_instance)
-                }
-
-                # Create and inject the Curro instances
-                for name, func in gualichos_functions.items():
-                    curro_instance = Curro(name, func)
-                    module_context.symbol_table.set(name, curro_instance)
-
-                from lunfardo_parser import Parser
-                from lexer import Lexer
-                lexer = Lexer(file_name, script)
-                tokens, error = lexer.make_tokens()
-                if error:
-                    return res.failure(error)
-
-                parser = Parser(tokens)
-                ast, error = parser.parse()
-                if error:
-                    return res.failure(error)
-
-                for expression in ast.node.element_nodes:
-                    result = res.register(self.visit(expression, module_context))
-                    if res.error:
-                        return res
-
-            except ImportError as e:
-                return res.failure(RTError(
-                    node.pos_start, node.pos_end,
-                    f"Error al importar el modulo '{module_name}', {str(e)}",
-                    context
-                ))
-            except AttributeError:
-                return res.failure(RTError(
-                    node.pos_start, node.pos_end,
-                    f"Error al importar el modulo '{module_name}'",
-                    context
-                ))
+            from lunfardo_parser import Parser
+            from lexer import Lexer
+            lexer = Lexer(file_name, script)
+            tokens, error = lexer.make_tokens()
+            if error:
+                return res.failure(error)
+            parser = Parser(tokens)
+            ast, error = parser.parse()
+            if error:
+                return res.failure(error)
+            for expression in ast.node.element_nodes:
+                res.register(self.visit(expression, module_context))
+                if res.error:
+                    return res
 
             for name, value in module_context.symbol_table.symbols.items():
                 context.symbol_table.set(name, value)
@@ -997,6 +968,30 @@ class Interpreter:
                     context
                 ))
 
+        return res.success(Nada.nada)
+
+    @staticmethod
+    def handle_library_import(lib_name: str, node: ImportarNode, module_context: Context, context: Context) -> RTResult:
+        """
+        Handles library-specific initialization logic in a generic way
+        using a registry of library handlers.
+
+        Args:
+            lib_name (str): The name of the library.
+            node (ImportarNode): The import node from the AST.
+            module_context (Context): The module's execution context.
+            context (Context): The parent context.
+
+        Returns:
+            RTResult: Success or failure based on the library handling.
+        """
+        from library_registry import get_library_handler
+        
+        res = RTResult()
+        handler = get_library_handler(lib_name)
+        if handler:
+            return handler(module_context, node, context)
+        
         return res.success(Nada.nada)
 
 
