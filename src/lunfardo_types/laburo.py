@@ -54,14 +54,27 @@ class BaseLaburo(Value):
         return res.success(None)
 
     def populate_args(self, arg_names, args, exec_ctx, arg_values=None):
+        res = RTResult()
         for i, arg in enumerate(arg_names):
             if i < len(args):
                 arg_value = args[i]
             else:
                 arg_value = arg_values[i]
 
+            if arg_value is None:
+                return res.failure(
+                    RTError(
+                        self.pos_start,
+                        self.pos_end,
+                        f"no se encontró valor para el argumento '{arg}' en '{self.name}'()",
+                        exec_ctx,
+                    )
+                )
+
             arg_value.set_context(exec_ctx)
             exec_ctx.symbol_table.set(arg, arg_value)
+        
+        return res.success(None)
 
     def check_and_populate_args(self, arg_names, args, exec_ctx, arg_values=None):
         res = RTResult()
@@ -74,7 +87,9 @@ class BaseLaburo(Value):
         if res.should_return():
             return res
 
-        self.populate_args(arg_names, args, exec_ctx, arg_values)
+        res.register(self.populate_args(arg_names, args, exec_ctx, arg_values))
+        if res.error:
+            return res
 
         return res.success(None)
 
@@ -737,9 +752,30 @@ class Curro(BaseLaburo):
                 )
             )
 
-        from run import execute as run
+        #from run import execute as run
 
-        _, error = run(fn, script)
+        from lunfardo_parser import Parser, RTResult
+        from lexer import Lexer
+        
+        res = RTResult()
+        execution_context = Context(fn, exec_ctx, self.pos_start)
+        execution_context.symbol_table = SymbolTable(execution_context.parent.symbol_table if execution_context.parent else None)
+        interpreter = Interpreter()
+
+        lexer = Lexer(fn, script)
+        tokens, error = lexer.make_tokens()
+        if error:
+            return res.failure(error)
+        parser = Parser(tokens)
+        ast, error = parser.parse()
+        if error:
+            return res.failure(error)
+        for expression in ast.node.element_nodes:
+            res.register(interpreter.visit(expression, execution_context))
+            if res.error:
+                return res
+        
+        """ _, error = run(fn, script)
 
         if error:
             return RTResult().failure(
@@ -749,7 +785,7 @@ class Curro(BaseLaburo):
                     f"Uy que rompimo! No pudimos terminar de ejecutar el fichero '{fn}'\n'{error.as_string()}",
                     exec_ctx,
                 )
-            )
+            ) """
 
         return RTResult().success(Nada.nada)
 

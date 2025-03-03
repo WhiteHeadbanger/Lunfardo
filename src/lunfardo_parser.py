@@ -8,7 +8,7 @@ It also includes the ParseResult class for managing the parsing process and resu
 
 from constants.tokens import *
 from nodes import *
-from errors import InvalidSyntaxError
+from errors import InvalidSyntaxError, TypeError
 from lunfardo_token import Token
 from typing import Union, Self, Optional, Tuple, Callable
 
@@ -325,20 +325,11 @@ class Parser:
                         InvalidSyntaxError(
                             self.current_tok.pos_start,
                             self.current_tok.pos_end,
-                            "Se esperaba ')', 'poneleque', 'si', 'para', 'mientras', 'laburo', numero, identificador, '+', '-', '(', '[' ó 'truchar'",
+                            "Se esperaba ')' o una expresión.",
                         )
                     )
 
                 arg_nodes.append(arg_node)
-
-                if res.error:
-                    return res.failure(
-                        InvalidSyntaxError(
-                            self.current_tok.pos_start,
-                            self.current_tok.pos_end,
-                            "Se esperaba ')', 'poneleque', 'si', 'para', 'mientras', 'laburo', numero, identificador, '+', '-', '(', '[' ó 'truchar'",
-                        )
-                    )
 
                 while self.current_tok.type == TT_NEWLINE:
                     res.register_advance()
@@ -348,9 +339,17 @@ class Parser:
                     res.register_advance()
                     self.advance()
 
-                    arg_nodes.append(res.register(self.expr()))
+                    arg_node = res.register(self.expr())
                     if res.error:
-                        return res
+                        return res.failure(
+                            InvalidSyntaxError(
+                                self.current_tok.pos_start,
+                                self.current_tok.pos_end,
+                                "Se esperaba ')' o una expresión.",
+                            )
+                        )
+                    
+                    arg_nodes.append(arg_node)
 
                 if self.current_tok.type != TT_RPAREN:
                     return res.failure(
@@ -527,7 +526,7 @@ class Parser:
             InvalidSyntaxError(
                 tok.pos_start,
                 tok.pos_end,
-                "Se esperaba int, float, identifier, '+', '-', '(', '[', 'si', 'para', 'mientras', 'laburo' ó 'cheto'",
+                "Se esperaba número, identificador, '+', '-', '(', '[', 'si', 'para', 'mientras', 'laburo' ó 'cheto'",
             )
         )
 
@@ -679,32 +678,40 @@ class Parser:
             self.advance()
 
         else:
-            element_nodes.append(res.register(self.expr()))
-
+            expr = res.register(self.expr())
             if res.error:
                 return res.failure(
                     InvalidSyntaxError(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
-                        "Se esperaba ']', 'poneleque', 'si', 'para', 'mientras', 'laburo', numero, identificador, '+', '-', '(', '[' ó 'truchar'",
+                        "Se esperaba una expresión.",
                     )
                 )
+            
+            element_nodes.append(expr)
 
             while self.current_tok.type == TT_COMMA:
                 res.register_advance()
                 self.advance()
 
-                element_nodes.append(res.register(self.expr()))
-
+                expr = res.register(self.expr())
                 if res.error:
-                    return res
+                    return res.failure(
+                        InvalidSyntaxError(
+                            self.current_tok.pos_start,
+                            self.current_tok.pos_end,
+                            "Se esperaba una expresión.",
+                        )
+                    )
+                
+                element_nodes.append(expr)
 
             if self.current_tok.type != TT_RSQUARE:
                 return res.failure(
                     InvalidSyntaxError(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
-                        "Se esperaba ',' ó ']'",
+                        "Se esperaba ']'",
                     )
                 )
 
@@ -761,17 +768,15 @@ class Parser:
         else:
             expr = self.expr()
             if isinstance(expr.node, (CosoNode, MataburrosNode)):
-                # TODO create a 'type error' like error
                 return res.failure(
-                    InvalidSyntaxError(
+                    TypeError(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
                         "Un coso ó mataburros no puede utilizarse como clave",
                     )
                 )
-
-            keys.append(res.register(expr))
-
+            
+            expr = res.register(expr)
             if res.error:
                 return res.failure(
                     InvalidSyntaxError(
@@ -780,6 +785,8 @@ class Parser:
                         "Se esperaba una clave",
                     )
                 )
+            
+            keys.append(expr)
 
             if not self.current_tok.type == TT_COLON:
                 return res.failure(
@@ -793,8 +800,7 @@ class Parser:
             res.register_advance()
             self.advance()
 
-            values.append(res.register(self.expr()))
-
+            value = res.register(self.expr())
             if res.error:
                 return res.failure(
                     InvalidSyntaxError(
@@ -803,6 +809,8 @@ class Parser:
                         "Se esperaba un valor",
                     )
                 )
+            
+            values.append(value)
 
             while self.current_tok.type == TT_COMMA:
                 res.register_advance()
@@ -810,9 +818,8 @@ class Parser:
 
                 expr = self.expr()
                 if isinstance(expr.node, (CosoNode, MataburrosNode)):
-                    # TODO create a 'type error' like error
                     return res.failure(
-                        InvalidSyntaxError(
+                        TypeError(
                             self.current_tok.pos_start,
                             self.current_tok.pos_end,
                             "Un coso ó mataburros no puede utilizarse como clave",
@@ -821,10 +828,11 @@ class Parser:
 
                 key_value = expr.node.tok.value
                 if not key_value in [k.tok.value for k in keys]:
-                    keys.append(res.register(expr))
-
+                    key = res.register(expr)
                     if res.error:
                         return res
+                    
+                    keys.append(key)
 
                     if not self.current_tok.type == TT_COLON:
                         return res.failure(
@@ -838,10 +846,11 @@ class Parser:
                     res.register_advance()
                     self.advance()
 
-                    values.append(res.register(self.expr()))
-
+                    value = res.register(self.expr())
                     if res.error:
                         return res
+                    
+                    values.append(value)
 
                 else:
                     # Update value if key token already exists
@@ -860,7 +869,7 @@ class Parser:
                     InvalidSyntaxError(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
-                        "Se esperaba ',' ó '}'",
+                        "Se esperaba '}'",
                     )
                 )
 
@@ -942,7 +951,7 @@ class Parser:
                     return res
 
                 else_case = (statements, True)
-                # MARK:PROBLEMA
+                
                 if self.current_tok.matches(TT_KEYWORD, "chau"):
                     res.register_advance()
                     self.advance()
@@ -1434,7 +1443,7 @@ class Parser:
                 InvalidSyntaxError(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
-                    "Se esperaba ',' o ')'",
+                    "Se esperaba ')'",
                 )
             )
 
@@ -1528,23 +1537,32 @@ class Parser:
                 res.register_advance()
                 self.advance()
             else:
-                arg_nodes.append(res.register(self.expr()))
+                expr = res.register(self.expr())
                 if res.error:
                     return res.failure(
                         InvalidSyntaxError(
                             self.current_tok.pos_start,
                             self.current_tok.pos_end,
-                            "Se esperaba ')', 'poneleque', 'si', 'para', 'mientras', 'laburo', int, float, identifier, '+', '-', '(', '[' o 'truchar'",
+                            "Se esperaba ')' o una expresión",
                         )
                     )
+                
+                arg_nodes.append(expr)
 
                 while self.current_tok.type == TT_COMMA:
                     res.register_advance()
                     self.advance()
 
-                    arg_nodes.append(res.register(self.expr()))
+                    expr = res.register(self.expr())
                     if res.error:
-                        return res
+                        return res.failure(
+                            InvalidSyntaxError(
+                                self.current_tok.pos_start,
+                                self.current_tok.pos_end,
+                                "Se esperaba ')' o una expresión",
+                            )
+                        )
+                    arg_nodes.append(expr)
 
                 if self.current_tok.type != TT_RPAREN:
                     return res.failure(
@@ -1745,30 +1763,40 @@ class Parser:
             res.register_advance()
             self.advance()
         else:
-            arg_nodes.append(res.register(self.expr()))
+            arg_node = res.register(self.expr())
             if res.error:
                 return res.failure(
                     InvalidSyntaxError(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
-                        "Se esperaba ')', 'poneleque', 'si', 'para', 'mientras', 'laburo', int, float, identifier, '+', '-', '(', '[' o 'truchar'",
+                        "Se esperaba ')' o una expresión",
                     )
                 )
+            
+            arg_nodes.append(arg_node)
 
             while self.current_tok.type == TT_COMMA:
                 res.register_advance()
                 self.advance()
 
-                arg_nodes.append(res.register(self.expr()))
+                arg_node = res.register(self.expr())
                 if res.error:
-                    return res
+                    return res.failure(
+                        InvalidSyntaxError(
+                            self.current_tok.pos_start,
+                            self.current_tok.pos_end,
+                            "Se esperaba una expresión",
+                        )
+                    )
+                
+                arg_nodes.append(arg_node)
 
             if self.current_tok.type != TT_RPAREN:
                 return res.failure(
                     InvalidSyntaxError(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
-                        "Se esperaba ',' o ')'",
+                        "Se esperaba ')'",
                     )
                 )
 
@@ -1937,6 +1965,7 @@ class Parser:
         )
 
         if res.error:
+            # MARK: me parece que aca solamente deberia retornar "res"
             return res.failure(
                 InvalidSyntaxError(
                     self.current_tok.pos_start,
