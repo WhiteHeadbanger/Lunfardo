@@ -1,4 +1,0 @@
-importar "gualichos.lunf"
-
-poneleque valor = gmorfarch()
-gmatear(asciiAchamu(valor))
