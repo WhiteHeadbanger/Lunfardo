@@ -1,0 +1,13 @@
+importar "lacompu.lunf"
+
+matear("Dir actual: " + obtener_dir_actual())
+matear("Listado de directorio: ")
+matear(listar_dir("."))
+matear("Nombre de la compu: " + nombre_compu())
+matear("Entorno: ")
+matear(entorno())
+matear("Separador: " + separador())
+matear("Separador de ruta: " + separador_ruta())
+matear("Símbolo de directorio actual: " + simbolo_dir_actual())
+matear("Símbolo de directorio padre: " + simbolo_dir_padre())
+matear("Entorno APPDATA: " + obtener_entorno("APPDATA"))

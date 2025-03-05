@@ -907,7 +907,8 @@ class Interpreter:
 
         if module_name.replace(".lunf", "") in BUILTINS:
 
-            file_name = f"builtin/{module_name}"
+            file_name = f"builtin/{module_name}" #prod
+            #file_name = f"src/builtin/{module_name}" #test (debugger)
 
             try:
                 with open(file_name, "r", encoding="utf-8") as f:
