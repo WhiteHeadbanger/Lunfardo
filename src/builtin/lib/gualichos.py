@@ -147,7 +147,10 @@ def addch_adapter(facade, ch, y = None, x = None):
     return RTResult().success(None)
 
 def addstr_adapter(facade, text: str, y: int = None, x: int = None):
-    facade.addstr(text, int(y), int(x))
+    if y is not None and x is not None:
+        facade.addstr(text, int(y), int(x))
+    else:
+        facade.addstr(text)
     return RTResult().success(None)
 
 def insstr_adapter(facade, text, y = None, x = None):
