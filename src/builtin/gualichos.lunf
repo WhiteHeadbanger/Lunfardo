@@ -14,7 +14,7 @@ laburo gmodo_gamer(boloodean)
     keypad(boloodean)
 chau
 
-laburo gdimensiones()
+laburo gdimensionesyx()
     devolver getmaxyx()
 chau
 
