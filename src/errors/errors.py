@@ -29,6 +29,11 @@ class ExpectedCharError(Error):
     def __init__(self, pos_start, pos_end, details):
         super().__init__(pos_start, pos_end, 'Flaco, fijate que te olvidaste de un carácter', details)
 
+class TypeError(Error):
+    
+    def __init__(self, pos_start, pos_end, details):
+        super().__init__(pos_start, pos_end, 'LOCO, ENCIMA TENGO QUE ANDAR MARCANDOTE LOS ERRORES, TARADO', details)
+
 # Run time error
 class RTError(Error):
 
@@ -46,9 +51,12 @@ class RTError(Error):
         result = ''
         pos = self.pos_start
         ctx = self.context
+        previous_fn = None
 
         while ctx:
-            result = f' Fichero {pos.fn}, línea {str(pos.ln + 1)}, en {ctx.display_name}\n{result}'
+            if pos.fn != previous_fn:
+                result = f' Fichero {pos.fn}, línea {str(pos.ln + 1)}, en {ctx.display_name}\n{result}'
+            previous_fn = pos.fn
             pos = ctx.parent_entry_pos
             ctx = ctx.parent
 
