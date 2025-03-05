@@ -161,8 +161,12 @@ class Parser:
 
             if not more_statements:
                 break
+            
+            # TODO si el statement no encuentra nodos válidos porque hay un "chau" como siguiente token, no debería devolver un error de invalidsyntaxerror,
+            # sino que debería identificar que terminó el body y que no hay más statements, y luego seguir con el proceso normal.
+            stmnt = self.statement()
+            statement = res.try_register(stmnt)
 
-            statement = res.try_register(self.statement())
             if not statement:
                 self.reverse(res.to_reverse_count)
                 more_statements = False
