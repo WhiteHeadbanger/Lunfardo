@@ -1,5 +1,5 @@
 from .value import Value
-from lunfardo_parser import RTResult
+from rtresult import RTResult
 from interpreter import SymbolTable, Interpreter
 from context import Context
 from errors import RTError
@@ -54,14 +54,27 @@ class BaseLaburo(Value):
         return res.success(None)
 
     def populate_args(self, arg_names, args, exec_ctx, arg_values=None):
+        res = RTResult()
         for i, arg in enumerate(arg_names):
             if i < len(args):
                 arg_value = args[i]
             else:
                 arg_value = arg_values[i]
 
+            if arg_value is None:
+                return res.failure(
+                    RTError(
+                        self.pos_start,
+                        self.pos_end,
+                        f"no se encontró valor para el argumento '{arg}' en '{self.name}'()",
+                        exec_ctx,
+                    )
+                )
+
             arg_value.set_context(exec_ctx)
             exec_ctx.symbol_table.set(arg, arg_value)
+        
+        return res.success(None)
 
     def check_and_populate_args(self, arg_names, args, exec_ctx, arg_values=None):
         res = RTResult()
@@ -74,7 +87,9 @@ class BaseLaburo(Value):
         if res.should_return():
             return res
 
-        self.populate_args(arg_names, args, exec_ctx, arg_values)
+        res.register(self.populate_args(arg_names, args, exec_ctx, arg_values))
+        if res.error:
+            return res
 
         return res.success(None)
 
@@ -141,23 +156,30 @@ class Laburo(BaseLaburo):
 
 class Curro(BaseLaburo):
 
-    def __init__(self, name):
+    def __init__(self, name, func=None):
         super().__init__(name)
+        self.func = func
 
     def execute(self, args, current_context):
         res = RTResult()
         execution_context = self.generate_new_context()
+        
+        if self.func:
+            return_value = res.register(self.func(execution_context))
+            if return_value is None:
+                from . import Nada
+                return_value = Nada.nada
+        else:
+            method_name = f"exec_{self.name}"
+            method = getattr(self, method_name, self.no_visit_method)
+            res.register(
+                self.check_and_populate_args(method.arg_names, args, execution_context)
+            )
+            if res.should_return():
+                return res
+            
+            return_value = res.register(method(execution_context))
 
-        method_name = f"exec_{self.name}"
-        method = getattr(self, method_name, self.no_visit_method)
-
-        res.register(
-            self.check_and_populate_args(method.arg_names, args, execution_context)
-        )
-        if res.should_return():
-            return res
-
-        return_value = res.register(method(execution_context))
         if res.should_return():
             return res
 
@@ -167,7 +189,7 @@ class Curro(BaseLaburo):
         raise Exception(f"No exec_{self.name} method defined.")
 
     def copy(self):
-        copy = Curro(self.name)
+        copy = Curro(self.name, self.func)
         copy.set_context(self.context)
         copy.set_pos(self.pos_start, self.pos_end)
         return copy
@@ -179,7 +201,7 @@ class Curro(BaseLaburo):
         return f"<curro {self.name}>"
 
     #########################################
-    # MARK:CURROS (BUILT-INT FUNCTIONS)
+    # MARK:CURROS (BUILT-IN FUNCTIONS)
     #########################################
 
     def exec_chamu(self, exec_ctx):
@@ -745,6 +767,39 @@ class Curro(BaseLaburo):
                 )
             )
 
+        """ from lunfardo_parser import Parser
+        from rtresult import RTResult
+        from lexer import Lexer
+        
+        res = RTResult()
+        execution_context = Context(fn, exec_ctx, self.pos_start)
+        execution_context.symbol_table = SymbolTable(execution_context.parent.symbol_table if execution_context.parent else None)
+        interpreter = Interpreter()
+
+        lexer = Lexer(fn, script)
+        tokens, error = lexer.make_tokens()
+        if error:
+            return res.failure(error)
+        parser = Parser(tokens)
+        ast, error = parser.parse()
+        if error:
+            return res.failure(error)
+        if ast.error:
+            return RTResult().failure(
+                RTError(
+                    self.pos_start,
+                    self.pos_end,
+                    ast.error.as_string(),
+                    exec_ctx,
+                )
+            )
+        for expression in ast.node.element_nodes:
+            res.register(interpreter.visit(expression, execution_context))
+            if res.error:
+                return res """
+        
+        
+
         return RTResult().success(Nada.nada)
 
     exec_ejecutar.arg_names = ["fn"]
@@ -761,7 +816,7 @@ class Curro(BaseLaburo):
 
         _local = exec_ctx.symbol_table.get("local")
         if isinstance(_local, Boloodean):
-            if _local.value == False:
+            if not _local.value:
                 current_context = exec_ctx
                 while current_context.parent is not None:
                     current_context = current_context.parent
@@ -772,6 +827,24 @@ class Curro(BaseLaburo):
         return RTResult().success(ctx)
     
     exec_contexto_global.arg_names = ['local']
+
+    def exec_asciiAchamu(self, exec_ctx):
+        from . import Chamuyo, Numero
+
+        code = exec_ctx.symbol_table.get("ascii_code")
+        if not isinstance(code, Numero):
+            return RTResult().failure(
+                RTError(
+                    self.pos_start,
+                    self.pos_end,
+                    "El argumento debe ser de tipo número.",
+                    exec_ctx,
+                )
+            )
+
+        return RTResult().success(Chamuyo(chr(code.value)))
+    
+    exec_asciiAchamu.arg_names = ['ascii_code']
 
 
 # I/O
@@ -802,3 +875,4 @@ Curro.limpiavidrios = Curro("limpiavidrios")
 Curro.ejecutar = Curro("ejecutar")
 Curro.renuncio = Curro("renuncio")
 Curro.contexto_global = Curro("contexto_global")
+Curro.asciiAchamu = Curro("asciiAchamu")

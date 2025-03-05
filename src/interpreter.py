@@ -1,4 +1,4 @@
-from lunfardo_parser import RTResult
+from rtresult import RTResult
 from constants.tokens import *
 from lunfardo_types import Numero, Nada
 from errors.errors import RTError
@@ -901,24 +901,97 @@ class Interpreter:
             RTResult: The result of the interpretation, containing the imported module.
         """
 
+        from constants import BUILTINS
         res = RTResult()
-        file_name = res.register(self.visit(node.module_name_node, context))
-        if res.error:
-            return res
-        
-        # Use Curro.ejecutar to import and execute the file
-        ejecutar_func = context.symbol_table.get("ejecutar").set_pos(node.pos_start, node.pos_end)
-        if ejecutar_func:
-            res.register(ejecutar_func.execute([file_name], context))
-            if res.should_return():
-                return res
-        else:
-            return res.failure(RTError(
-                node.pos_start, node.pos_end,
-                "Function 'ejecutar' not found",
-                context
-            ))
+        module_name = node.module_name_node.tok.value
 
+        if module_name.replace(".lunf", "") in BUILTINS:
+
+            file_name = f"builtin/{module_name}"
+
+            try:
+                with open(file_name, "r", encoding="utf-8") as f:
+                    script = f.read()
+            except FileNotFoundError:
+                return res.failure(RTError(
+                    node.pos_start, node.pos_end,
+                    f"Fichero '{module_name}' no encontrado",
+                    context
+                ))
+            except Exception as e:
+                return res.failure(RTError(
+                    node.pos_start, node.pos_end,
+                    f"Error al abrir el fichero '{module_name}'\n" + str(e),
+                    context
+                ))
+
+            module_context = Context(f"<module {module_name}>", context)
+            module_context.symbol_table = SymbolTable(context.symbol_table)
+
+            # Delegate library-specific handling to a static method.
+            lib_result = Interpreter.handle_library_import(module_name.replace(".lunf", ""), node, module_context, context)
+            if lib_result.error:
+                return res.failure(lib_result.error)
+
+            from lunfardo_parser import Parser
+            from lexer import Lexer
+            lexer = Lexer(file_name, script)
+            tokens, error = lexer.make_tokens()
+            if error:
+                return res.failure(error)
+            parser = Parser(tokens)
+            ast, error = parser.parse()
+            if error:
+                return res.failure(error)
+            for expression in ast.node.element_nodes:
+                res.register(self.visit(expression, module_context))
+                if res.error:
+                    return res
+
+            for name, value in module_context.symbol_table.symbols.items():
+                context.symbol_table.set(name, value)
+
+        else:
+            modulo = res.register(self.visit(node.module_name_node, context))
+            if res.error:
+                return res
+
+            ejecutar_func = context.symbol_table.get("ejecutar").set_pos(node.pos_start, node.pos_end)
+            if ejecutar_func:
+                res.register(ejecutar_func.execute([modulo], context))
+                if res.should_return():
+                    return res
+            else:
+                return res.failure(RTError(
+                    node.pos_start, node.pos_end,
+                    f"El modulo '{module_name}' no tiene una función 'ejecutar'",
+                    context
+                ))
+
+        return res.success(Nada.nada)
+
+    @staticmethod
+    def handle_library_import(lib_name: str, node: ImportarNode, module_context: Context, context: Context) -> RTResult:
+        """
+        Handles library-specific initialization logic in a generic way
+        using a registry of library handlers.
+
+        Args:
+            lib_name (str): The name of the library.
+            node (ImportarNode): The import node from the AST.
+            module_context (Context): The module's execution context.
+            context (Context): The parent context.
+
+        Returns:
+            RTResult: Success or failure based on the library handling.
+        """
+        from library_registry import get_library_handler
+        
+        res = RTResult()
+        handler = get_library_handler(lib_name)
+        if handler:
+            return handler(module_context, node, context)
+        
         return res.success(Nada.nada)
 
 

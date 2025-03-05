@@ -1,0 +1,125 @@
+importar "gualichos.lunf"
+
+poneleque menu_opciones = ["Sumar", "Restar", "Multiplicar", "Dividir", "Salir"]
+
+laburo dibujar_menu(indice)
+    glimpiavidrios()
+    poneleque tamano_pantalla = gdimensionesyx()
+    poneleque h = tamano_pantalla / 0
+    poneleque w = tamano_pantalla / 1
+
+    poneleque titulo = "+++ Calculadora Gualichera +++"
+    gmatear(titulo, 2, (w - longitud(titulo)) / 2)
+
+    poneleque i = 0
+    mientras i < longitud(menu_opciones) entonces
+        poneleque opcion = menu_opciones / i
+        poneleque x = (w - longitud(opcion)) / 2
+        poneleque y_ = 5 + i
+
+        si i == indice entonces
+            poneleque opcion = "[ " + opcion + " ]"
+        chau
+
+        gmatear(opcion, y_, x)
+
+        poneleque i = i + 1
+    chau
+chau
+
+laburo obtener_numero(mensaje)
+    geco()
+    glimpiavidrios()
+    poneleque h = gdimensionesyx() / 0
+    poneleque w = gdimensionesyx() / 1
+
+    gmatear(mensaje, h / 2 - 1, (w - longitud(mensaje)) / 2)
+
+    poneleque num_str = gmorfarchamu()
+    devolver num(num_str)
+chau
+
+laburo realizar_operacion(operacion)
+    glimpiavidrios()
+    poneleque h = gdimensionesyx() / 0
+    poneleque w = gdimensionesyx() / 1
+
+    poneleque num1 = obtener_numero("Ingrese el primer numero: ")
+    si num1 == nada entonces
+        gmatear("Numero inválido", h / 2, (w / 2 - 7))
+        gmorfarch()
+        devolver
+    chau
+
+    poneleque num2 = obtener_numero("Ingrese el segundo numero: ")
+    si num2 == nada o (operacion == "Dividir" y num2 == 0) entonces
+        gmatear("Numero inválido", h / 2, (w / 2 - 7))
+        gmorfarch()
+        devolver
+    chau
+
+    poneleque resultado = nada
+    si operacion == "Sumar" entonces
+        poneleque resultado = num1 + num2
+    osi operacion == "Restar" entonces
+        poneleque resultado = num1 - num2
+    osi operacion == "Multiplicar" entonces
+        poneleque resultado = num1 * num2
+    osi operacion == "Dividir" entonces
+        poneleque resultado = num1 / num2
+    sino
+        poneleque resultado = "Invalido"
+    chau
+
+    glimpiavidrios()
+    poneleque resultado_chamu = "Resultado: " + chamu(resultado)
+    gmatear(resultado_chamu, h / 2, (w - longitud(resultado_chamu)) / 2)
+    gmatear("Presione cualquier tecla para continuar", h / 2 + 2, (w - 24) / 2)
+    gmorfarch()
+chau
+
+laburo main()
+    gnoeco()
+    gsinbuffer()
+    gmodo_gamer(posta)
+
+    poneleque indice = 0
+    mientras posta entonces
+        dibujar_menu(indice)
+        poneleque tecla = gmorfarch()
+
+        # flecha arriba
+        si tecla == 259 entonces
+            # Esto lo hacemos porque no tenemos el operador módulo (%), sino sería (indice - 1) % longitud(menu_opciones)
+            poneleque indice = indice - 1
+            si indice < 0 entonces
+                poneleque indice = indice - (longitud(menu_opciones) * (indice / longitud(menu_opciones)))
+            chau
+        # flecha abajo
+        osi tecla == 258 entonces
+            # Esto lo hacemos porque no tenemos el operador módulo (%), sino sería (indice - 1) % longitud(menu_opciones)
+            poneleque indice = indice + 1
+            si indice >= longitud(menu_opciones) entonces
+                poneleque indice = indice - (longitud(menu_opciones) * (indice / longitud(menu_opciones)))
+            chau
+        # Enter o return
+        osi tecla == 10 o tecla == 13 entonces
+            # Esto lo hacemos porque no tenemos el operador módulo (%), sino sería (indice - 1) % longitud(menu_opciones)
+            si menu_opciones / indice == "Salir" entonces
+                rajar
+            chau
+
+            realizar_operacion(menu_opciones / indice)
+        # tecla 'q'
+        osi tecla == 259 entonces
+            rajar
+        chau
+    chau
+
+    gconbuffer()
+    gmodo_gamer(trucho)
+    geco()
+    grenuncio()
+chau
+
+main()
