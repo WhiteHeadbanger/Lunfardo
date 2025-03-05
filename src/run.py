@@ -10,7 +10,7 @@ from lunfardo_parser import Parser
 from lunfardo_types import Curro, Boloodean, Nada
 from interpreter import Interpreter, SymbolTable
 from context import Context
-from typing import Optional, Tuple
+from typing import Tuple
 
 ############### Global symbol table setup ###############
 global_symbol_table = SymbolTable()
@@ -46,6 +46,8 @@ global_symbol_table.set("winpiavidrios", Curro.limpiavidrios)
 global_symbol_table.set("longitud", Curro.longitud)
 global_symbol_table.set("ejecutar", Curro.ejecutar)
 global_symbol_table.set("renuncio", Curro.renuncio)
+global_symbol_table.set("contexto", Curro.contexto_global)
+global_symbol_table.set("asciiAchamu", Curro.asciiAchamu)
 
 
 def execute(fn, text) -> Tuple:

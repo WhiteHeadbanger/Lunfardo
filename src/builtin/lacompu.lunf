@@ -1,0 +1,63 @@
+laburo cambiar_dir(ruta)
+    chdir(ruta)
+chau
+
+laburo obtener_dir_actual()
+    devolver getcwd()
+chau
+
+laburo obtener_entorno(clave)
+    devolver getenv(clave)
+chau
+
+laburo listar_dir(ruta)
+    devolver listdir(ruta)
+chau
+
+laburo crear_dir(ruta)
+    mkdir(ruta)
+chau
+
+laburo crear_dirs(ruta, existe_ok = trucho)
+    makedirs(ruta, existe_ok)
+chau
+
+laburo borrar_archivo(ruta)
+    remove(ruta)
+chau
+
+laburo borrar_dir(ruta)
+    rmdir(ruta)
+chau
+
+laburo renombrar(ruta_vieja, ruta_nueva)
+    rename(ruta_vieja, ruta_nueva)
+chau
+
+laburo sistema(comando)
+    system(comando)
+chau
+
+laburo nombre_compu()
+    devolver name()
+chau
+
+laburo entorno()
+    devolver environ()
+chau
+
+laburo separador()
+    devolver sep()
+chau
+
+laburo separador_ruta()
+    devolver pathsep()
+chau
+
+laburo simbolo_dir_actual()
+    devolver curdir()
+chau
+
+laburo simbolo_dir_padre()
+    devolver pardir()
+chau

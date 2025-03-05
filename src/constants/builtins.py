@@ -1,0 +1,4 @@
+BUILTINS = [
+    "gualichos",
+    "lacompu"
+]

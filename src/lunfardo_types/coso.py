@@ -95,6 +95,13 @@ class Coso(Value):
                     f"Elemento con el índice {other.value} no pudo ser devuelto del coso porque el índice está fuera de los límites.",
                     self.context,
                 )
+            except TypeError:
+                return None, RTError(
+                    other.pos_start,
+                    other.pos_end,
+                    f"Elemento con el índice {other.value} no pudo ser devuelto del coso porque el índice no es un número entero.",
+                    self.context,
+                )
 
         return None, Value.illegal_operation(self, other)
 

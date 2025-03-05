@@ -1,0 +1,87 @@
+laburo gnoeco()
+    noecho()
+chau
+
+laburo gsinbuffer()
+    cbreak()
+chau
+
+laburo gconbuffer()
+    nocbreak()
+chau
+
+laburo gmodo_gamer(boloodean)
+    keypad(boloodean)
+chau
+
+laburo gdimensionesyx()
+    devolver getmaxyx()
+chau
+
+laburo geco()
+    echo()
+chau
+
+laburo gactualizar()
+    refresh()
+chau
+
+laburo gborrar()
+    erase()
+chau
+
+laburo glimpiavidrios()
+    clear()
+chau
+
+laburo gmatearch(ch, y_ = nada, x = nada)
+    si y_ != nada y x != nada entonces
+        addch(ch, y_, x)
+    sino
+        addch(ch)
+    chau
+chau
+
+laburo gmatear(texto, y_ = nada, x = nada)
+    si y_ != nada y x != nada entonces
+        addstr(texto, y_, x)
+    sino
+        addstr(texto)
+    chau
+chau
+
+laburo ginsertar(texto, y_ = nada, x = nada)
+    si y_ != nada y x != nada entonces
+        insstr(texto, y_, x)
+    sino
+        insstr(texto)
+    chau
+chau
+
+laburo gmorfarch()
+    devolver getch()
+chau
+
+laburo grenuncio()
+    quit()
+chau
+
+laburo gbordear()
+    border()
+chau
+
+laburo gmorfarkey()
+    devolver getkey()
+chau
+
+laburo gmorfarchamu()
+    devolver getstr()
+chau
+
+laburo gborrarlinea()
+    deleteln()
+chau
+
+laburo ginsertarlinea()
+    insln()
+chau
