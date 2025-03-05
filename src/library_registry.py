@@ -48,10 +48,54 @@ def init_gualichos(module_context, node, context):
             curro_instance = Curro(name, func)
             module_context.symbol_table.set(name, curro_instance)
     except ImportError as e:
-        return res.failure(RTError(node.pos_start, node.pos_end, f"Error importing library 'gualichos': {str(e)}", context))
+        return res.failure(RTError(node.pos_start, node.pos_end, f"Error al importar la librería 'gualichos': {str(e)}", context))
     except AttributeError:
-        return res.failure(RTError(node.pos_start, node.pos_end, f"Error in library 'gualichos'", context))
+        return res.failure(RTError(node.pos_start, node.pos_end, f"Error en la librería 'gualichos'", context))
+    return res.success(None)
+
+def init_lacompu(module_context, node, context):
+    res = RTResult()
+
+    try:
+        from builtin.lib.lacompu import (
+            LaCompu, chdir_adapter, getcwd_adapter, getenv_adapter, listdir_adapter,
+            mkdir_adapter, makedirs_adapter, remove_adapter, rmdir_adapter, rename_adapter,
+            system_adapter, name_adapter, environ_adapter, sep_adapter, pathsep_adapter,
+            curdir_adapter, pardir_adapter
+        )
+
+        wrapper_instance = LaCompu()
+        from lunfardo_types import Curro
+        la_compu_functions = {
+            "chdir": lambda exec_ctx: chdir_adapter(wrapper_instance, exec_ctx.symbol_table.get("ruta").value),
+            "getcwd": lambda exec_ctx: getcwd_adapter(wrapper_instance),
+            "getenv": lambda exec_ctx: getenv_adapter(wrapper_instance, exec_ctx.symbol_table.get("clave").value),
+            "listdir": lambda exec_ctx: listdir_adapter(wrapper_instance, exec_ctx.symbol_table.get("ruta").value),
+            "mkdir": lambda exec_ctx: mkdir_adapter(wrapper_instance, exec_ctx.symbol_table.get("ruta").value),
+            "makedirs": lambda exec_ctx: makedirs_adapter(wrapper_instance, exec_ctx.symbol_table.get("ruta").value, exec_ctx.symbol_table.get("existe_ok").value),
+            "remove": lambda exec_ctx: remove_adapter(wrapper_instance, exec_ctx.symbol_table.get("ruta").value),
+            "rmdir": lambda exec_ctx: rmdir_adapter(wrapper_instance, exec_ctx.symbol_table.get("ruta").value),
+            "rename": lambda exec_ctx: rename_adapter(wrapper_instance, exec_ctx.symbol_table.get("ruta_vieja").value, exec_ctx.symbol_table.get("ruta_nueva").value),
+            "system": lambda exec_ctx: system_adapter(wrapper_instance, exec_ctx.symbol_table.get("comando").value),
+            "name": lambda exec_ctx: name_adapter(LaCompu),
+            "environ": lambda exec_ctx: environ_adapter(LaCompu),
+            "sep": lambda exec_ctx: sep_adapter(LaCompu),
+            "pathsep": lambda exec_ctx: pathsep_adapter(LaCompu),
+            "curdir": lambda exec_ctx: curdir_adapter(LaCompu),
+            "pardir": lambda exec_ctx: pardir_adapter(LaCompu)
+        }
+
+        for name, func in la_compu_functions.items():
+            curro_instance = Curro(name, func)
+            module_context.symbol_table.set(name, curro_instance)
+    
+    except ImportError as e:
+        return res.failure(RTError(node.pos_start, node.pos_end, f"Error al importar la librería 'lacompu': {str(e)}", context))
+    except AttributeError:
+        return res.failure(RTError(node.pos_start, node.pos_end, f"Error en la librería 'lacompu'", context))
+    
     return res.success(None)
 
 
 register_library_handler("gualichos", init_gualichos)
+register_library_handler("lacompu", init_lacompu)
