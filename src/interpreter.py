@@ -1,4 +1,4 @@
-from lunfardo_parser import RTResult
+from rtresult import RTResult
 from constants.tokens import *
 from lunfardo_types import Numero, Nada
 from errors.errors import RTError

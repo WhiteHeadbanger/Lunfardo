@@ -1,5 +1,5 @@
 from .value import Value
-from lunfardo_parser import RTResult
+from rtresult import RTResult
 from interpreter import SymbolTable, Interpreter
 from context import Context
 from errors import RTError
@@ -177,6 +177,7 @@ class Curro(BaseLaburo):
             )
             if res.should_return():
                 return res
+            
             return_value = res.register(method(execution_context))
 
         if res.should_return():
@@ -752,9 +753,22 @@ class Curro(BaseLaburo):
                 )
             )
 
-        #from run import execute as run
+        from run import execute as run
 
-        from lunfardo_parser import Parser, RTResult
+        _, error = run(fn, script)
+
+        if error:
+            return RTResult().failure(
+                RTError(
+                    self.pos_start,
+                    self.pos_end,
+                    f"Uy que rompimo! No pudimos terminar de ejecutar el fichero '{fn}'\n'{error.as_string()}",
+                    exec_ctx,
+                )
+            )
+
+        """ from lunfardo_parser import Parser
+        from rtresult import RTResult
         from lexer import Lexer
         
         res = RTResult()
@@ -770,22 +784,21 @@ class Curro(BaseLaburo):
         ast, error = parser.parse()
         if error:
             return res.failure(error)
-        for expression in ast.node.element_nodes:
-            res.register(interpreter.visit(expression, execution_context))
-            if res.error:
-                return res
-        
-        """ _, error = run(fn, script)
-
-        if error:
+        if ast.error:
             return RTResult().failure(
                 RTError(
                     self.pos_start,
                     self.pos_end,
-                    f"Uy que rompimo! No pudimos terminar de ejecutar el fichero '{fn}'\n'{error.as_string()}",
+                    ast.error.as_string(),
                     exec_ctx,
                 )
-            ) """
+            )
+        for expression in ast.node.element_nodes:
+            res.register(interpreter.visit(expression, execution_context))
+            if res.error:
+                return res """
+        
+        
 
         return RTResult().success(Nada.nada)
 

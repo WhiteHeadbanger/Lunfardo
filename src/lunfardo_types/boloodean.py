@@ -23,6 +23,20 @@ class Boloodean(Value):
 
         return None, Value.illegal_operation(self, other)
 
+    def anded_by(self, other):
+        from . import Numero
+        if isinstance(other, (Numero, Boloodean)):
+            return Boloodean(self.value and other.value).set_context(self.context), None
+
+        return None, Value.illegal_operation(self, other)
+
+    def ored_by(self, other):
+        from . import Numero
+        if isinstance(other, (Numero, Boloodean)):
+            return Boloodean(self.value or other.value).set_context(self.context), None
+
+        return None, Value.illegal_operation(self, other)
+    
     def notted(self):
         return Boloodean(not self.value).set_context(self.context), None
 

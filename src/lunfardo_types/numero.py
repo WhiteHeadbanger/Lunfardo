@@ -1,6 +1,7 @@
 from errors import RTError
 from .value import Value
 from .boloodean import Boloodean
+from .nada import Nada
 
 
 class Numero(Value):
@@ -44,13 +45,13 @@ class Numero(Value):
         return None, Value.illegal_operation(self, other)
 
     def get_comparison_eq(self, other):
-        if isinstance(other, (Numero, Boloodean)):
+        if isinstance(other, (Numero, Boloodean, Nada)):
             return Boloodean(self.value == other.value).set_context(self.context), None
 
         return None, Value.illegal_operation(self, other)
 
     def get_comparison_ne(self, other):
-        if isinstance(other, (Numero, Boloodean)):
+        if isinstance(other, (Numero, Boloodean, Nada)):
             return Boloodean(self.value != other.value).set_context(self.context), None
 
         return None, Value.illegal_operation(self, other)

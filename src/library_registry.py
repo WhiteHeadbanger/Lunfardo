@@ -1,5 +1,5 @@
 from errors.errors import RTError
-from lunfardo_parser import RTResult
+from rtresult import RTResult
 
 LIBRARY_HANDLERS = {}
 

@@ -1,5 +1,5 @@
 import curses
-from lunfardo_parser import RTResult
+from rtresult import RTResult
 from lunfardo_types import Numero, Chamuyo, Coso
 
 # Facade
