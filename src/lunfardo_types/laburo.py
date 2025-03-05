@@ -55,11 +55,13 @@ class BaseLaburo(Value):
 
     def populate_args(self, arg_names, args, exec_ctx, arg_values=None):
         res = RTResult()
+        from lunfardo_types import Nada
         for i, arg in enumerate(arg_names):
             if i < len(args):
                 arg_value = args[i]
             else:
-                arg_value = arg_values[i]
+                try: arg_value = arg_values[i]
+                except TypeError: arg_value = Nada.nada
 
             if arg_value is None:
                 return res.failure(
@@ -286,7 +288,7 @@ class Curro(BaseLaburo):
         from . import Coso, Mataburros, Nada
 
         value = exec_ctx.symbol_table.get("value")
-        if value is not None:
+        if not isinstance(value, Nada):
             if isinstance(value, (Coso, Mataburros)):
                 print(value)
             else:
@@ -299,9 +301,10 @@ class Curro(BaseLaburo):
 
     def exec_morfar(self, exec_ctx):
         from . import Chamuyo
+        from lunfardo_types import Nada
 
         _prefix = exec_ctx.symbol_table.get("value")
-        if _prefix is not None:
+        if not isinstance(_prefix, Nada):
             if isinstance(_prefix, Chamuyo):
                 _prefix = _prefix.value
             text = input(_prefix)
