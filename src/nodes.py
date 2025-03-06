@@ -61,7 +61,7 @@ class CosoNode:
 class MataburrosNode:
     """Represents a dictionary (mataburros) in the AST."""
 
-    def __init__(self, keys_nodes, values_nodes, pos_start, pos_end) -> None:
+    def __init__(self, pairs, pos_start, pos_end) -> None:
         """
         Initialize a MataburrosNode.
 
@@ -71,13 +71,12 @@ class MataburrosNode:
             pos_start (Position): Start position of the dictionary.
             pos_end (Position): End position of the dictionary.
         """
-        self.keys_nodes = keys_nodes
-        self.values_nodes = values_nodes
+        self.pairs = pairs
         self.pos_start = pos_start
         self.pos_end = pos_end
 
     def __repr__(self) -> str:
-        return f'MataburrosNode({self.keys_nodes}, {self.values_nodes})'
+        return f'MataburrosNode({self.pairs})'
     
 class PoneleQueAccessNode:
     """Represents a name of a variable to access its value in the AST."""
