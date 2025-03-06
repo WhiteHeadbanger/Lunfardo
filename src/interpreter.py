@@ -186,6 +186,38 @@ class Interpreter:
         
         context.symbol_table.set(var_name, value)
         return res.success(value)
+    
+    def visit_AccessAndAssignNode(self, node: AccessAndAssignNode, context: Context) -> RTResult:
+        """
+        Evaluate an AccessAndAssignNode (variable assignment) in the AST.
+
+        Args:
+            node: The AccessAndAssignNode to evaluate.
+            context: The current execution context.
+
+        Returns:
+            RTResult: A runtime result containing the assigned value.
+        """
+        res = RTResult()
+        var_name = node.var_name_tok.value
+
+        if not context.symbol_table.get(var_name):
+            return res.failure(
+                RTError(
+                    node.pos_start,
+                    node.pos_end,
+                    f"'{var_name}' no está definido",
+                    context
+                )
+            )
+        
+        value = res.register(self.visit(node.value_node, context))
+        
+        if res.should_return():
+            return res
+        
+        context.symbol_table.set(var_name, value)
+        return res.success(value)
 
     def visit_BinOpNode(self, node: BinOpNode, context: Context) -> RTResult:
         """
