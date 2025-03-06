@@ -17,25 +17,32 @@ class Error:
 class IllegalCharError(Error):
 
     def __init__(self, pos_start, pos_end, details):
-        super().__init__(pos_start, pos_end, 'Flaco, fijate que metiste un carácter mal', details)
+        super().__init__(pos_start, pos_end, '[Carácter ilegal] Flaco, fijate que metiste un carácter mal', details)
 
 class InvalidSyntaxError(Error):
 
     def __init__(self, pos_start, pos_end, details):
-        super().__init__(pos_start, pos_end, 'No te entiendo nada, boludo', details)
+        super().__init__(pos_start, pos_end, '[Sintaxis inválida] No te entiendo nada, boludo', details)
 
 class ExpectedCharError(Error):
 
     def __init__(self, pos_start, pos_end, details):
-        super().__init__(pos_start, pos_end, 'Flaco, fijate que te olvidaste de un carácter', details)
+        super().__init__(pos_start, pos_end, '[Carácter esperado] Flaco, fijate que te olvidaste de un carácter', details)
 
 class TypeError(Error):
     
     def __init__(self, pos_start, pos_end, details):
-        super().__init__(pos_start, pos_end, 'LOCO, ENCIMA TENGO QUE ANDAR MARCANDOTE LOS ERRORES, TARADO', details)
+        super().__init__(pos_start, pos_end, '[Tipo incorrecto] LOCO, ENCIMA TENGO QUE ANDAR MARCANDOTE LOS ERRORES, TARADO', details)
 
 # Run time error
 class RTError(Error):
+
+    __traceback_count__ = 0
+
+    def __new__(cls, *args, **kwargs):
+        cls.__traceback_count__ += 1
+        instance = super().__new__(cls)
+        return instance
 
     def __init__(self, pos_start, pos_end, details, context):
         super().__init__(pos_start, pos_end, 'Error en tiempo de ejecución', details)
@@ -52,6 +59,7 @@ class RTError(Error):
         pos = self.pos_start
         ctx = self.context
         previous_fn = None
+        traceback_msg = 'Seguimiento del quilombo (la llamada más reciente está primero):\n'
 
         while ctx:
             if pos.fn != previous_fn:
@@ -59,5 +67,9 @@ class RTError(Error):
             previous_fn = pos.fn
             pos = ctx.parent_entry_pos
             ctx = ctx.parent
+        
+        if RTError.__traceback_count__ > 1:
+            RTError.__traceback_count__ -= 1
+            return result
 
-        return f'Traceback (most recent call last):\n{result}'
+        return f'{traceback_msg}\n{result}'
