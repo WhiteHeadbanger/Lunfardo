@@ -11,6 +11,9 @@ El lenguaje, naturalmente, no tiene un propósito serio, pero aún así se puede
 
 ## Instalación y uso
 
+> [!NOTE]
+> Para información más detallada [click acá](https://github.com/WhiteHeadbanger/Lunfardo/wiki/02.-Instalación-y-Configuración)
+
 ### Requisitos
 
 - Python 3 instalado en el sistema.
