@@ -869,22 +869,34 @@ class Interpreter:
             - Both keys and values are evaluated in the current context.
             - The resulting Mataburros object is set with the current context and position.
         """
-        from lunfardo_types import Mataburros
+        from lunfardo_types import Mataburros, Chamuyo, Numero, Boloodean, Laburo
         res = RTResult()
 
-        keys, values = [], []
+        mataburros = Mataburros()
 
-        for key_node, value_node in zip(node.keys_nodes, node.values_nodes):
-            keys.append(res.register(self.visit(key_node, context)))
+        for key_node, value_node in node.pairs:
+            key = res.register(self.visit(key_node, context))
             if res.should_return():
                 return res
             
-            values.append(res.register(self.visit(value_node, context)))
+            value = res.register(self.visit(value_node, context))
             if res.should_return():
                 return res
+            
+            if isinstance(key, Laburo):
+                return res.failure(
+                    RTError(
+                        key.pos_start,
+                        key.pos_end,
+                        "'laburo' no es hashable",
+                        context
+                    )
+                )
+            
+            mataburros.set_pair(key, value)
             
         return res.success(
-            Mataburros(keys, values).set_context(context).set_pos(node.pos_start, node.pos_end)
+            mataburros.set_context(context).set_pos(node.pos_start, node.pos_end)
         )
     
     def visit_ImportarNode(self, node: ImportarNode, context: Context) -> RTResult:

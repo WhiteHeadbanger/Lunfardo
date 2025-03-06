@@ -687,7 +687,7 @@ class Parser:
         """
         res = ParseResult()
 
-        keys, values = [], []
+        pairs = [] # lista de pares (key_node, value_node)
         pos_start = self.current_tok.pos_start.copy()
 
         if self.current_tok.type != TT_LCURLY:
@@ -702,14 +702,15 @@ class Parser:
         res.register_advance()
         self.advance()
 
-        # Empty mataburros (dict)
+        # Coso de mataburros vacío
         if self.current_tok.type == TT_RCURLY:
             res.register_advance()
             self.advance()
 
         else:
-            expr = self.expr()
-            if isinstance(expr.node, (CosoNode, MataburrosNode)):
+            # Parsear el primer par clave-valor
+            key_expr = self.expr()
+            if isinstance(key_expr.node, (CosoNode, MataburrosNode)):
                 return res.failure(
                     TypeError(
                         self.current_tok.pos_start,
@@ -718,7 +719,7 @@ class Parser:
                     )
                 )
             
-            expr = res.register(expr)
+            key_expr = res.register(key_expr)
             if res.error:
                 return res.failure(
                     InvalidSyntaxError(
@@ -727,8 +728,6 @@ class Parser:
                         "Se esperaba una clave",
                     )
                 )
-            
-            keys.append(expr)
 
             if not self.current_tok.type == TT_COLON:
                 return res.failure(
@@ -742,7 +741,7 @@ class Parser:
             res.register_advance()
             self.advance()
 
-            value = res.register(self.expr())
+            value_expr = res.register(self.expr())
             if res.error:
                 return res.failure(
                     InvalidSyntaxError(
@@ -752,14 +751,19 @@ class Parser:
                     )
                 )
             
-            values.append(value)
-
+            pairs.append((key_expr, value_expr))
+            
+            # Si hay pares adicionales
             while self.current_tok.type == TT_COMMA:
                 res.register_advance()
                 self.advance()
 
-                expr = self.expr()
-                if isinstance(expr.node, (CosoNode, MataburrosNode)):
+                """ # Permitir una coma final luego del último valor
+                if self.current_tok.type == TT_RCURLY:
+                    break """
+
+                key_expr = self.expr()
+                if isinstance(key_expr.node, (CosoNode, MataburrosNode)):
                     return res.failure(
                         TypeError(
                             self.current_tok.pos_start,
@@ -767,59 +771,65 @@ class Parser:
                             "Un coso ó mataburros no puede utilizarse como clave",
                         )
                     )
-
-                key_value = expr.node.tok.value
-                if not key_value in [k.tok.value for k in keys]:
-                    key = res.register(expr)
-                    if res.error:
-                        return res
-                    
-                    keys.append(key)
-
-                    if not self.current_tok.type == TT_COLON:
-                        return res.failure(
-                            InvalidSyntaxError(
-                                self.current_tok.pos_start,
-                                self.current_tok.pos_end,
-                                "Se esperaba ':'",
-                            )
+                
+                key_expr = res.register(key_expr)
+                if res.error:
+                    return res.failure(
+                        InvalidSyntaxError(
+                            self.current_tok.pos_start,
+                            self.current_tok.pos_end,
+                            "Se esperaba una clave",
                         )
+                    )
+                
+                if not self.current_tok.type == TT_COLON:
+                    return res.failure(
+                        InvalidSyntaxError(
+                            self.current_tok.pos_start,
+                            self.current_tok.pos_end,
+                            "Se esperaba ':'",
+                        )
+                    )
+                
+                res.register_advance()
+                self.advance()
 
-                    res.register_advance()
-                    self.advance()
+                value_expr = res.register(self.expr())
+                if res.error:
+                    return res.failure(
+                        InvalidSyntaxError(
+                            self.current_tok.pos_start,
+                            self.current_tok.pos_end,
+                            "Se esperaba un valor",
+                        )
+                    )
+                
+                # Si la clave ya fue definida, se actualiza su valor.
+                # En caso contrario, se agrega el par
+                key_value = key_expr.tok.value
+                updated = False
+                for i, (k, v) in enumerate(pairs):
+                    if k.tok.value == key_value:
+                        pairs[i] = (key_expr, value_expr)
+                        updated = True
+                        break
+                if not updated:
+                    pairs.append((key_expr, value_expr))
 
-                    value = res.register(self.expr())
-                    if res.error:
-                        return res
-                    
-                    values.append(value)
-
-                else:
-                    # Update value if key token already exists
-                    idx = [k.tok.value for k in keys].index(key_value)
-
-                    res.register_advance()
-                    self.advance()
-
-                    values[idx] = res.register(self.expr())
-
-                    if res.error:
-                        return res
-
-            if self.current_tok.type != TT_RCURLY:
+            if not self.current_tok.type == TT_RCURLY:
                 return res.failure(
                     InvalidSyntaxError(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
                         "Se esperaba '}'",
                     )
-                )
-
+            )
+            
             res.register_advance()
             self.advance()
 
         return res.success(
-            MataburrosNode(keys, values, pos_start, self.current_tok.pos_end.copy())
+            MataburrosNode(pairs, pos_start, self.current_tok.pos_end.copy())
         )
 
     # MARK: Parse.if_expr

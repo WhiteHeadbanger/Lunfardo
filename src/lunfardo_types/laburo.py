@@ -105,6 +105,7 @@ class Laburo(BaseLaburo):
         self.arg_values = arg_values
         self.should_auto_return = should_auto_return
         self.global_context = None
+        self.memory_address = id(self)
 
     def execute(self, args, current_context):
         from . import Nada
@@ -357,8 +358,8 @@ class Curro(BaseLaburo):
     def exec_es_mataburros(self, exec_ctx):
         from . import Boloodean, Mataburros
 
-        is_dict = isinstance(exec_ctx.symbol_table.get("value"), Mataburros)
-        return RTResult().success(Boloodean.posta if is_dict else Boloodean.trucho)
+        is_mataburros = isinstance(exec_ctx.symbol_table.get("value"), Mataburros)
+        return RTResult().success(Boloodean.posta if is_mataburros else Boloodean.trucho)
 
     exec_es_mataburros.arg_names = ["value"]
 
@@ -569,9 +570,9 @@ class Curro(BaseLaburo):
                 )
             )
 
-        for i, dictkey in enumerate(dict_.keys):
-            if dictkey.value == key.value:
-                return RTResult().success(dict_.values[i])
+        value = dict_.get_value(key)
+        if value is not None:
+            return RTResult().success(value)
 
         return RTResult().success(Nada.nada)
 
@@ -604,13 +605,7 @@ class Curro(BaseLaburo):
                 )
             )
 
-        for i, dictkey in enumerate(dict_.keys):
-            if dictkey.value == key.value:
-                dict_.values[i] = value
-                return RTResult().success(Nada.nada)
-
-        dict_.keys.append(key)
-        dict_.values.append(value)
+        dict_.set_pair(key, value)
         return RTResult().success(Nada.nada)
 
     exec_metele_en.arg_names = ["dict", "key", "value"]
@@ -641,17 +636,15 @@ class Curro(BaseLaburo):
                 )
             )
 
-        for i, dictkey in enumerate(dict_.keys):
-            if dictkey.value == key.value:
-                del dict_.keys[i]
-                del dict_.values[i]
-                return RTResult().success(Nada.nada)
-
+        deleted = dict_.del_key(key)
+        if deleted:
+            return RTResult().success(Nada.nada)
+        
         return RTResult().failure(
             RTError(
                 self.pos_start,
                 self.pos_end,
-                f"El elemento con la llave {key} no pudo ser encontrado en el mataburros.",
+                f"El elemento con la clave {key} no pudo ser encontrado en el mataburros.",
                 exec_ctx,
             )
         )
@@ -684,10 +677,9 @@ class Curro(BaseLaburo):
                 )
             )
 
-        for _, dictkey in enumerate(dict_.keys):
-            if dictkey.value == key.value:
-                return RTResult().success(Boloodean.posta)
-
+        if dict_.get_value(key) is not None:
+            return RTResult().success(Boloodean.posta)
+        
         return RTResult().success(Nada.nada)
 
     exec_existe_clave.arg_names = ["dict", "key"]
@@ -708,7 +700,7 @@ class Curro(BaseLaburo):
             )
 
         if isinstance(arg, Mataburros):
-            return RTResult().success(Numero(len(arg.keys)))
+            return RTResult().success(Numero(arg.count))
 
         if isinstance(arg, Chamuyo):
             return RTResult().success(Numero(len(arg.value)))
@@ -770,39 +762,6 @@ class Curro(BaseLaburo):
                 )
             )
 
-        """ from lunfardo_parser import Parser
-        from rtresult import RTResult
-        from lexer import Lexer
-        
-        res = RTResult()
-        execution_context = Context(fn, exec_ctx, self.pos_start)
-        execution_context.symbol_table = SymbolTable(execution_context.parent.symbol_table if execution_context.parent else None)
-        interpreter = Interpreter()
-
-        lexer = Lexer(fn, script)
-        tokens, error = lexer.make_tokens()
-        if error:
-            return res.failure(error)
-        parser = Parser(tokens)
-        ast, error = parser.parse()
-        if error:
-            return res.failure(error)
-        if ast.error:
-            return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    ast.error.as_string(),
-                    exec_ctx,
-                )
-            )
-        for expression in ast.node.element_nodes:
-            res.register(interpreter.visit(expression, execution_context))
-            if res.error:
-                return res """
-        
-        
-
         return RTResult().success(Nada.nada)
 
     exec_ejecutar.arg_names = ["fn"]
@@ -815,7 +774,7 @@ class Curro(BaseLaburo):
     exec_renuncio.arg_names = []
 
     def exec_contexto_global(self, exec_ctx):
-        from . import Mataburros, Boloodean
+        from . import Mataburros, Boloodean, Chamuyo
 
         _local = exec_ctx.symbol_table.get("local")
         if isinstance(_local, Boloodean):
@@ -826,7 +785,7 @@ class Curro(BaseLaburo):
             else:
                 current_context = exec_ctx
 
-        ctx = Mataburros._from_dict(current_context.symbol_table.symbols)
+        ctx = Mataburros.from_dict(current_context.symbol_table.symbols)
         return RTResult().success(ctx)
     
     exec_contexto_global.arg_names = ['local']
