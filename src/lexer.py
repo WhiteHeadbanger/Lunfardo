@@ -37,6 +37,7 @@ class Lexer:
         """
         Advance the lexer's position to the next character in the input.
         """
+        self.pos = self.pos.copy()
         self.pos.advance(self.current_char)
         self.current_char = self.text[self.pos.idx] if self.pos.idx < len(self.text) else None
 
@@ -68,7 +69,10 @@ class Lexer:
                 tokens.append(self.make_identifier())
             
             elif self.current_char == '"':
-                tokens.append(self.make_string())
+                tok, error = self.make_string()
+                if error:
+                    return [], error
+                tokens.append(tok)
             
             elif self.current_char == '+':
                 tokens.append(Token(TT_PLUS, pos_start = self.pos))
@@ -189,7 +193,13 @@ class Lexer:
         string = ''
         pos_start = self.pos.copy()
         escape_char = False
+        doublequotes_counter = 1
         self.advance()
+
+        # Empty string
+        if self.current_char == '"':
+            self.advance()
+            return Token(TT_STRING, string, pos_start, self.pos), None
 
         escape_characters = {
             'n': '\n',
@@ -206,9 +216,16 @@ class Lexer:
                 else:
                     string += self.current_char
             self.advance()
+            
+            if self.current_char == '"':
+                doublequotes_counter += 1
 
         self.advance()
-        return Token(TT_STRING, string, pos_start, self.pos)
+
+        if doublequotes_counter < 2:
+            return None, ExpectedCharError(pos_start, self.pos, 'Se esperaba \'"\'')
+        
+        return Token(TT_STRING, string, pos_start, self.pos), None
     
     def make_identifier(self) -> Token:
         """
