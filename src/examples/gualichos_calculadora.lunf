@@ -18,12 +18,12 @@ laburo dibujar_menu(indice)
         poneleque y_ = 5 + i
 
         si i == indice entonces
-            poneleque opcion = "[ " + opcion + " ]"
+            opcion = "[ " + opcion + " ]"
         chau
 
         gmatear(opcion, y_, x)
 
-        poneleque i = i + 1
+        i = i + 1
     chau
 chau
 
@@ -60,15 +60,15 @@ laburo realizar_operacion(operacion)
 
     poneleque resultado = nada
     si operacion == "Sumar" entonces
-        poneleque resultado = num1 + num2
+        resultado = num1 + num2
     osi operacion == "Restar" entonces
-        poneleque resultado = num1 - num2
+        resultado = num1 - num2
     osi operacion == "Multiplicar" entonces
-        poneleque resultado = num1 * num2
+        resultado = num1 * num2
     osi operacion == "Dividir" entonces
-        poneleque resultado = num1 / num2
+        resultado = num1 / num2
     sino
-        poneleque resultado = "Invalido"
+        resultado = "Invalido"
     chau
 
     glimpiavidrios()
@@ -91,16 +91,16 @@ laburo main()
         # flecha arriba
         si tecla == 259 entonces
             # Esto lo hacemos porque no tenemos el operador módulo (%), sino sería (indice - 1) % longitud(menu_opciones)
-            poneleque indice = indice - 1
+            indice = indice - 1
             si indice < 0 entonces
-                poneleque indice = indice - (longitud(menu_opciones) * (indice / longitud(menu_opciones)))
+                indice = indice - (longitud(menu_opciones) * (indice / longitud(menu_opciones)))
             chau
         # flecha abajo
         osi tecla == 258 entonces
             # Esto lo hacemos porque no tenemos el operador módulo (%), sino sería (indice - 1) % longitud(menu_opciones)
-            poneleque indice = indice + 1
+            indice = indice + 1
             si indice >= longitud(menu_opciones) entonces
-                poneleque indice = indice - (longitud(menu_opciones) * (indice / longitud(menu_opciones)))
+                indice = indice - (longitud(menu_opciones) * (indice / longitud(menu_opciones)))
             chau
         # Enter o return
         osi tecla == 10 o tecla == 13 entonces

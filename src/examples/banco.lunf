@@ -41,36 +41,45 @@ laburo balance(cuentas, nombre)
     chau
 chau
 
-poneleque cuentas_db = {}
+laburo main()
+    poneleque cuentas_db = {}
 
-mientras posta entonces
-    matear("1. Crear cuenta")
-    matear("2. Deposito")
-    matear("3. Retiro")
-    matear("4. Balance")
-    matear("5. Salir")
+    poneleque opcion = nada
+    poneleque nombre = nada
+    poneleque balance_inicial = nada
+    poneleque cantidad = nada
 
-    poneleque opcion = num(morfar("Seleccione una opcion: "))
+    mientras posta entonces
+        matear("1. Crear cuenta")
+        matear("2. Deposito")
+        matear("3. Retiro")
+        matear("4. Balance")
+        matear("5. Salir")
 
-    si opcion == 1 entonces
-        poneleque nombre = morfar("Nombre de la cuenta: ")
-        poneleque balance_inicial = num(morfar("Balance inicial: "))
-        crear_cuenta(cuentas_db, nombre, balance_inicial)
-    osi opcion == 2 entonces
-        poneleque nombre = morfar("Nombre de la cuenta: ")
-        poneleque cantidad = num(morfar("Cantidad a depositar: "))
-        deposito(cuentas_db, nombre, cantidad)
-    osi opcion == 3 entonces
-        poneleque nombre = morfar("Nombre de la cuenta: ")
-        poneleque cantidad = num(morfar("Cantidad a retirar: "))
-        retiro(cuentas_db, nombre, cantidad)
-    osi opcion == 4 entonces
-        poneleque nombre = morfar("Nombre de la cuenta: ")
-        balance(cuentas_db, nombre)
-    osi opcion == 5 entonces
-        matear("Gracias por confiar en nuestro banco.")
-        rajar
-    sino
-        matear("Opcion invalida")
+        opcion = num(morfar("Seleccione una opcion: "))
+
+        si opcion == 1 entonces
+            nombre = morfar("Nombre de la cuenta: ")
+            balance_inicial = num(morfar("Balance inicial: "))
+            crear_cuenta(cuentas_db, nombre, balance_inicial)
+        osi opcion == 2 entonces
+            nombre = morfar("Nombre de la cuenta: ")
+            cantidad = num(morfar("Cantidad a depositar: "))
+            deposito(cuentas_db, nombre, cantidad)
+        osi opcion == 3 entonces
+            nombre = morfar("Nombre de la cuenta: ")
+            cantidad = num(morfar("Cantidad a retirar: "))
+            retiro(cuentas_db, nombre, cantidad)
+        osi opcion == 4 entonces
+            nombre = morfar("Nombre de la cuenta: ")
+            balance(cuentas_db, nombre)
+        osi opcion == 5 entonces
+            matear("Gracias por confiar en nuestro banco.")
+            rajar
+        sino
+            matear("Opcion invalida")
+        chau
     chau
 chau
+
+main()
