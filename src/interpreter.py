@@ -904,7 +904,7 @@ class Interpreter:
             - Both keys and values are evaluated in the current context.
             - The resulting Mataburros object is set with the current context and position.
         """
-        from lunfardo_types import Mataburros, Chamuyo, Numero, Boloodean, Laburo
+        from lunfardo_types import Mataburros, Laburo
         res = RTResult()
 
         mataburros = Mataburros()
