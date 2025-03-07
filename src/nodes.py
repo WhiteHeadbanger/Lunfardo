@@ -114,6 +114,25 @@ class PoneleQueAssignNode:
     def __repr__(self) -> str:
         return f'PoneleQueAssignNode({self.var_name_tok}, {self.value_node})'
 
+class AccessAndAssignNode:
+    """Represents a name of a declared variable and its value in the AST."""
+
+    def __init__(self, var_name_tok, value_node) -> None:
+        """
+        Initialize an AccessAndAssignNode.
+
+        Args:
+            var_name_tok (Token): Token representing the name of the variable.
+            value_node (Node): Node representing the value of the variable.
+        """
+        self.var_name_tok = var_name_tok
+        self.value_node = value_node
+        self.pos_start = self.var_name_tok.pos_start
+        self.pos_end = self.value_node.pos_end
+
+    def __repr__(self) -> str:
+        return f'AccessAndAssignNode({self.var_name_tok}, {self.value_node})'
+
     
 class BinOpNode:
     """Represents a Binary Operator in the AST."""

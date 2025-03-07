@@ -757,7 +757,7 @@ class Curro(BaseLaburo):
                 RTError(
                     self.pos_start,
                     self.pos_end,
-                    f"Uy que rompimo! No pudimos terminar de ejecutar el fichero '{fn}'\n'{error.as_string()}",
+                    f"Uy que rompimo! No pudimos terminar de ejecutar el fichero '{fn}'\n'{error.as_string(nested=True)}",
                     exec_ctx,
                 )
             )

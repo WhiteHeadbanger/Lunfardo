@@ -186,6 +186,38 @@ class Interpreter:
         
         context.symbol_table.set(var_name, value)
         return res.success(value)
+    
+    def visit_AccessAndAssignNode(self, node: AccessAndAssignNode, context: Context) -> RTResult:
+        """
+        Evaluate an AccessAndAssignNode (variable assignment) in the AST.
+
+        Args:
+            node: The AccessAndAssignNode to evaluate.
+            context: The current execution context.
+
+        Returns:
+            RTResult: A runtime result containing the assigned value.
+        """
+        res = RTResult()
+        var_name = node.var_name_tok.value
+
+        if not context.symbol_table.get(var_name):
+            return res.failure(
+                RTError(
+                    node.var_name_tok.pos_start,
+                    node.var_name_tok.pos_end,
+                    f"'{var_name}' no está definido",
+                    context
+                )
+            )
+        
+        value = res.register(self.visit(node.value_node, context))
+        
+        if res.should_return():
+            return res
+        
+        context.symbol_table.set(var_name, value)
+        return res.success(value)
 
     def visit_BinOpNode(self, node: BinOpNode, context: Context) -> RTResult:
         """
@@ -205,6 +237,7 @@ class Interpreter:
         """
         res = RTResult()
         left = res.register(self.visit(node.left_node, context))
+
         if res.should_return():
             return res
         
@@ -212,6 +245,8 @@ class Interpreter:
         if res.should_return():
             return res
 
+        error = None
+        result = None
         if node.op_tok.type == TT_PLUS:
             result, error = left.added_to(right)
 
@@ -869,7 +904,7 @@ class Interpreter:
             - Both keys and values are evaluated in the current context.
             - The resulting Mataburros object is set with the current context and position.
         """
-        from lunfardo_types import Mataburros, Chamuyo, Numero, Boloodean, Laburo
+        from lunfardo_types import Mataburros, Laburo
         res = RTResult()
 
         mataburros = Mataburros()

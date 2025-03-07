@@ -19,6 +19,7 @@ LunfardoNode = Union[
     MataburrosNode,
     PoneleQueAccessNode,
     PoneleQueAssignNode,
+    AccessAndAssignNode,
     BinOpNode,
     UnaryOpNode,
     SiNode,
@@ -1911,6 +1912,31 @@ class Parser:
                 return res
 
             return res.success(PoneleQueAssignNode(var_name, expr))
+        
+        if self.current_tok.type == TT_IDENTIFIER and self.peek_next_token().type == TT_EQ:
+            var_name = self.current_tok
+
+            res.register_advance()
+            self.advance()
+
+            if self.current_tok.type != TT_EQ:
+                return res.failure(
+                    InvalidSyntaxError(
+                        self.current_tok.pos_start,
+                        self.current_tok.pos_end,
+                        "Se esperaba '='",
+                    )
+                )
+
+            res.register_advance()
+            self.advance()
+
+            expr = res.register(self.expr())
+
+            if res.error:
+                return res
+
+            return res.success(AccessAndAssignNode(var_name, expr))
 
         node = res.register(
             self.bin_op(self.comp_expr, ((TT_KEYWORD, "y"), (TT_KEYWORD, "o")))
