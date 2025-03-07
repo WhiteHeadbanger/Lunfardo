@@ -1,41 +1,30 @@
-# laburo one-liner
-laburo suma(a, b): a + b 
-
-# laburo multiline
-laburo grande(prefix, lista)
-    si lista == 1 entonces 
-        poneleque resultado = [prefix + " es grande"]
-    osi lista == 0 entonces 
-        poneleque resultado = prefix + " es grande"
-    chau
-
+laburo grande(prefijo)
+    poneleque resultado = [prefijo + " es grande"]
     devolver resultado 
 chau
 
-laburo join(elements, separator)
-    poneleque result = ""
-    poneleque len = longitud(elements)
+laburo juntar(elementos, separador)
+    poneleque resultado = ""
+    poneleque longitud_elementos = longitud(elementos)
 
-    para i = 0 hasta len entonces
-        poneleque result = result + elements / i
-        si i != len - 1 entonces poneleque result = result + separator
+    para i = 0 hasta longitud_elementos entonces
+        resultado = resultado + elementos / i
+        si i != longitud_elementos - 1 entonces resultado = resultado + separador
     chau
 
-    devolver result
+    devolver resultado
 chau
 
-laburo map(elementos, lab)
+laburo mapear(elementos, laburo_ref)
     poneleque nuevos_elementos = []
 
     para i = 0 hasta longitud(elementos) entonces
-        extender(nuevos_elementos, lab(elementos / i, 1))
+        extender(nuevos_elementos, laburo_ref(elementos / i))
     chau
 
     devolver nuevos_elementos
 chau
 
 para i = 0 hasta 5 entonces
-    matear(join(map(["white", "gianni"], grande), ", "))
-    #matear(join([grande("white"), grande("gianni")], ", "))
-    matear(suma(5, 5))
+    matear(juntar(mapear(["Marcela", "Kevin"], grande), ", "))
 chau
