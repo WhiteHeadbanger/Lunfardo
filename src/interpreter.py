@@ -204,8 +204,8 @@ class Interpreter:
         if not context.symbol_table.get(var_name):
             return res.failure(
                 RTError(
-                    node.pos_start,
-                    node.pos_end,
+                    node.var_name_tok.pos_start,
+                    node.var_name_tok.pos_end,
                     f"'{var_name}' no está definido",
                     context
                 )
@@ -237,6 +237,7 @@ class Interpreter:
         """
         res = RTResult()
         left = res.register(self.visit(node.left_node, context))
+
         if res.should_return():
             return res
         
@@ -244,6 +245,8 @@ class Interpreter:
         if res.should_return():
             return res
 
+        error = None
+        result = None
         if node.op_tok.type == TT_PLUS:
             result, error = left.added_to(right)
 
