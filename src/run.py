@@ -92,8 +92,9 @@ def run() -> None:
 
     This function provides an interactive prompt for executing Lunfardo code.
     """
+    default_color = '\x1b[;;m'
     while True:
-        text = input("Lunfardo > ")
+        text = input(f"{default_color}Lunfardo > ")
         if text.strip() == "":
             continue
 

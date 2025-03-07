@@ -1,4 +1,5 @@
 from . import string_with_arrows
+from constants.colors import ACCENT, BOLD_ACCENT, DEFAULT
 
 class Error:
 
@@ -7,11 +8,13 @@ class Error:
         self.pos_end = pos_end
         self.error_name = error_name
         self.details = details
+        self.accent_color = ACCENT
+        self.bold_accent_color = BOLD_ACCENT
+        self.default_color = DEFAULT
 
-    def as_string(self):
-        result = f'{self.error_name}: {self.details}'
-        result += f'\nFichero {self.pos_start.fn}, linea {self.pos_start.ln + 1}'
     def as_string(self, nested = False):
+        result = f'{self.bold_accent_color}{self.error_name}: {self.accent_color}{self.details}'
+        result += f'\n{self.default_color}Fichero {self.accent_color}{self.pos_start.fn}{self.default_color}, linea {self.accent_color}{self.pos_start.ln + 1}'
         result += f'\n{string_with_arrows(self.pos_start.ftxt, self.pos_start, self.pos_end)}' 
         return result
     
@@ -42,9 +45,9 @@ class RTError(Error):
         super().__init__(pos_start, pos_end, 'Error en tiempo de ejecución', details)
         self.context = context
 
-        result += f'{self.error_name}: {self.details}'
     def as_string(self, nested=False):
         result = self.generate_traceback(nested)
+        result += f'{self.bold_accent_color}{self.error_name}: {self.accent_color}{self.details}'
         result += f'\n{string_with_arrows(self.pos_start.ftxt, self.pos_start, self.pos_end)}'
         return result
     
@@ -56,6 +59,7 @@ class RTError(Error):
         
 
         while ctx:
+            result = f' {self.default_color}Fichero {self.accent_color}{pos.fn}{self.default_color}, línea {self.accent_color}{str(pos.ln + 1)}{self.default_color}, en {self.accent_color}{ctx.display_name}\n{result}'
             pos = ctx.parent_entry_pos
             ctx = ctx.parent
 

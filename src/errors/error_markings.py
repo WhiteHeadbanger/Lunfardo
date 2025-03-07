@@ -1,5 +1,9 @@
+from constants import ERROR_MARKING, DEFAULT
+
 def string_with_arrows(text, pos_start, pos_end):
-    result = ''
+    result = '\n'
+    accent_color = ERROR_MARKING
+    default_color = DEFAULT
 
     # Calculate indices
     idx_start = max(text.rfind('\n', 0, pos_start.idx), 0)
@@ -15,8 +19,8 @@ def string_with_arrows(text, pos_start, pos_end):
         col_end = pos_end.col if i == line_count - 1 else len(line) - 1
 
         # Append to result
-        result += line + '\n'
-        result += ' ' * col_start + '^' * (col_end - col_start)
+        result += f'{default_color}{line}' + '\n'
+        result += ' ' * col_start + f'{accent_color}^' * (col_end - col_start)
 
         # Re-calculate indices
         idx_start = idx_end
