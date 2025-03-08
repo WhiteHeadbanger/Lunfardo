@@ -8,7 +8,7 @@ It also includes the ParseResult class for managing the parsing process and resu
 
 from constants.tokens import *
 from nodes import *
-from errors import InvalidSyntaxError, TypeError
+from errors import InvalidSyntaxError, TypeError, Error
 from lunfardo_token import Token
 from typing import Union, Self, Optional, Tuple, Callable
 
@@ -143,6 +143,7 @@ class Parser:
             res.register_advance()
             self.advance()
 
+        res.reset_no_result()
         statement = res.register(self.statement())
         if res.error:
             return res
@@ -171,15 +172,20 @@ class Parser:
             
             # TODO si el statement no encuentra nodos válidos porque hay un "chau" como siguiente token, no debería devolver un error de invalidsyntaxerror,
             # sino que debería identificar que terminó el body y que no hay más statements, y luego seguir con el proceso normal.
+            res.reset_no_result()
             stmnt = self.statement()
-            statement = res.try_register(stmnt)
+            error_or_statement = res.try_register(stmnt)
 
-            if not statement:
+            if isinstance(error_or_statement, Error):
+                return res.failure(error_or_statement)
+
+            if res.no_result:
                 self.reverse(res.to_reverse_count)
                 more_statements = False
                 continue
 
-            statements.append(statement)
+            if error_or_statement:
+                statements.append(error_or_statement)
 
         return res.success(
             CosoNode(statements, pos_start, self.current_tok.pos_end.copy())
@@ -225,6 +231,13 @@ class Parser:
 
             return res.success(RajarNode(pos_start, self.current_tok.pos_end.copy()))
 
+        if self.current_tok.matches(TT_KEYWORD, "chau") or \
+        self.current_tok.matches(TT_KEYWORD, "osi") or \
+        self.current_tok.matches(TT_KEYWORD, "sino") or \
+        self.current_tok.type == TT_EOF:
+            res.no_result = True
+            return res.success(None)
+        
         expr = res.register(self.expr())
         if res.error:
             return res.failure(
@@ -2135,6 +2148,7 @@ class ParseResult:
         self.last_registered_advance_count = 0
         self.advance_count = 0
         self.to_reverse_count = 0
+        self.no_result = False
 
     def register_advance(self) -> None:
         self.last_registered_advance_count = 1
@@ -2151,6 +2165,11 @@ class ParseResult:
     def try_register(self, res) -> LunfardoNode:
         if res.error:
             self.to_reverse_count = res.advance_count
+            return res.error
+        
+        if not res.node:
+            self.no_result = True
+            self.to_reverse_count = res.advance_count
             return None
 
         return self.register(res)
@@ -2163,3 +2182,6 @@ class ParseResult:
         if not self.error or self.last_registered_advance_count == 0:
             self.error = error
         return self
+    
+    def reset_no_result(self):
+        self.no_result = False
