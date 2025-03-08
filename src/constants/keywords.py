@@ -13,7 +13,7 @@ KEYWORDS = [
     'mientras', # while
     'laburo', # def, func, function
     'cheto', # class
-    'nuevo', # new instance of class
+    'nuevo', # new class instance
     'chau', # end
     'devolver', # return
     'continuar', # continue
