@@ -88,7 +88,7 @@ def name_adapter(facade):
 
 def environ_adapter(facade):
     value = facade.environ
-    return RTResult().success(Mataburros(value.keys(), value.values()))
+    return RTResult().success(Mataburros.from_dict(value))
 
 def sep_adapter(facade):
     value = facade.sep
