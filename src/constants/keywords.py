@@ -19,4 +19,6 @@ KEYWORDS = [
     'continuar', # continue
     'rajar', # break
     'importar', # import
+    'proba', # try
+    'sibardea', # except / catch
 ]

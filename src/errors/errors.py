@@ -22,21 +22,38 @@ class IllegalCharError(Error):
 
     def __init__(self, pos_start, pos_end, details):
         super().__init__(pos_start, pos_end, '\n[Carácter ilegal] Flaco, fijate que metiste un carácter mal', details)
+        self.name = "caracter_ilegal"
 
 class InvalidSyntaxError(Error):
 
     def __init__(self, pos_start, pos_end, details):
         super().__init__(pos_start, pos_end, '\n[Sintaxis inválida] No te entiendo nada, boludo', details)
+        self.name = "sintaxis_invalida"
 
 class ExpectedCharError(Error):
 
     def __init__(self, pos_start, pos_end, details):
         super().__init__(pos_start, pos_end, '\n[Carácter esperado] Flaco, fijate que te olvidaste de un carácter', details)
+        self.name = "caracter_esperado"
 
 class TypeError(Error):
     
     def __init__(self, pos_start, pos_end, details):
         super().__init__(pos_start, pos_end, '\n[Tipo incorrecto] LOCO, ENCIMA TENGO QUE ANDAR MARCANDOTE LOS ERRORES, TARADO', details)
+        self.name = "error_de_tipo"
+
+class ErrorIndex(Error):
+    
+    def __init__(self, pos_start, pos_end, details):
+        super().__init__(pos_start, pos_end, '\n[Error de indice] Dale, una bien te pido nada mas', details)
+        self.name = "error_de_indice"
+
+class ErrorKey(Error):
+    
+    def __init__(self, pos_start, pos_end, details):
+        super().__init__(pos_start, pos_end, '\n[Error de clave] A ver, correte y traeme a alguien que sepa programar (y agarra el mataburros que no muerde)', details)
+        self.name = "error_de_clave"
+
 
 # Run time error
 class RTError(Error):

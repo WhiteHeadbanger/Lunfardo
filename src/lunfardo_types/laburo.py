@@ -472,6 +472,7 @@ class Curro(BaseLaburo):
 
     def exec_sacar(self, exec_ctx):
         from . import Numero, Coso
+        from errors import ErrorIndex
 
         list_ = exec_ctx.symbol_table.get("list")
         index = exec_ctx.symbol_table.get("index")
@@ -500,11 +501,10 @@ class Curro(BaseLaburo):
             popped = list_.elements.pop(index.value)
         except IndexError:
             return RTResult().failure(
-                RTError(
+                ErrorIndex(
                     self.pos_start,
                     self.pos_end,
-                    f"Elemento con el índice {index.value} no pudo ser removido del coso porque el índice está fuera de los límites.",
-                    exec_ctx,
+                    f"Elemento con el índice '{index.value}' no pudo ser removido del coso porque el índice está fuera de los límites."
                 )
             )
 

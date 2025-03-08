@@ -36,6 +36,7 @@ LunfardoNode = Union[
     ContinuarNode,
     RajarNode,
     ImportarNode,
+    ProbaSiBardeaNode
 ]
 
 # MARK: Parser
@@ -56,6 +57,7 @@ class Parser:
         """
         self.tokens = tokens
         self.tok_idx = -1
+        self.except_keyword_seen = False
         self.advance()
 
     def advance(self) -> Token:
@@ -157,6 +159,10 @@ class Parser:
                 self.advance()
                 nl_count += 1
 
+            if self.current_tok.matches(TT_KEYWORD, "sibardea"):
+                more_statements = False
+                self.except_keyword_seen = True
+
             if nl_count == 0:
                 more_statements = False
 
@@ -175,7 +181,6 @@ class Parser:
 
             statements.append(statement)
 
-        # TODO Checkear la pos_end, para "chetos.lunf" es linea 11, pero debería ser hasta donde termina la funcion
         return res.success(
             CosoNode(statements, pos_start, self.current_tok.pos_end.copy())
         )
@@ -198,6 +203,7 @@ class Parser:
             self.advance()
 
             expr = res.try_register(self.expr())
+
             if not expr:
                 self.reverse(res.to_reverse_count)
 
@@ -464,6 +470,14 @@ class Parser:
                 return res
 
             return res.success(import_expr)
+        
+        if tok.matches(TT_KEYWORD, "proba"):
+            try_expr = res.register(self.try_expr())
+
+            if res.error:
+                return res
+
+            return res.success(try_expr)
 
         return res.failure(
             InvalidSyntaxError(
@@ -1817,6 +1831,109 @@ class Parser:
         self.advance()
 
         return res.success(ImportarNode(import_module_node))
+    
+    def try_expr(self) -> "ParseResult":
+        """
+        Parse a try-except expression in the Lunfardo language.
+        """
+
+        res = ParseResult()
+        res.register_advance()
+        self.advance()
+
+        if self.current_tok.type != TT_COLON:
+            return res.failure(
+                InvalidSyntaxError(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Se esperaba ':'"
+                )
+            )
+        
+        res.register_advance()
+        self.advance()
+        
+        if self.current_tok.type != TT_NEWLINE:
+            return res.failure(
+                InvalidSyntaxError(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Se esperaba nueva linea"
+                )
+            )
+
+        try_body = res.register(self.statements())
+        if res.error:
+            return res
+        
+        if not self.except_keyword_seen:
+            return res.failure(
+                InvalidSyntaxError(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Se esperaba 'sibardea'"
+                )
+            )
+        
+        self.except_keyword_seen = False
+        
+        res.register_advance()
+        self.advance()
+
+        if not (self.current_tok.type == TT_IDENTIFIER and self.current_tok.value in (
+            'caracter_ilegal',
+            'sintaxis_invalida',
+            'caracter_esperado',
+            'error_de_tipo',
+            'error_de_indice'
+        )):
+            return res.failure(
+                InvalidSyntaxError(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Se esperaba 'caracter_ilegal' ó 'sintaxis_invalida' ó 'caracter_esperado' ó 'error_de_tipo' ó 'error_de_indice'"
+                )
+            )
+        
+        error_name = self.current_tok.value
+
+        res.register_advance()
+        self.advance()
+
+        if self.current_tok.type != TT_COLON:
+            return res.failure(
+                InvalidSyntaxError(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Se esperaba ':'"
+                )
+            )
+        
+        res.register_advance()
+        self.advance()
+
+        if self.current_tok.type != TT_NEWLINE:
+            return res.failure(
+                InvalidSyntaxError(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Se esperaba nueva linea"
+                )
+            )
+        
+        res.register_advance()
+        self.advance()
+
+        except_body = res.register(self.statements())
+        if res.error:
+            return res
+        
+        res.register_advance()
+        self.advance()
+
+        return res.success(
+            ProbaSiBardeaNode(try_body, error_name, except_body)
+        )
 
     # MARK: Parse.expr
     def expr(self) -> "ParseResult":
