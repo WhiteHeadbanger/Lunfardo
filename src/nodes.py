@@ -481,3 +481,26 @@ class ImportarNode:
     
     def __str__(self) -> str:
         return f'ImportarNode({self.module_name_node})'
+    
+class ProbaSiBardeaNode:
+    """ Represents a try-except code block in the AST """
+
+    def __init__(self, try_body_node, bardo_name, except_body_node) -> None:
+        """
+        Initialize a ProbaSiBardeaNode.
+
+        Args:
+            try_body (Node): Node representing the node to try
+            except_body (Node): Node representing the node to execute in case of Bardo (exception)
+        """
+        self.try_body_node = try_body_node
+        self.except_body_node = except_body_node
+        self.bardo_name = bardo_name
+        self.pos_start = self.try_body_node.pos_start
+        self.pos_end = self.except_body_node.pos_end
+
+    def __repr__(self) -> str:
+        return f'ProbaSiBardeaNode({self.try_body_node}, {self.except_body_node})'
+    
+    def __str__(self) -> str:
+        return f'ProbaSiBardeaNode({self.try_body_node}, {self.except_body_node})'

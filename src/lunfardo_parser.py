@@ -8,7 +8,7 @@ It also includes the ParseResult class for managing the parsing process and resu
 
 from constants.tokens import *
 from nodes import *
-from errors import InvalidSyntaxError, TypeError
+from errors import InvalidSyntaxBardo, InvalidTypeBardo, Bardo
 from lunfardo_token import Token
 from typing import Union, Self, Optional, Tuple, Callable
 
@@ -36,6 +36,7 @@ LunfardoNode = Union[
     ContinuarNode,
     RajarNode,
     ImportarNode,
+    ProbaSiBardeaNode
 ]
 
 # MARK: Parser
@@ -56,6 +57,7 @@ class Parser:
         """
         self.tokens = tokens
         self.tok_idx = -1
+        self.except_keyword_seen = False
         self.advance()
 
     def advance(self) -> Token:
@@ -115,7 +117,7 @@ class Parser:
         if not res.error and self.current_tok.type != TT_EOF:
             return (
                 res.failure(
-                    InvalidSyntaxError(
+                    InvalidSyntaxBardo(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
                         "Se esperaba '+', '-', '*', '/', '^', '==', '!=', '<', '>', '<=', '>=', 'y' ó 'o'",
@@ -141,6 +143,7 @@ class Parser:
             res.register_advance()
             self.advance()
 
+        res.reset_no_result()
         statement = res.register(self.statement())
         if res.error:
             return res
@@ -157,6 +160,10 @@ class Parser:
                 self.advance()
                 nl_count += 1
 
+            if self.current_tok.matches(TT_KEYWORD, "sibardea"):
+                more_statements = False
+                self.except_keyword_seen = True
+
             if nl_count == 0:
                 more_statements = False
 
@@ -165,17 +172,21 @@ class Parser:
             
             # TODO si el statement no encuentra nodos válidos porque hay un "chau" como siguiente token, no debería devolver un error de invalidsyntaxerror,
             # sino que debería identificar que terminó el body y que no hay más statements, y luego seguir con el proceso normal.
+            res.reset_no_result()
             stmnt = self.statement()
-            statement = res.try_register(stmnt)
+            error_or_statement = res.try_register(stmnt)
 
-            if not statement:
+            if isinstance(error_or_statement, Bardo):
+                return res.failure(error_or_statement)
+
+            if res.no_result:
                 self.reverse(res.to_reverse_count)
                 more_statements = False
                 continue
 
-            statements.append(statement)
+            if error_or_statement:
+                statements.append(error_or_statement)
 
-        # TODO Checkear la pos_end, para "chetos.lunf" es linea 11, pero debería ser hasta donde termina la funcion
         return res.success(
             CosoNode(statements, pos_start, self.current_tok.pos_end.copy())
         )
@@ -198,6 +209,7 @@ class Parser:
             self.advance()
 
             expr = res.try_register(self.expr())
+
             if not expr:
                 self.reverse(res.to_reverse_count)
 
@@ -219,10 +231,17 @@ class Parser:
 
             return res.success(RajarNode(pos_start, self.current_tok.pos_end.copy()))
 
+        if self.current_tok.matches(TT_KEYWORD, "chau") or \
+        self.current_tok.matches(TT_KEYWORD, "osi") or \
+        self.current_tok.matches(TT_KEYWORD, "sino") or \
+        self.current_tok.type == TT_EOF:
+            res.no_result = True
+            return res.success(None)
+        
         expr = res.register(self.expr())
         if res.error:
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba 'devolver', 'continuar', 'rajar', 'poneleque', 'si', 'para', 'mientras', 'laburo', numero, identificador, '+', '-', '(', '[' ó 'truchar'",
@@ -265,7 +284,7 @@ class Parser:
                 arg_node = res.register(self.expr())
                 if res.error:
                     return res.failure(
-                        InvalidSyntaxError(
+                        InvalidSyntaxBardo(
                             self.current_tok.pos_start,
                             self.current_tok.pos_end,
                             "Se esperaba ')' o una expresión.",
@@ -285,7 +304,7 @@ class Parser:
                     arg_node = res.register(self.expr())
                     if res.error:
                         return res.failure(
-                            InvalidSyntaxError(
+                            InvalidSyntaxBardo(
                                 self.current_tok.pos_start,
                                 self.current_tok.pos_end,
                                 "Se esperaba ')' o una expresión.",
@@ -296,7 +315,7 @@ class Parser:
 
                 if self.current_tok.type != TT_RPAREN:
                     return res.failure(
-                        InvalidSyntaxError(
+                        InvalidSyntaxBardo(
                             self.current_tok.pos_start,
                             self.current_tok.pos_end,
                             "Se esperaba ',' ó ')'",
@@ -386,7 +405,7 @@ class Parser:
                 return res.success(expr)
 
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba ')'",
@@ -464,9 +483,17 @@ class Parser:
                 return res
 
             return res.success(import_expr)
+        
+        if tok.matches(TT_KEYWORD, "proba"):
+            try_expr = res.register(self.try_expr())
+
+            if res.error:
+                return res
+
+            return res.success(try_expr)
 
         return res.failure(
-            InvalidSyntaxError(
+            InvalidSyntaxBardo(
                 tok.pos_start,
                 tok.pos_end,
                 "Se esperaba número, identificador, '+', '-', '(', '[', 'si', 'para', 'mientras', 'laburo' ó 'cheto'",
@@ -560,7 +587,7 @@ class Parser:
 
         if res.error:
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba numero, identificador, '+', '-', '(', '[' ó truchar'",
@@ -605,7 +632,7 @@ class Parser:
 
         if self.current_tok.type != TT_LSQUARE:
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba '['",
@@ -624,7 +651,7 @@ class Parser:
             expr = res.register(self.expr())
             if res.error:
                 return res.failure(
-                    InvalidSyntaxError(
+                    InvalidSyntaxBardo(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
                         "Se esperaba una expresión.",
@@ -640,7 +667,7 @@ class Parser:
                 expr = res.register(self.expr())
                 if res.error:
                     return res.failure(
-                        InvalidSyntaxError(
+                        InvalidSyntaxBardo(
                             self.current_tok.pos_start,
                             self.current_tok.pos_end,
                             "Se esperaba una expresión.",
@@ -651,7 +678,7 @@ class Parser:
 
             if self.current_tok.type != TT_RSQUARE:
                 return res.failure(
-                    InvalidSyntaxError(
+                    InvalidSyntaxBardo(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
                         "Se esperaba ']'",
@@ -693,7 +720,7 @@ class Parser:
 
         if self.current_tok.type != TT_LCURLY:
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba '{'",
@@ -713,7 +740,7 @@ class Parser:
             key_expr = self.expr()
             if isinstance(key_expr.node, (CosoNode, MataburrosNode)):
                 return res.failure(
-                    TypeError(
+                    InvalidTypeBardo(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
                         "Un coso ó mataburros no puede utilizarse como clave",
@@ -723,7 +750,7 @@ class Parser:
             key_expr = res.register(key_expr)
             if res.error:
                 return res.failure(
-                    InvalidSyntaxError(
+                    InvalidSyntaxBardo(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
                         "Se esperaba una clave",
@@ -732,7 +759,7 @@ class Parser:
 
             if not self.current_tok.type == TT_COLON:
                 return res.failure(
-                    InvalidSyntaxError(
+                    InvalidSyntaxBardo(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
                         "Se esperaba ':'",
@@ -745,7 +772,7 @@ class Parser:
             value_expr = res.register(self.expr())
             if res.error:
                 return res.failure(
-                    InvalidSyntaxError(
+                    InvalidSyntaxBardo(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
                         "Se esperaba un valor",
@@ -766,7 +793,7 @@ class Parser:
                 key_expr = self.expr()
                 if isinstance(key_expr.node, (CosoNode, MataburrosNode)):
                     return res.failure(
-                        TypeError(
+                        InvalidTypeBardo(
                             self.current_tok.pos_start,
                             self.current_tok.pos_end,
                             "Un coso ó mataburros no puede utilizarse como clave",
@@ -776,7 +803,7 @@ class Parser:
                 key_expr = res.register(key_expr)
                 if res.error:
                     return res.failure(
-                        InvalidSyntaxError(
+                        InvalidSyntaxBardo(
                             self.current_tok.pos_start,
                             self.current_tok.pos_end,
                             "Se esperaba una clave",
@@ -785,7 +812,7 @@ class Parser:
                 
                 if not self.current_tok.type == TT_COLON:
                     return res.failure(
-                        InvalidSyntaxError(
+                        InvalidSyntaxBardo(
                             self.current_tok.pos_start,
                             self.current_tok.pos_end,
                             "Se esperaba ':'",
@@ -798,7 +825,7 @@ class Parser:
                 value_expr = res.register(self.expr())
                 if res.error:
                     return res.failure(
-                        InvalidSyntaxError(
+                        InvalidSyntaxBardo(
                             self.current_tok.pos_start,
                             self.current_tok.pos_end,
                             "Se esperaba un valor",
@@ -819,7 +846,7 @@ class Parser:
 
             if not self.current_tok.type == TT_RCURLY:
                 return res.failure(
-                    InvalidSyntaxError(
+                    InvalidSyntaxBardo(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
                         "Se esperaba '}'",
@@ -911,7 +938,7 @@ class Parser:
 
                 else:
                     return res.failure(
-                        InvalidSyntaxError(
+                        InvalidSyntaxBardo(
                             self.current_tok.pos_start,
                             self.current_tok.pos_end,
                             "Se esperaba 'chau'",
@@ -987,7 +1014,7 @@ class Parser:
 
         if not self.current_tok.matches(TT_KEYWORD, case_keyword):
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     f"Se esperaba '{case_keyword}'",
@@ -1004,7 +1031,7 @@ class Parser:
 
         if not self.current_tok.matches(TT_KEYWORD, "entonces"):
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba 'entonces'",
@@ -1081,7 +1108,7 @@ class Parser:
 
         if not self.current_tok.matches(TT_KEYWORD, "para"):
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba 'para'",
@@ -1093,7 +1120,7 @@ class Parser:
 
         if self.current_tok.type != TT_IDENTIFIER:
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba identificador",
@@ -1107,7 +1134,7 @@ class Parser:
 
         if self.current_tok.type != TT_EQ:
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba '='",
@@ -1124,7 +1151,7 @@ class Parser:
 
         if not self.current_tok.matches(TT_KEYWORD, "hasta"):
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba 'hasta'",
@@ -1153,7 +1180,7 @@ class Parser:
 
         if not self.current_tok.matches(TT_KEYWORD, "entonces"):
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba 'entonces'",
@@ -1174,7 +1201,7 @@ class Parser:
 
             if not self.current_tok.matches(TT_KEYWORD, "chau"):
                 return res.failure(
-                    InvalidSyntaxError(
+                    InvalidSyntaxBardo(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
                         "Se esperaba 'chau'",
@@ -1222,7 +1249,7 @@ class Parser:
 
         if not self.current_tok.matches(TT_KEYWORD, "mientras"):
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba 'mientras'",
@@ -1239,7 +1266,7 @@ class Parser:
 
         if not self.current_tok.matches(TT_KEYWORD, "entonces"):
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba 'entonces'",
@@ -1260,7 +1287,7 @@ class Parser:
 
             if not self.current_tok.matches(TT_KEYWORD, "chau"):
                 return res.failure(
-                    InvalidSyntaxError(
+                    InvalidSyntaxBardo(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
                         "Se esperaba 'chau'",
@@ -1308,7 +1335,7 @@ class Parser:
 
         if not self.current_tok.matches(TT_KEYWORD, "laburo"):
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba 'laburo'",
@@ -1320,7 +1347,7 @@ class Parser:
 
         if self.current_tok.type != TT_IDENTIFIER:
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba identificador",
@@ -1333,7 +1360,7 @@ class Parser:
 
         if self.current_tok.type != TT_LPAREN:
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba '('",
@@ -1368,7 +1395,7 @@ class Parser:
 
                 if self.current_tok.type != TT_IDENTIFIER:
                     return res.failure(
-                        InvalidSyntaxError(
+                        InvalidSyntaxBardo(
                             self.current_tok.pos_start,
                             self.current_tok.pos_end,
                             "Se esperaba identificador",
@@ -1393,7 +1420,7 @@ class Parser:
 
         if self.current_tok.type != TT_RPAREN:
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba ')'",
@@ -1405,7 +1432,7 @@ class Parser:
 
         if self.current_tok.type != TT_NEWLINE:
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba nueva línea",
@@ -1421,7 +1448,7 @@ class Parser:
 
         if not self.current_tok.matches(TT_KEYWORD, "chau"):
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba 'chau'",
@@ -1457,7 +1484,7 @@ class Parser:
 
         if not self.current_tok.matches(TT_KEYWORD, "nuevo"):
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba 'nuevo'",
@@ -1469,7 +1496,7 @@ class Parser:
 
         if self.current_tok.type != TT_IDENTIFIER:
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba identificador",
@@ -1493,7 +1520,7 @@ class Parser:
                 expr = res.register(self.expr())
                 if res.error:
                     return res.failure(
-                        InvalidSyntaxError(
+                        InvalidSyntaxBardo(
                             self.current_tok.pos_start,
                             self.current_tok.pos_end,
                             "Se esperaba ')' o una expresión",
@@ -1509,7 +1536,7 @@ class Parser:
                     expr = res.register(self.expr())
                     if res.error:
                         return res.failure(
-                            InvalidSyntaxError(
+                            InvalidSyntaxBardo(
                                 self.current_tok.pos_start,
                                 self.current_tok.pos_end,
                                 "Se esperaba ')' o una expresión",
@@ -1519,7 +1546,7 @@ class Parser:
 
                 if self.current_tok.type != TT_RPAREN:
                     return res.failure(
-                        InvalidSyntaxError(
+                        InvalidSyntaxBardo(
                             self.current_tok.pos_start,
                             self.current_tok.pos_end,
                             "Se esperaba ',' o ')'",
@@ -1557,7 +1584,7 @@ class Parser:
 
         if not self.current_tok.matches(TT_KEYWORD, "cheto"):
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba 'cheto'",
@@ -1569,7 +1596,7 @@ class Parser:
 
         if self.current_tok.type != TT_IDENTIFIER:
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba nombre de cheto",
@@ -1588,7 +1615,7 @@ class Parser:
 
             if self.current_tok.type != TT_IDENTIFIER:
                 return res.failure(
-                    InvalidSyntaxError(
+                    InvalidSyntaxBardo(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
                         "Se esperaba identificador",
@@ -1601,7 +1628,7 @@ class Parser:
 
             if self.current_tok.type != TT_RPAREN:
                 return res.failure(
-                    InvalidSyntaxError(
+                    InvalidSyntaxBardo(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
                         "Se esperaba ')'",
@@ -1613,7 +1640,7 @@ class Parser:
 
         if self.current_tok.type != TT_NEWLINE:
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba nueva linea despues del nombre de cheto",
@@ -1640,7 +1667,7 @@ class Parser:
                 break
             else:
                 return res.failure(
-                    InvalidSyntaxError(
+                    InvalidSyntaxBardo(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
                         "Se esperaba 'laburo' o 'chau'",
@@ -1649,7 +1676,7 @@ class Parser:
 
         if not self.current_tok.matches(TT_KEYWORD, "chau"):
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba 'chau'",
@@ -1688,7 +1715,7 @@ class Parser:
 
         if self.current_tok.type != TT_IDENTIFIER:
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba nombre de metodo",
@@ -1701,7 +1728,7 @@ class Parser:
 
         if self.current_tok.type != TT_LPAREN:
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba '('",
@@ -1719,7 +1746,7 @@ class Parser:
             arg_node = res.register(self.expr())
             if res.error:
                 return res.failure(
-                    InvalidSyntaxError(
+                    InvalidSyntaxBardo(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
                         "Se esperaba ')' o una expresión",
@@ -1735,7 +1762,7 @@ class Parser:
                 arg_node = res.register(self.expr())
                 if res.error:
                     return res.failure(
-                        InvalidSyntaxError(
+                        InvalidSyntaxBardo(
                             self.current_tok.pos_start,
                             self.current_tok.pos_end,
                             "Se esperaba una expresión",
@@ -1746,7 +1773,7 @@ class Parser:
 
             if self.current_tok.type != TT_RPAREN:
                 return res.failure(
-                    InvalidSyntaxError(
+                    InvalidSyntaxBardo(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
                         "Se esperaba ')'",
@@ -1778,7 +1805,7 @@ class Parser:
 
         if self.current_tok.type != TT_IDENTIFIER:
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba un identificador",
@@ -1802,7 +1829,7 @@ class Parser:
 
         if self.current_tok.type != TT_STRING:
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "El nombre del modulo a importar debe ser un chamuyo",
@@ -1817,6 +1844,111 @@ class Parser:
         self.advance()
 
         return res.success(ImportarNode(import_module_node))
+    
+    def try_expr(self) -> "ParseResult":
+        """
+        Parse a try-except expression in the Lunfardo language.
+        """
+
+        res = ParseResult()
+        res.register_advance()
+        self.advance()
+
+        if self.current_tok.type != TT_COLON:
+            return res.failure(
+                InvalidSyntaxBardo(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Se esperaba ':'"
+                )
+            )
+        
+        res.register_advance()
+        self.advance()
+        
+        if self.current_tok.type != TT_NEWLINE:
+            return res.failure(
+                InvalidSyntaxBardo(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Se esperaba nueva linea"
+                )
+            )
+
+        try_body = res.register(self.statements())
+        if res.error:
+            return res
+        
+        if not self.except_keyword_seen:
+            return res.failure(
+                InvalidSyntaxBardo(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Se esperaba 'sibardea'"
+                )
+            )
+        
+        self.except_keyword_seen = False
+        
+        res.register_advance()
+        self.advance()
+
+        if not (self.current_tok.type == TT_IDENTIFIER and self.current_tok.value in (
+            'caracter_ilegal',
+            'sintaxis_invalida',
+            'caracter_esperado',
+            'bardo_de_tipo',
+            'bardo_de_indice',
+            'bardo_de_clave',
+            'bardo_de_valor'
+        )):
+            return res.failure(
+                InvalidSyntaxBardo(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Se esperaba un bardo"
+                )
+            )
+        
+        error_name = self.current_tok.value
+
+        res.register_advance()
+        self.advance()
+
+        if self.current_tok.type != TT_COLON:
+            return res.failure(
+                InvalidSyntaxBardo(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Se esperaba ':'"
+                )
+            )
+        
+        res.register_advance()
+        self.advance()
+
+        if self.current_tok.type != TT_NEWLINE:
+            return res.failure(
+                InvalidSyntaxBardo(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Se esperaba nueva linea"
+                )
+            )
+        
+        res.register_advance()
+        self.advance()
+
+        except_body = res.register(self.statements())
+        if res.error:
+            return res
+        
+        res.register_advance()
+        self.advance()
+
+        return res.success(
+            ProbaSiBardeaNode(try_body, error_name, except_body)
+        )
 
     # MARK: Parse.expr
     def expr(self) -> "ParseResult":
@@ -1848,7 +1980,7 @@ class Parser:
 
             if self.current_tok.type != TT_IDENTIFIER:
                 return res.failure(
-                    InvalidSyntaxError(
+                    InvalidSyntaxBardo(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
                         "Se esperaba identificador",
@@ -1866,7 +1998,7 @@ class Parser:
 
                 if self.current_tok.type != TT_IDENTIFIER:
                     return res.failure(
-                        InvalidSyntaxError(
+                        InvalidSyntaxBardo(
                             self.current_tok.pos_start,
                             self.current_tok.pos_end,
                             "Se esperaba identificador",
@@ -1879,7 +2011,7 @@ class Parser:
 
                 if self.current_tok.type != TT_EQ:
                     return res.failure(
-                        InvalidSyntaxError(
+                        InvalidSyntaxBardo(
                             self.current_tok.pos_start,
                             self.current_tok.pos_end,
                             "Se esperaba '='",
@@ -1896,7 +2028,7 @@ class Parser:
 
             if self.current_tok.type != TT_EQ:
                 return res.failure(
-                    InvalidSyntaxError(
+                    InvalidSyntaxBardo(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
                         "Se esperaba '='",
@@ -1921,7 +2053,7 @@ class Parser:
 
             if self.current_tok.type != TT_EQ:
                 return res.failure(
-                    InvalidSyntaxError(
+                    InvalidSyntaxBardo(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
                         "Se esperaba '='",
@@ -1945,7 +2077,7 @@ class Parser:
         if res.error:
             # MARK: me parece que aca solamente deberia retornar "res"
             return res.failure(
-                InvalidSyntaxError(
+                InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
                     "Se esperaba 'poneleque', 'si', 'para', 'mientras', 'laburo', numero, identificador, '+', '-', '(', '[' ó 'truchar'",
@@ -2018,6 +2150,7 @@ class ParseResult:
         self.last_registered_advance_count = 0
         self.advance_count = 0
         self.to_reverse_count = 0
+        self.no_result = False
 
     def register_advance(self) -> None:
         self.last_registered_advance_count = 1
@@ -2034,6 +2167,11 @@ class ParseResult:
     def try_register(self, res) -> LunfardoNode:
         if res.error:
             self.to_reverse_count = res.advance_count
+            return res.error
+        
+        if not res.node:
+            self.no_result = True
+            self.to_reverse_count = res.advance_count
             return None
 
         return self.register(res)
@@ -2046,3 +2184,6 @@ class ParseResult:
         if not self.error or self.last_registered_advance_count == 0:
             self.error = error
         return self
+    
+    def reset_no_result(self):
+        self.no_result = False

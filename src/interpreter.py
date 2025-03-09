@@ -969,7 +969,7 @@ class Interpreter:
             except Exception as e:
                 return res.failure(RTError(
                     node.pos_start, node.pos_end,
-                    f"Error al abrir el fichero '{module_name}'\n" + str(e),
+                    f"Bardo al abrir el fichero '{module_name}'\n" + str(e),
                     context
                 ))
 
@@ -1017,6 +1017,23 @@ class Interpreter:
                 ))
 
         return res.success(Nada.nada)
+    
+    def visit_ProbaSiBardeaNode(self, node: ProbaSiBardeaNode, context: Context) -> RTResult:
+        res = RTResult()
+
+        try_value = res.register(self.visit(node.try_body_node, context))
+        if res.should_return():
+            if res.error.name == node.bardo_name:
+                except_value = res.register(self.visit(node.except_body_node, context))
+                
+                if res.should_return():
+                    return res
+                
+                return res.success(except_value)
+            
+            return res
+        
+        return res.success(try_value)
 
     @staticmethod
     def handle_library_import(lib_name: str, node: ImportarNode, module_context: Context, context: Context) -> RTResult:

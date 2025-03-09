@@ -1,7 +1,7 @@
 from . import string_with_arrows
 from constants.colors import ACCENT, BOLD_ACCENT, DEFAULT
 
-class Error:
+class Bardo:
 
     def __init__(self, pos_start, pos_end, error_name, details):
         self.pos_start = pos_start
@@ -18,31 +18,54 @@ class Error:
         result += f'\n{string_with_arrows(self.pos_start.ftxt, self.pos_start, self.pos_end)}' 
         return result
     
-class IllegalCharError(Error):
+class IllegalCharBardo(Bardo):
 
     def __init__(self, pos_start, pos_end, details):
         super().__init__(pos_start, pos_end, '\n[Carácter ilegal] Flaco, fijate que metiste un carácter mal', details)
+        self.name = "caracter_ilegal"
 
-class InvalidSyntaxError(Error):
+class InvalidSyntaxBardo(Bardo):
 
     def __init__(self, pos_start, pos_end, details):
         super().__init__(pos_start, pos_end, '\n[Sintaxis inválida] No te entiendo nada, boludo', details)
+        self.name = "sintaxis_invalida"
 
-class ExpectedCharError(Error):
+class ExpectedCharBardo(Bardo):
 
     def __init__(self, pos_start, pos_end, details):
         super().__init__(pos_start, pos_end, '\n[Carácter esperado] Flaco, fijate que te olvidaste de un carácter', details)
+        self.name = "caracter_esperado"
 
-class TypeError(Error):
+class InvalidTypeBardo(Bardo):
     
     def __init__(self, pos_start, pos_end, details):
-        super().__init__(pos_start, pos_end, '\n[Tipo incorrecto] LOCO, ENCIMA TENGO QUE ANDAR MARCANDOTE LOS ERRORES, TARADO', details)
+        super().__init__(pos_start, pos_end, '\n[Bardo de tipo] LOCO, ENCIMA TENGO QUE ANDAR MARCANDOTE LOS BARDOS, TARADO', details)
+        self.name = "bardo_de_tipo"
+
+class InvalidIndexBardo(Bardo):
+    
+    def __init__(self, pos_start, pos_end, details):
+        super().__init__(pos_start, pos_end, '\n[Bardo de indice] Dale, una bien te pido nada mas', details)
+        self.name = "bardo_de_indice"
+
+class InvalidKeyBardo(Bardo):
+    
+    def __init__(self, pos_start, pos_end, details):
+        super().__init__(pos_start, pos_end, '\n[Bardo de clave] A ver, correte y traeme a alguien que sepa programar (y agarra el mataburros que no muerde)', details)
+        self.name = "bardo_de_clave"
+
+class InvalidValueBardo(Bardo):
+    
+    def __init__(self, pos_start, pos_end, details):
+        super().__init__(pos_start, pos_end, '\n[Bardo de valor] Sabías que los numeros NO LLEVAN LETRAS?', details)
+        self.name = "bardo_de_valor"
+
 
 # Run time error
-class RTError(Error):
+class RTError(Bardo):
 
     def __init__(self, pos_start, pos_end, details, context):
-        super().__init__(pos_start, pos_end, 'Error en tiempo de ejecución', details)
+        super().__init__(pos_start, pos_end, 'Bardo en tiempo de ejecución', details)
         self.context = context
 
     def as_string(self, nested=False):
