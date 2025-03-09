@@ -969,7 +969,7 @@ class Interpreter:
             except Exception as e:
                 return res.failure(RTError(
                     node.pos_start, node.pos_end,
-                    f"Error al abrir el fichero '{module_name}'\n" + str(e),
+                    f"Bardo al abrir el fichero '{module_name}'\n" + str(e),
                     context
                 ))
 

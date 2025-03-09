@@ -209,6 +209,7 @@ class Curro(BaseLaburo):
 
     def exec_chamu(self, exec_ctx):
         from . import Chamuyo, Numero, Coso
+        from errors import InvalidTypeBardo
 
         value = exec_ctx.symbol_table.get("value")
 
@@ -233,26 +234,34 @@ class Curro(BaseLaburo):
 
         if isinstance(value, BaseLaburo):
             return RTResult().success(Chamuyo(str(value)))
+        
+        return RTResult().failure(
+            InvalidTypeBardo(
+                value.pos_start,
+                value.pos_end,
+                "El argumento solo puede ser numero, chamuyo, coso o laburo."
+            )
+        )
 
     exec_chamu.arg_names = ["value"]
 
     def exec_num(self, exec_ctx):
         from . import Chamuyo, Numero
+        from errors import InvalidTypeBardo, InvalidValueBardo
 
         value = exec_ctx.symbol_table.get("value")
 
         if not value:
             return RTResult().failure(
-                RTError(
+                InvalidTypeBardo(
                     self.pos_start,
                     self.pos_end,
-                    f"pocos argumentos pasados en '{self.name}'() (esperados 1, recibidos 0)",
-                    exec_ctx,
+                    f"pocos argumentos pasados en '{self.name}'() (esperados 1, recibidos 0)"
                 )
             )
 
         if isinstance(value, Numero):
-            return RTResult().success(Numero(new_value))
+            return RTResult().success(Numero(value.value))
 
         if isinstance(value, Chamuyo):
             # check if string is a valid string
@@ -263,11 +272,10 @@ class Curro(BaseLaburo):
                     new_value = float(value.value)
                 except ValueError:
                     return RTResult().failure(
-                        RTError(
-                            self.pos_start,
-                            self.pos_end,
-                            f"Literal invalido para '{self.name}()' con base 10: '{value.value}'",
-                            exec_ctx,
+                        InvalidValueBardo(
+                            value.pos_start,
+                            value.pos_end,
+                            f"Literal invalido para '{self.name}()' con base 10: '{value.value}'"
                         )
                     )
 
@@ -275,11 +283,10 @@ class Curro(BaseLaburo):
 
         if isinstance(value, BaseLaburo):
             return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    f"El argumento de {self.name}() debe ser un chamuyo o un número, no un 'laburo'",
-                    exec_ctx,
+                InvalidTypeBardo(
+                    value.pos_start,
+                    value.pos_end,
+                    f"El argumento de {self.name}() debe ser un chamuyo o un número, no un 'laburo'"
                 )
             )
 
@@ -365,17 +372,17 @@ class Curro(BaseLaburo):
 
     def exec_guardar(self, exec_ctx):
         from . import Nada, Coso
+        from errors import InvalidTypeBardo
 
         list_ = exec_ctx.symbol_table.get("list")
         value = exec_ctx.symbol_table.get("value")
 
         if not isinstance(list_, Coso):
             return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    "El primer argumento debe ser de tipo coso.",
-                    exec_ctx,
+                InvalidTypeBardo(
+                    list_.pos_start,
+                    list_.pos_end,
+                    "El argumento debe ser de tipo coso"
                 )
             )
 
@@ -386,6 +393,7 @@ class Curro(BaseLaburo):
 
     def exec_insertar(self, exec_ctx):
         from . import Coso, Numero, Nada
+        from errors import InvalidTypeBardo
 
         list_ = exec_ctx.symbol_table.get("list")
         index = exec_ctx.symbol_table.get("index")
@@ -393,21 +401,19 @@ class Curro(BaseLaburo):
 
         if not isinstance(list_, Coso):
             return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    "El primer argumento debe ser de tipo coso.",
-                    exec_ctx,
+                InvalidTypeBardo(
+                    list_.pos_start,
+                    list_.pos_end,
+                    "El argumento debe ser de tipo coso"
                 )
             )
 
         if not isinstance(index, Numero):
             return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    "El segundo argumento debe ser de tipo número.",
-                    exec_ctx,
+                InvalidTypeBardo(
+                    index.pos_start,
+                    index.pos_end,
+                    "El argumento debe ser de tipo numero"
                 )
             )
 
@@ -415,11 +421,10 @@ class Curro(BaseLaburo):
             list_.elements.insert(index.value, value.value)
         except TypeError:
             return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    "El índice debe ser un número entero.",
-                    exec_ctx,
+                InvalidTypeBardo(
+                    index.pos_start,
+                    index.pos_end,
+                    "El argumento debe ser un entero."
                 )
             )
 
@@ -429,6 +434,7 @@ class Curro(BaseLaburo):
 
     def exec_cambiaso(self, exec_ctx):
         from . import Coso, Numero, Nada
+        from errors import InvalidIndexBardo, InvalidTypeBardo
 
         list_ = exec_ctx.symbol_table.get("list")
         index = exec_ctx.symbol_table.get("index")
@@ -436,21 +442,19 @@ class Curro(BaseLaburo):
 
         if not isinstance(list_, Coso):
             return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    "El primer argumento debe ser de tipo coso.",
-                    exec_ctx,
+                InvalidTypeBardo(
+                    list_.pos_start,
+                    list_.pos_end,
+                    "El argumento debe ser de tipo coso"
                 )
             )
 
         if not isinstance(index, Numero):
             return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    "El segundo argumento debe ser de tipo número.",
-                    exec_ctx,
+                InvalidTypeBardo(
+                    index.pos_start,
+                    index.pos_end,
+                    "El argumento debe ser de tipo numero"
                 )
             )
 
@@ -458,11 +462,18 @@ class Curro(BaseLaburo):
             list_.elements[index.value] = value.value
         except TypeError:
             return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    "El índice debe ser un número entero.",
-                    exec_ctx,
+                InvalidTypeBardo(
+                    index.pos_start,
+                    index.pos_end,
+                    "El argumento debe ser un entero."
+                )
+            )
+        except IndexError:
+            return RTResult().failure(
+                InvalidIndexBardo(
+                    index.pos_start,
+                    index.pos_end,
+                    f"Elemento con el índice '{index.value}' no pudo ser reemplazado del coso porque el índice está fuera de los límites."
                 )
             )
 
@@ -472,28 +483,26 @@ class Curro(BaseLaburo):
 
     def exec_sacar(self, exec_ctx):
         from . import Numero, Coso
-        from errors import ErrorIndex
+        from errors import InvalidIndexBardo, InvalidTypeBardo
 
         list_ = exec_ctx.symbol_table.get("list")
         index = exec_ctx.symbol_table.get("index")
 
         if not isinstance(list_, Coso):
             return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    "El primer argumento debe ser de tipo coso.",
-                    exec_ctx,
+                InvalidTypeBardo(
+                    list_.pos_start,
+                    list_.pos_end,
+                    "El argumento debe ser de tipo coso."
                 )
             )
 
         if not isinstance(index, Numero):
             return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    "El segundo argumento debe ser de tipo número.",
-                    exec_ctx,
+                InvalidTypeBardo(
+                    index.pos_start,
+                    index.pos_end,
+                    "El argumento debe ser de tipo numero."
                 )
             )
 
@@ -501,7 +510,7 @@ class Curro(BaseLaburo):
             popped = list_.elements.pop(index.value)
         except IndexError:
             return RTResult().failure(
-                ErrorIndex(
+                InvalidIndexBardo(
                     self.pos_start,
                     self.pos_end,
                     f"Elemento con el índice '{index.value}' no pudo ser removido del coso porque el índice está fuera de los límites."
@@ -514,27 +523,26 @@ class Curro(BaseLaburo):
 
     def exec_extender(self, exec_ctx):
         from . import Nada, Coso
+        from errors import InvalidTypeBardo
 
         listA = exec_ctx.symbol_table.get("listA")
         listB = exec_ctx.symbol_table.get("listB")
 
         if not isinstance(listA, Coso):
             return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    "El primer argumento debe ser de tipo coso.",
-                    exec_ctx,
+                InvalidTypeBardo(
+                    listA.pos_start,
+                    listA.pos_end,
+                    "El argumento debe ser de tipo coso."
                 )
             )
 
         if not isinstance(listB, Coso):
             return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    "El segundo argumento debe ser de tipo coso.",
-                    exec_ctx,
+                InvalidTypeBardo(
+                    listB.pos_start,
+                    listB.pos_end,
+                    "El argumento debe ser de tipo coso."
                 )
             )
 
@@ -546,27 +554,26 @@ class Curro(BaseLaburo):
 
     def exec_agarra_de(self, exec_ctx):
         from . import Chamuyo, Numero, Mataburros, Nada
+        from errors import InvalidTypeBardo
 
         dict_ = exec_ctx.symbol_table.get("dict")
         key = exec_ctx.symbol_table.get("key")
 
         if not isinstance(dict_, Mataburros):
             return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    "El primer argumento debe ser de tipo mataburros.",
-                    exec_ctx,
+                InvalidTypeBardo(
+                    dict_.pos_start,
+                    dict_.pos_end,
+                    "El argumento debe ser de tipo mataburros"
                 )
             )
 
         if not isinstance(key, (Numero, Chamuyo)):
             return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    "El segundo argumento debe ser de tipo número o chamuyo.",
-                    exec_ctx,
+                InvalidTypeBardo(
+                    key.pos_start,
+                    key.pos_end,
+                    "El argumento debe ser de tipo numero o chamuyo."
                 )
             )
 
@@ -580,6 +587,7 @@ class Curro(BaseLaburo):
 
     def exec_metele_en(self, exec_ctx):
         from . import Chamuyo, Numero, Mataburros, Nada
+        from errors import InvalidTypeBardo
 
         dict_ = exec_ctx.symbol_table.get("dict")
         key = exec_ctx.symbol_table.get("key")
@@ -587,21 +595,19 @@ class Curro(BaseLaburo):
 
         if not isinstance(dict_, Mataburros):
             return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    "El primer argumento debe ser de tipo mataburros.",
-                    exec_ctx,
+                InvalidTypeBardo(
+                    dict_.pos_start,
+                    dict_.pos_end,
+                    "El argumento debe ser de tipo mataburros"
                 )
             )
 
         if not isinstance(key, (Numero, Chamuyo)):
             return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    "El segundo argumento debe ser de tipo número o chamuyo.",
-                    exec_ctx,
+                InvalidTypeBardo(
+                    key.pos_start,
+                    key.pos_end,
+                    "El argumento debe ser de tipo numero o chamuyo."
                 )
             )
 
@@ -612,27 +618,26 @@ class Curro(BaseLaburo):
 
     def exec_borra_de(self, exec_ctx):
         from . import Chamuyo, Numero, Mataburros, Nada
+        from errors import InvalidTypeBardo, InvalidKeyBardo
 
         dict_ = exec_ctx.symbol_table.get("dict")
         key = exec_ctx.symbol_table.get("key")
 
         if not isinstance(dict_, Mataburros):
             return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    "El primer argumento debe ser de tipo mataburros.",
-                    exec_ctx,
+                InvalidTypeBardo(
+                    dict_.pos_start,
+                    dict_.pos_end,
+                    "El argumento debe ser de tipo mataburros"
                 )
             )
 
         if not isinstance(key, (Numero, Chamuyo)):
             return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    "El segundo argumento debe ser de tipo número o chamuyo.",
-                    exec_ctx,
+                InvalidTypeBardo(
+                    key.pos_start,
+                    key.pos_end,
+                    "El argumento debe ser de tipo numero o chamuyo."
                 )
             )
 
@@ -641,39 +646,37 @@ class Curro(BaseLaburo):
             return RTResult().success(Nada.nada)
         
         return RTResult().failure(
-            RTError(
-                self.pos_start,
-                self.pos_end,
-                f"El elemento con la clave {key} no pudo ser encontrado en el mataburros.",
-                exec_ctx,
+            InvalidKeyBardo(
+                key.pos_start,
+                key.pos_end,
+                f"El elemento con la clave {key} no pudo ser encontrado en el mataburros."
             )
         )
 
     exec_borra_de.arg_names = ["dict", "key"]
 
     def exec_existe_clave(self, exec_ctx):
-        from . import Chamuyo, Numero, Mataburros, Laburo, Curro, Nada, Boloodean
+        from . import Chamuyo, Numero, Mataburros, Nada, Boloodean
+        from errors import InvalidTypeBardo
 
         dict_ = exec_ctx.symbol_table.get("dict")
         key = exec_ctx.symbol_table.get("key")
 
         if not isinstance(dict_, Mataburros):
             return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    "El primer argumento debe ser de tipo mataburros.",
-                    exec_ctx,
+                InvalidTypeBardo(
+                    dict_.pos_start,
+                    dict_.pos_end,
+                    "El argumento debe ser de tipo mataburros"
                 )
             )
 
-        if not isinstance(key, (Numero, Chamuyo, Laburo, Curro)):
+        if not isinstance(key, (Numero, Chamuyo, Nada, Boloodean)):
             return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    "El segundo argumento no puede ser de tipo Coso ó Mataburros.",
-                    exec_ctx,
+                InvalidTypeBardo(
+                    key.pos_start,
+                    key.pos_end,
+                    "El argumento debe ser de tipo numero, chamuyo, nada o boloodean"
                 )
             )
 
@@ -686,16 +689,16 @@ class Curro(BaseLaburo):
 
     def exec_longitud(self, exec_ctx):
         from . import Numero, Coso, Mataburros, Chamuyo, Nada
+        from errors import InvalidTypeBardo
 
         arg = exec_ctx.symbol_table.get("arg")
 
         if not isinstance(arg, (Coso, Mataburros, Chamuyo)):
             return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    "El argumento debe ser de tipo coso, mataburros o chamuyo.",
-                    exec_ctx,
+                InvalidTypeBardo(
+                    arg.pos_start,
+                    arg.pos_end,
+                    "El argumento debe ser de tipo coso, chamuyo o mataburros"
                 )
             )
 
@@ -714,16 +717,16 @@ class Curro(BaseLaburo):
 
     def exec_ejecutar(self, exec_ctx):
         from . import Chamuyo, Nada
+        from errors import InvalidTypeBardo
 
         fn = exec_ctx.symbol_table.get("fn")
 
         if not isinstance(fn, Chamuyo):
             return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    "El primer argumento debe ser de tipo chamuyo.",
-                    exec_ctx,
+                InvalidTypeBardo(
+                    fn.pos_start,
+                    fn.pos_end,
+                    "El argumento debe ser de tipo chamuyo"
                 )
             )
 
@@ -774,7 +777,7 @@ class Curro(BaseLaburo):
     exec_renuncio.arg_names = []
 
     def exec_contexto_global(self, exec_ctx):
-        from . import Mataburros, Boloodean, Chamuyo
+        from . import Mataburros, Boloodean
 
         _local = exec_ctx.symbol_table.get("local")
         if isinstance(_local, Boloodean):
@@ -792,19 +795,21 @@ class Curro(BaseLaburo):
 
     def exec_asciiAchamu(self, exec_ctx):
         from . import Chamuyo, Numero
+        from errors import InvalidTypeBardo
 
         code = exec_ctx.symbol_table.get("ascii_code")
         if not isinstance(code, Numero):
             return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    "El argumento debe ser de tipo número.",
-                    exec_ctx,
+                InvalidTypeBardo(
+                    code.pos_start,
+                    code.pos_end,
+                    "El argumento debe ser de tipo numero"
                 )
             )
+        
+        code = int(code.value)
 
-        return RTResult().success(Chamuyo(chr(code.value)))
+        return RTResult().success(Chamuyo(chr(code)))
     
     exec_asciiAchamu.arg_names = ['ascii_code']
 
