@@ -1034,6 +1034,43 @@ class Interpreter:
             return res
         
         return res.success(try_value)
+    
+    def visit_BardeaNode(self, node: BardeaNode, context: Context) -> RTResult:
+        res = RTResult()
+        from errors import (
+            IllegalCharBardo,
+            InvalidSyntaxBardo,
+            ExpectedCharBardo,
+            InvalidTypeBardo,
+            InvalidIndexBardo,
+            InvalidKeyBardo,
+            InvalidValueBardo
+        )
+
+        AVAILABLE_BARDOS = {
+            'caracter_ilegal': IllegalCharBardo,
+            'sintaxis_invalida': InvalidSyntaxBardo,
+            'caracter_esperado': ExpectedCharBardo,
+            'bardo_de_tipo': InvalidTypeBardo,
+            'bardo_de_indice': InvalidIndexBardo,
+            'bardo_de_clave': InvalidKeyBardo,
+            'bardo_de_valor': InvalidValueBardo
+        }
+        
+        bardo_msg = res.register(self.visit(node.bardo_msg_node, context))
+        if res.should_return():
+            return res
+        
+        bardo_name = node.bardo_name_tok.value
+        return res.failure(
+            AVAILABLE_BARDOS[bardo_name](
+                node.pos_start,
+                node.pos_end,
+                f"{bardo_msg.value}"
+            )
+        )
+        
+
 
     @staticmethod
     def handle_library_import(lib_name: str, node: ImportarNode, module_context: Context, context: Context) -> RTResult:

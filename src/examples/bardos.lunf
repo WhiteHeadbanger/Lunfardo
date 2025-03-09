@@ -1,0 +1,8 @@
+laburo retornar_bardo()
+    bardea bardo_de_valor -> "Hubo un bardo de valorrrrrrrr"
+chau
+
+proba:
+    retornar_bardo()
+sibardea bardo_de_valor:
+    matear("Hubo un bardo de valorrrrrrrrrrrrrr!!!!!!")
