@@ -1897,10 +1897,10 @@ class Parser:
             'caracter_ilegal',
             'sintaxis_invalida',
             'caracter_esperado',
-            'error_de_tipo',
-            'error_de_indice',
-            'error_de_clave',
-            'error_de_valor'
+            'bardo_de_tipo',
+            'bardo_de_indice',
+            'bardo_de_clave',
+            'bardo_de_valor'
         )):
             return res.failure(
                 InvalidSyntaxBardo(
