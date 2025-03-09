@@ -1,8 +1,17 @@
-laburo retornar_bardo()
-    bardea bardo_de_valor -> "Hubo un bardo de valorrrrrrrr"
+laburo retornar_bardo(valor)
+    si valor == 1 entonces
+        bardea bardo_de_valor -> "A este laburo no se le puede pasar un valor de '1', cuchaste?"
+    sino
+        matear(valor)
+    chau
 chau
 
+
+poneleque v = 1
+#retornar_bardo(v) sacar este comentario para que el mensaje de bardo de retornar_bardo() se muestre
+
 proba:
-    retornar_bardo()
+    retornar_bardo("holis")
+    retornar_bardo(v)
 sibardea bardo_de_valor:
-    matear("Hubo un bardo de valorrrrrrrrrrrrrr!!!!!!")
+    matear("Hubo un bardo de valor: " + chamu(v))
