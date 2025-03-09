@@ -79,8 +79,7 @@ class Lexer:
                 self.advance()
             
             elif self.current_char == '-':
-                tokens.append(Token(TT_MINUS, pos_start = self.pos))
-                self.advance()
+                tokens.append(self.make_minus_or_arrow())
             
             elif self.current_char == '*':
                 tokens.append(Token(TT_MUL, pos_start = self.pos))
@@ -311,6 +310,24 @@ class Lexer:
             tok_type = TT_GTE
 
         return Token(tok_type, pos_start = pos_start, pos_end = self.pos)
+    
+    def make_minus_or_arrow(self) -> Token:
+        """
+        Parse and create a minus or arrow token.
+
+        Returns:
+            Token: A MINUS or ARROW token
+        """
+        tok_type = TT_MINUS
+        pos_start = self.pos.copy()
+        self.advance()
+
+        if self.current_char == '>':
+            self.advance()
+            tok_type = TT_ARROW
+
+        return Token(tok_type, pos_start = pos_start, pos_end = self.pos)
+
     
     def skip_comment(self) -> None:
         self.advance()

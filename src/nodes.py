@@ -490,8 +490,9 @@ class ProbaSiBardeaNode:
         Initialize a ProbaSiBardeaNode.
 
         Args:
-            try_body (Node): Node representing the node to try
-            except_body (Node): Node representing the node to execute in case of Bardo (exception)
+            try_body_node (Node): Node representing the node to try
+            bardo_name (str): str representing the bardo name (should be a node actually, but will be implemented later on)
+            except_body_node (Node): Node representing the node to execute in case of Bardo (exception)
         """
         self.try_body_node = try_body_node
         self.except_body_node = except_body_node
@@ -504,3 +505,25 @@ class ProbaSiBardeaNode:
     
     def __str__(self) -> str:
         return f'ProbaSiBardeaNode({self.try_body_node}, {self.except_body_node})'
+
+class BardeaNode:
+    """ Represents a raise code expression in the AST """
+
+    def __init__(self, bardo_name_tok, bardo_msg_node) -> None:
+        """
+        Initialize a BardeaNode.
+
+        Args:
+            bardo_name_tok (Token): Token representing the bardo name (should be a node actually, but will be implemented later on)
+            bardo_msg_node (Node): Node representing the message to pass to the bardo.
+        """
+        self.bardo_name_tok = bardo_name_tok
+        self.bardo_msg_node = bardo_msg_node
+        self.pos_start = self.bardo_name_tok.pos_start
+        self.pos_end = self.bardo_msg_node.pos_end
+
+    def __repr__(self) -> str:
+        return f'BardeaNode({self.bardo_name_tok}, {self.bardo_msg_node})'
+    
+    def __str__(self) -> str:
+        return f'BardeaNode({self.bardo_name_tok}, {self.bardo_msg_node})'
