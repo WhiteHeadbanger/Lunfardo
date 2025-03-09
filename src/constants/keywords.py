@@ -21,4 +21,5 @@ KEYWORDS = [
     'importar', # import
     'proba', # try
     'sibardea', # except / catch
+    'bardea', # raise / throw
 ]
