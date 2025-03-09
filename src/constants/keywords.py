@@ -1,5 +1,5 @@
 KEYWORDS = [
-    'poneleque', # variable
+    'poneleque', # variable declaration
     'y', # and
     'o', # or
     'truchar', # not
