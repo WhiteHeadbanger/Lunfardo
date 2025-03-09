@@ -1,5 +1,5 @@
 KEYWORDS = [
-    'poneleque', # variable
+    'poneleque', # variable declaration
     'y', # and
     'o', # or
     'truchar', # not
@@ -21,4 +21,5 @@ KEYWORDS = [
     'importar', # import
     'proba', # try
     'sibardea', # except / catch
+    'bardea', # raise / throw
 ]

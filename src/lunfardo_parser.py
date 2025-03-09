@@ -36,7 +36,8 @@ LunfardoNode = Union[
     ContinuarNode,
     RajarNode,
     ImportarNode,
-    ProbaSiBardeaNode
+    ProbaSiBardeaNode,
+    BardeaNode
 ]
 
 # MARK: Parser
@@ -491,6 +492,14 @@ class Parser:
                 return res
 
             return res.success(try_expr)
+        
+        if tok.matches(TT_KEYWORD, "bardea"):
+            raise_expr = res.register(self.raise_expr())
+
+            if res.error:
+                return res
+            
+            return res.success(raise_expr)
 
         return res.failure(
             InvalidSyntaxBardo(
@@ -1949,6 +1958,73 @@ class Parser:
         return res.success(
             ProbaSiBardeaNode(try_body, error_name, except_body)
         )
+    
+    def raise_expr(self) -> "ParseResult":
+        """
+        Parse a bardea expression (raise/throw) in the Lunfardo language.
+
+        Returns:
+            ParseResult: The result of parsing the expression, containing
+                        the appropriate node type if successful.
+        """
+        res = ParseResult()
+        pos_start = self.current_tok.pos_start.copy()
+        res.register_advance()
+        self.advance()
+
+        if not (self.current_tok.type == TT_IDENTIFIER and self.current_tok.value in (
+            'caracter_ilegal',
+            'sintaxis_invalida',
+            'caracter_esperado',
+            'bardo_de_tipo',
+            'bardo_de_indice',
+            'bardo_de_clave',
+            'bardo_de_valor'
+        )):
+            return res.failure(
+                InvalidSyntaxBardo(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Se esperaba un bardo"
+                )
+            )
+        
+        bardo_name = self.current_tok
+
+        res.register_advance()
+        self.advance()
+
+        if self.current_tok.type != TT_ARROW:
+            return res.failure(
+                InvalidSyntaxBardo(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Se esperaba '->'"
+                )
+            )
+        
+        res.register_advance()
+        self.advance()
+
+        if self.current_tok.type != TT_STRING:
+            return res.failure(
+                InvalidTypeBardo(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Se esperaba un chamuyo"
+                )
+            )
+        
+        bardo_msg_node = res.register(self.atom())
+
+        res.register_advance()
+        self.advance()
+
+        return res.success(
+            BardeaNode(bardo_name, bardo_msg_node)
+        )
+
+
 
     # MARK: Parse.expr
     def expr(self) -> "ParseResult":
