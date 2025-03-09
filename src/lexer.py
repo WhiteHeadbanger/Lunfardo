@@ -8,7 +8,7 @@ the parser.
 
 from constants import *
 from lunfardo_token import Position, Token
-from errors.errors import IllegalCharError, ExpectedCharError
+from errors.errors import IllegalCharBardo, ExpectedCharBardo
 from typing import Tuple, List
 
 class Lexer:
@@ -41,7 +41,7 @@ class Lexer:
         self.pos.advance(self.current_char)
         self.current_char = self.text[self.pos.idx] if self.pos.idx < len(self.text) else None
 
-    def make_tokens(self) -> Tuple[List[Token], IllegalCharError | None]:
+    def make_tokens(self) -> Tuple[List[Token], IllegalCharBardo | None]:
         """
         Generate a list of tokens from the input text.
 
@@ -149,7 +149,7 @@ class Lexer:
                 pos_start = self.pos.copy()
                 char = self.current_char
                 self.advance()
-                return [], IllegalCharError(pos_start, self.pos, "'" + char + "'")
+                return [], IllegalCharBardo(pos_start, self.pos, "'" + char + "'")
 
         tokens.append(Token(TT_EOF, pos_start = self.pos))
         return tokens, None
@@ -223,7 +223,7 @@ class Lexer:
         self.advance()
 
         if doublequotes_counter < 2:
-            return None, ExpectedCharError(pos_start, self.pos, 'Se esperaba \'"\'')
+            return None, ExpectedCharBardo(pos_start, self.pos, 'Se esperaba \'"\'')
         
         return Token(TT_STRING, string, pos_start, self.pos), None
     
@@ -244,7 +244,7 @@ class Lexer:
         tok_type = TT_KEYWORD if id_str in KEYWORDS else TT_IDENTIFIER
         return Token(tok_type, id_str, pos_start, self.pos)
     
-    def make_not_equals(self) -> Tuple[Token | None, ExpectedCharError | None]:
+    def make_not_equals(self) -> Tuple[Token | None, ExpectedCharBardo | None]:
         """
         Parse and create a not-equals token.
 
@@ -259,7 +259,7 @@ class Lexer:
             return Token(TT_NE, pos_start = pos_start, pos_end = self.pos), None
         
         self.advance()
-        return None, ExpectedCharError(pos_start, self.pos, "'=' (después de '!')")
+        return None, ExpectedCharBardo(pos_start, self.pos, "'=' (después de '!')")
     
     def make_equals(self) -> Token:
         """

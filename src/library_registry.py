@@ -48,9 +48,9 @@ def init_gualichos(module_context, node, context):
             curro_instance = Curro(name, func)
             module_context.symbol_table.set(name, curro_instance)
     except ImportError as e:
-        return res.failure(RTError(node.pos_start, node.pos_end, f"Error al importar la librería 'gualichos': {str(e)}", context))
+        return res.failure(RTError(node.pos_start, node.pos_end, f"Bardo al importar la librería 'gualichos': {str(e)}", context))
     except AttributeError:
-        return res.failure(RTError(node.pos_start, node.pos_end, f"Error en la librería 'gualichos'", context))
+        return res.failure(RTError(node.pos_start, node.pos_end, "Bardo en la librería 'gualichos'", context))
     return res.success(None)
 
 def init_lacompu(module_context, node, context):
@@ -90,9 +90,9 @@ def init_lacompu(module_context, node, context):
             module_context.symbol_table.set(name, curro_instance)
     
     except ImportError as e:
-        return res.failure(RTError(node.pos_start, node.pos_end, f"Error al importar la librería 'lacompu': {str(e)}", context))
+        return res.failure(RTError(node.pos_start, node.pos_end, f"Bardo al importar la librería 'lacompu': {str(e)}", context))
     except AttributeError:
-        return res.failure(RTError(node.pos_start, node.pos_end, f"Error en la librería 'lacompu'", context))
+        return res.failure(RTError(node.pos_start, node.pos_end, "Bardo en la librería 'lacompu'", context))
     
     return res.success(None)
 
