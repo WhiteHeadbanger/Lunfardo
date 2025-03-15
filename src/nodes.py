@@ -285,7 +285,7 @@ class ChetoDefNode:
         Args:
             var_name_tok (Token): Token representing the name of the cheto.
             methods (list): List of Nodes representing the methods of the cheto.
-            arranque_method (Node): Node representing the "arranque" (constructor) method of the cheto.
+            arranque_method (LaburoDefNode): Node representing the "arranque" (constructor) method of the cheto.
             parent_class (Node): Node representing the parent cheto of the cheto to inherit from.
         """
         self.var_name_tok = var_name_tok
@@ -301,7 +301,7 @@ class ChetoDefNode:
 class MethodCallNode:
     """Represents a method call in the AST."""
 
-    def __init__(self, object_tok, method_name_tok, arg_nodes) -> None:
+    def __init__(self, object_tok, access_chain, method_name_tok, arg_nodes) -> None:
         """
         Initialize a MethodCallNode.
 
@@ -311,6 +311,7 @@ class MethodCallNode:
             arg_nodes (list): List of Nodes representing the arguments of the method call.
         """
         self.object_tok = object_tok
+        self.access_chain = access_chain
         self.method_name_tok = method_name_tok
         self.arg_nodes = arg_nodes
 
@@ -363,7 +364,7 @@ class InstanceVarAssignNode:
 class InstanceVarAccessNode:
     """Represents an instance variable access in the AST."""
 
-    def __init__(self, object_tok, var_name_tok) -> None:
+    def __init__(self, object_tok, access_chain) -> None:
         """
         Initialize an InstanceVarAccessNode.
 
@@ -372,12 +373,12 @@ class InstanceVarAccessNode:
             var_name_tok (Token): Token representing the name of the instance variable.
         """
         self.object_tok = object_tok
-        self.var_name_tok = var_name_tok
+        self.access_chain = access_chain
         self.pos_start = self.object_tok.pos_start
-        self.pos_end = self.var_name_tok.pos_end
+        self.pos_end = self.access_chain[-1].pos_end if access_chain else self.object_tok.pos_end
 
     def __repr__(self) -> str:
-        return f'InstanceVarAccessNode({self.object_tok}, {self.var_name_tok})'
+        return f'InstanceVarAccessNode({self.object_tok}, {self.access_chain})'
     
 class CallNode:
     """Represents a call in the AST."""

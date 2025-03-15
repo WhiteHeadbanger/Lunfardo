@@ -369,25 +369,41 @@ class Parser:
         if tok.type == TT_IDENTIFIER:
             res.register_advance()
             self.advance()
-            if self.current_tok.type == TT_DOT:
+            access_chain = []
+            # when calling built-in curros, no dot is used, so we can identify when the user
+            # is trying to call a curro/laburo or a method
+            dot_count = 0
+            while self.current_tok.type == TT_DOT:
+                dot_count += 1
                 res.register_advance()
                 self.advance()
-                if self.current_tok.type == TT_IDENTIFIER:
-                    if (
-                        self.current_tok.matches(TT_IDENTIFIER, "arranque")
-                        or self.peek_next_token().type == TT_LPAREN
-                    ):
-                        method_call_expr = res.register(self.method_call_expr(tok))
-                        if res.error:
-                            return res
-                        return res.success(method_call_expr)
+                if self.current_tok.type != TT_IDENTIFIER:
+                    return res.failure(
+                        InvalidSyntaxBardo(
+                            self.current_tok.pos_start,
+                            self.current_tok.pos_end,
+                            "Se esperaba nombre de método o variable de instancia"
+                        )
+                    )
+                
+                access_chain.append(self.current_tok)
+                res.register_advance()
+                self.advance()
 
-                    instance_var_expr = res.register(self.instance_var_expr(tok))
-
+            if self.current_tok.type == TT_LPAREN:
+                if dot_count > 0:
+                    method_call_expr = res.register(self.method_call_expr(tok, access_chain))
                     if res.error:
                         return res
-
-                    return res.success(instance_var_expr)
+                    
+                    return res.success(method_call_expr)
+                
+                return res.success(PoneleQueAccessNode(tok))
+                
+            if access_chain:
+                instance_var_expr = InstanceVarAccessNode(tok, access_chain)
+                return res.success(instance_var_expr)
+            
             return res.success(PoneleQueAccessNode(tok))
 
         if tok.type == TT_LPAREN:
@@ -1666,6 +1682,7 @@ class Parser:
 
             if self.current_tok.matches(TT_KEYWORD, "laburo"):
                 method = res.register(self.func_def())
+                method.is_method = True
                 if res.error:
                     return res
                 if method.var_name_tok.value == "arranque":
@@ -1699,7 +1716,7 @@ class Parser:
             ChetoDefNode(class_name, methods, arranque_method, parent_class_name)
         )
 
-    def method_call_expr(self, object_tok) -> "ParseResult":
+    def method_call_expr(self, base_object_tok: Token, access_chain: list) -> "ParseResult":
         """
         Parse a method call expression in the Lunfardo language.
 
@@ -1722,36 +1739,14 @@ class Parser:
         """
         res = ParseResult()
 
-        if self.current_tok.type != TT_IDENTIFIER:
-            return res.failure(
-                InvalidSyntaxBardo(
-                    self.current_tok.pos_start,
-                    self.current_tok.pos_end,
-                    "Se esperaba nombre de metodo",
-                )
-            )
-
-        method_name = self.current_tok
-        res.register_advance()
-        self.advance()
-
-        if self.current_tok.type != TT_LPAREN:
-            return res.failure(
-                InvalidSyntaxBardo(
-                    self.current_tok.pos_start,
-                    self.current_tok.pos_end,
-                    "Se esperaba '('",
-                )
-            )
-
-        res.register_advance()
-        self.advance()
         arg_nodes = []
+        method_tok = access_chain.pop()
 
-        if self.current_tok.type == TT_RPAREN:
+        if self.current_tok.type == TT_LPAREN:
             res.register_advance()
             self.advance()
-        else:
+
+        if self.current_tok.type == TT_IDENTIFIER:
             arg_node = res.register(self.expr())
             if res.error:
                 return res.failure(
@@ -1761,8 +1756,10 @@ class Parser:
                         "Se esperaba ')' o una expresión",
                     )
                 )
-            
+        
             arg_nodes.append(arg_node)
+            res.register_advance()
+            self.advance()
 
             while self.current_tok.type == TT_COMMA:
                 res.register_advance()
@@ -1780,19 +1777,19 @@ class Parser:
                 
                 arg_nodes.append(arg_node)
 
-            if self.current_tok.type != TT_RPAREN:
-                return res.failure(
-                    InvalidSyntaxBardo(
-                        self.current_tok.pos_start,
-                        self.current_tok.pos_end,
-                        "Se esperaba ')'",
-                    )
+        if self.current_tok.type != TT_RPAREN:
+            return res.failure(
+                InvalidSyntaxBardo(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Se esperaba ')'",
                 )
+            )
 
-            res.register_advance()
-            self.advance()
+        res.register_advance()
+        self.advance()
 
-        return res.success(MethodCallNode(object_tok, method_name, arg_nodes))
+        return res.success(MethodCallNode(base_object_tok, access_chain, method_tok, arg_nodes))
 
     def instance_var_expr(self, object_tok) -> "ParseResult":
         """
@@ -1811,21 +1808,27 @@ class Parser:
                         containing an InstanceVarAccessNode if successful.
         """
         res = ParseResult()
+        access_chain = []
 
-        if self.current_tok.type != TT_IDENTIFIER:
-            return res.failure(
-                InvalidSyntaxBardo(
-                    self.current_tok.pos_start,
-                    self.current_tok.pos_end,
-                    "Se esperaba un identificador",
+        while self.current_tok.type == TT_DOT:
+            res.register_advance()
+            self.advance()
+
+            if self.current_tok.type != TT_IDENTIFIER:
+                return res.failure(
+                    InvalidSyntaxBardo(
+                        self.current_tok.pos_start,
+                        self.current_tok.pos_end,
+                        "Se esperaba un identificador",
+                    )
                 )
-            )
+            
+            access_chain.append(self.current_tok)
 
-        var_name = self.current_tok
-        res.register_advance()
-        self.advance()
+            res.register_advance()
+            self.advance()
 
-        return res.success(InstanceVarAccessNode(object_tok, var_name))
+        return res.success(InstanceVarAccessNode(object_tok, access_chain))
 
     def import_expr(self) -> "ParseResult":
         """

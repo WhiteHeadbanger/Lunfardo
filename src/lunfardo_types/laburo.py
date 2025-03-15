@@ -1,6 +1,7 @@
 from .value import Value
 from rtresult import RTResult
-from interpreter import SymbolTable, Interpreter
+from interpreter import Interpreter
+from symbol_table import SymbolTable
 from context import Context
 from errors import RTError
 import os
