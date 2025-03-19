@@ -1738,56 +1738,57 @@ class Parser:
                         containing a MethodCallNode if successful.
         """
         res = ParseResult()
-
-        arg_nodes = []
         method_tok = access_chain.pop()
 
         if self.current_tok.type == TT_LPAREN:
             res.register_advance()
             self.advance()
 
-        if self.current_tok.type == TT_IDENTIFIER:
-            arg_node = res.register(self.expr())
-            if res.error:
-                return res.failure(
-                    InvalidSyntaxBardo(
-                        self.current_tok.pos_start,
-                        self.current_tok.pos_end,
-                        "Se esperaba ')' o una expresión",
-                    )
-                )
-        
-            arg_nodes.append(arg_node)
-            res.register_advance()
-            self.advance()
+            arg_nodes = []
 
-            while self.current_tok.type == TT_COMMA:
+            if self.current_tok.type == TT_RPAREN:
                 res.register_advance()
                 self.advance()
-
+            else:
                 arg_node = res.register(self.expr())
                 if res.error:
                     return res.failure(
                         InvalidSyntaxBardo(
                             self.current_tok.pos_start,
                             self.current_tok.pos_end,
-                            "Se esperaba una expresión",
+                            "Se esperaba ')' o una expresión",
                         )
                     )
-                
+            
                 arg_nodes.append(arg_node)
 
-        if self.current_tok.type != TT_RPAREN:
-            return res.failure(
-                InvalidSyntaxBardo(
-                    self.current_tok.pos_start,
-                    self.current_tok.pos_end,
-                    "Se esperaba ')'",
-                )
-            )
+                while self.current_tok.type == TT_COMMA:
+                    res.register_advance()
+                    self.advance()
 
-        res.register_advance()
-        self.advance()
+                    arg_node = res.register(self.expr())
+                    if res.error:
+                        return res.failure(
+                            InvalidSyntaxBardo(
+                                self.current_tok.pos_start,
+                                self.current_tok.pos_end,
+                                "Se esperaba una expresión",
+                            )
+                        )
+                    
+                    arg_nodes.append(arg_node)
+
+                if self.current_tok.type != TT_RPAREN:
+                    return res.failure(
+                        InvalidSyntaxBardo(
+                            self.current_tok.pos_start,
+                            self.current_tok.pos_end,
+                            "Se esperaba ')'",
+                        )
+                    )
+
+                res.register_advance()
+                self.advance()
 
         return res.success(MethodCallNode(base_object_tok, access_chain, method_tok, arg_nodes))
 

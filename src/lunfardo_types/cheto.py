@@ -25,8 +25,8 @@ class Cheto(Value):
 
         # Inherit instance variables from parent class
         if self.parent_class:
-            parent_instance = self.parent_class.create_instance([], call_context).value
-            instance.instance_vars.update(parent_instance.instance_vars)
+            res_parent_instance = self.parent_class.create_instance(args if args else [], call_context)
+            instance.instance_vars.update(res_parent_instance.value.instance_vars)
 
         # Call the arranque method if it exists
         arranque_method = self.methods.get("arranque")
