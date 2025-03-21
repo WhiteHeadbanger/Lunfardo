@@ -108,15 +108,6 @@ class ChetoInstance(Value):
         self.context.symbol_table = SymbolTable(call_context.symbol_table)
         self.set_pos(cheto.pos_start, cheto.pos_end)
 
-    def get_method(self, method_name):
-        """
-        Retrieves a method from the cheto definition
-        """
-        method = self.methods.get(method_name)
-        if not method and self.parent_class:
-            method = self.parent_class.get_method(method_name)
-        return method
-
     def get_instance_var(self, var_name):
         """
         Retrieves an instance variable, including inherited variables.
