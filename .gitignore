@@ -1,0 +1,7 @@
+.venv/
+.env
+__pycache__/
+.vscode/
+examples_test/
+.python-version
+uv.lock
