@@ -829,6 +829,7 @@ class Interpreter:
                     context
                 ))
         
+        current_value = current_value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
         return res.success(current_value)
     
     def visit_InstanceVarAccessAndAssignNode(self, node: InstanceVarAccessAndAssignNode, context: Context) -> RTResult:
