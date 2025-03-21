@@ -132,6 +132,27 @@ class AccessAndAssignNode:
 
     def __repr__(self) -> str:
         return f'AccessAndAssignNode({self.var_name_tok}, {self.value_node})'
+    
+class InstanceVarAccessAndAssignNode:
+    """Represents a name of a declared instanced variable and its value in the AST."""
+
+    def __init__(self, instance_var_name_tok, access_chain, value_node) -> None:
+        """
+        Initialize an InstanceVarAccessAndAssignNode.
+
+        Args:
+            instance_var_name_tok (Token): Token representing the first identifier.
+            access_chain (List): List of tokens representing the access chain.
+            value_node (Node): Node representing the value of the variable.
+        """
+        self.instance_var_name_tok = instance_var_name_tok
+        self.access_chain = access_chain
+        self.value_node = value_node
+        self.pos_start = self.instance_var_name_tok.pos_start
+        self.pos_end = self.value_node.pos_end
+
+    def __repr__(self) -> str:
+        return f'InstanceVarAccessAndAssignNode({self.instance_var_name_tok}, {self.access_chain}, {self.value_node})'
 
     
 class BinOpNode:
