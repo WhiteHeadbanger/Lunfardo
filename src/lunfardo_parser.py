@@ -93,15 +93,15 @@ class Parser:
         if self.tok_idx >= 0 and self.tok_idx < len(self.tokens):
             self.current_tok = self.tokens[self.tok_idx]
 
-    def peek_next_token(self) -> Optional[Token]:
+    def peek_next_token(self, quantity: int = 1) -> Optional[Token]:
         """
         Look ahead to the next token without advancing the token index.
 
         Returns:
             Optional[Token]: The next token if it exists, None otherwise.
         """
-        if self.tok_idx + 1 < len(self.tokens):
-            return self.tokens[self.tok_idx + 1]
+        if self.tok_idx + quantity < len(self.tokens):
+            return self.tokens[self.tok_idx + quantity]
         return None
 
     def parse(self) -> Tuple[Optional["ParseResult"], bool]:
@@ -2149,6 +2149,51 @@ class Parser:
                 return res
 
             return res.success(AccessAndAssignNode(var_name, expr))
+        
+        if self.current_tok.type == TT_IDENTIFIER and self.peek_next_token().type == TT_DOT:
+            bin_op = False
+            for i in range(1, 10):
+                if self.peek_next_token(i).type == TT_EQ:
+                    break
+                if self.peek_next_token(i).type not in (TT_IDENTIFIER, TT_DOT):
+                    bin_op = True
+                    break
+            
+            if not bin_op:
+                var_name = self.current_tok
+                access_chain = []
+
+                res.register_advance()
+                self.advance()
+
+                while self.current_tok.type == TT_DOT:
+                    res.register_advance()
+                    self.advance()
+
+                    if self.current_tok.type != TT_IDENTIFIER:
+                        return res.failure(
+                            InvalidSyntaxBardo(
+                                self.current_tok.pos_start,
+                                self.current_tok.pos_end,
+                                'Se esperaba un identificador'
+                            )
+                        )
+                    
+                    access_chain.append(self.current_tok)
+                    res.register_advance()
+                    self.advance()
+                
+                if self.current_tok.type == TT_EQ:
+                    res.register_advance()
+                    self.advance()
+
+                    expr = res.register(self.expr())
+                    if res.error:
+                        return res
+                    
+                    return res.success(InstanceVarAccessAndAssignNode(var_name, access_chain, expr))
+                
+            
 
         node = res.register(
             self.bin_op(self.comp_expr, ((TT_KEYWORD, "y"), (TT_KEYWORD, "o")))
