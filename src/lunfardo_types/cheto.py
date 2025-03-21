@@ -1,5 +1,5 @@
 from .value import Value
-from .laburo import Laburo
+from .boloodean import Boloodean
 from rtresult import RTResult
 from errors import RTError
 from context import Context
@@ -63,7 +63,8 @@ class Cheto(Value):
         
         # Create a new execution context for the method call
         method_context = Context(f"<método {method_name}>", call_context)
-        method_context.symbol_table = SymbolTable(call_context.symbol_table)
+        #method_context.symbol_table = SymbolTable(call_context.symbol_table)
+        method_context.symbol_table = SymbolTable(instance.context.symbol_table)
 
         # Set 'mi' in the method's context
         method_context.symbol_table.set("mi", instance)
@@ -88,6 +89,9 @@ class Cheto(Value):
         copy.set_pos(self.pos_start, self.pos_end)
         copy.set_context(self.context)
         return copy
+    
+    def is_true(self):
+        return Boloodean(True).set_context(self.context), None
     
     def __str__(self):
         return f"<cheto {self.name}>"
@@ -131,6 +135,23 @@ class ChetoInstance(Value):
         """
         self.instance_vars[var_name] = value
 
+        # Propagate the change to parent contexts
+        current_context = self.context
+        while current_context:
+            current_symbol_table = current_context.symbol_table
+            while current_symbol_table:
+                # Iterate through the symbol table to find references to this instance
+                for name, symbol_value in current_symbol_table.symbols.items():
+                    if symbol_value is self:
+                        # Update the symbol table with the modified instance
+                        current_symbol_table.set(name, self)
+                
+                # Move to the parent symbol table
+                current_symbol_table = current_symbol_table.parent
+            
+            # Move to the parent context
+            current_context = current_context.parent
+
     def execute(self, args, call_context):
         """
         Handles method calls on the instance
@@ -157,6 +178,9 @@ class ChetoInstance(Value):
         copy.set_pos(self.pos_start, self.pos_end)
         copy.set_context(self.context)
         return copy
+    
+    def is_true(self):
+        return Boloodean(True).set_context(self.context), None
     
     def __repr__(self):
         return f"ChetoInstance({self.cheto.name})"

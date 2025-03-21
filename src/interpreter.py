@@ -107,7 +107,8 @@ class Interpreter:
                 context
             ))
         
-        value = value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
+        #value = value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
+        value = value.set_pos(node.pos_start, node.pos_end).set_context(context)
         return res.success(value)
     
     def visit_PoneleQueAssignNode(self, node: PoneleQueAssignNode, context: Context) -> RTResult:
@@ -583,7 +584,8 @@ class Interpreter:
         if res.should_return():
             return res
         
-        return_value = return_value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
+        #return_value = return_value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
+        return_value = return_value.set_pos(node.pos_start, node.pos_end).set_context(context)
         
         return res.success(return_value)
     
@@ -668,7 +670,7 @@ class Interpreter:
         if res.should_return():
             return res
         
-        return_value = return_value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
+        return_value = return_value.set_pos(node.pos_start, node.pos_end).set_context(context)
         return res.success(return_value)
 
     def visit_InstanceNode(self, node: InstanceNode, context: Context) -> RTResult:
@@ -725,7 +727,7 @@ class Interpreter:
         if res.should_return():
             return res
         
-        instance = instance.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
+        #instance = instance.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
         return res.success(instance)
     
     def visit_InstanceVarAssignNode(self, node: InstanceVarAssignNode, context: Context) -> RTResult:
@@ -828,7 +830,7 @@ class Interpreter:
                     context
                 ))
         
-        current_value = current_value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
+        current_value = current_value.set_pos(node.pos_start, node.pos_end).set_context(context)
         return res.success(current_value)
     
     def visit_InstanceVarAccessAndAssignNode(self, node: InstanceVarAccessAndAssignNode, context: Context) -> RTResult:
