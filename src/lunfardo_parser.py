@@ -1955,6 +1955,15 @@ class Parser:
         except_body = res.register(self.statements())
         if res.error:
             return res
+
+        if not self.current_tok.matches(TT_KEYWORD, 'chau'):
+            return res.failure(
+                InvalidSyntaxBardo(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                    "Se esperaba 'chau'"
+                )
+            )
         
         res.register_advance()
         self.advance()
