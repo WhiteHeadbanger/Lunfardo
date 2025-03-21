@@ -665,7 +665,12 @@ class Interpreter:
             ))
 
         # Call the method
-        return current_value.execute([Chamuyo(method_name)] + args, context)
+        return_value = res.register(current_value.execute([Chamuyo(method_name)] + args, context))
+        if res.should_return():
+            return res
+        
+        return_value = return_value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
+        return res.success(return_value)
 
     def visit_InstanceNode(self, node: InstanceNode, context: Context) -> RTResult:
         """
@@ -716,7 +721,13 @@ class Interpreter:
             args.append(arg_value)
         
         # Create the instance
-        return class_value.create_instance(args, context)
+        instance = res.register(class_value.create_instance(args, context))
+
+        if res.should_return():
+            return res
+        
+        instance = instance.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
+        return res.success(instance)
     
     def visit_InstanceVarAssignNode(self, node: InstanceVarAssignNode, context: Context) -> RTResult:
         """
@@ -1092,16 +1103,16 @@ class Interpreter:
 
         try_value = res.register(self.visit(node.try_body_node, context))
         if res.should_return():
-            if res.error.name == node.bardo_name:
-                except_value = res.register(self.visit(node.except_body_node, context))
-                
-                if res.should_return():
-                    return res
-                
-                return res.success(except_value)
-            
+            if res.error is not None:
+                if res.error.name == node.bardo_name:
+                    except_value = res.register(self.visit(node.except_body_node, context))
+                    
+                    if res.should_return():
+                        return res
+                    
+                    return res.success(except_value)
+                return res
             return res
-        
         return res.success(try_value)
     
     def visit_BardeaNode(self, node: BardeaNode, context: Context) -> RTResult:
