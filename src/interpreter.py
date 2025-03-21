@@ -820,6 +820,51 @@ class Interpreter:
         
         return res.success(current_value)
     
+    def visit_InstanceVarAccessAndAssignNode(self, node: InstanceVarAccessAndAssignNode, context: Context) -> RTResult:
+        from lunfardo_types.cheto import ChetoInstance
+        res = RTResult()
+
+        base_object_name = node.instance_var_name_tok.value
+        access_chain = node.access_chain.copy()
+        var_to_assign = access_chain.pop().value
+
+        current_value = context.symbol_table.get(base_object_name)
+        if not current_value:
+            return res.failure(RTError(
+                node.pos_start,
+                node.pos_end,
+                f"'{base_object_name}' no está definido",
+                context
+            ))
+        
+        for access_token in access_chain:
+            if isinstance(current_value, ChetoInstance):
+                var_name = access_token.value
+                current_value = current_value.get_instance_var(var_name)
+                if current_value is None:
+                    return res.failure(RTError(
+                        node.pos_start,
+                        node.pos_end,
+                        f"La variable de instancia '{var_name}' no existe",
+                        context
+                    ))
+                var_to_assign = var_name
+            
+            else:
+                return res.failure(RTError(
+                    node.pos_start,
+                    node.pos_end,
+                    f"No se puede acceder al atributo '{access_token.value}' porque no pertenece a ninguna instancia de cheto",
+                    context
+                ))
+        
+        new_value = res.register(self.visit(node.value_node, context))
+        if res.should_return():
+            return res
+        
+        current_value.set_instance_var(var_to_assign, new_value)
+        return res.success(new_value)
+    
     def visit_DevolverNode(self, node: DevolverNode, context: Context) -> RTResult:
         """
         Visit and interpret a DevolverNode (return node) in the Lunfardo language.
