@@ -824,7 +824,7 @@ class Interpreter:
                 return res.failure(RTError(
                     node.pos_start,
                     node.pos_end,
-                    f"No se puede acceder al atributo '{access_token.value}' porque no pertenece a ninguna instancia de objeto",
+                    f"No se puede acceder al atributo '{access_token.value}' porque no pertenece a ninguna instancia de cheto",
                     context
                 ))
         
