@@ -36,7 +36,7 @@ Esto iniciará el intérprete interactivo de Lunfardo.
 
 ### Ejecutar un archivo
 
-`ejecutar(nombre_del_archivo.lunf)`
+`ejecutar("nombre_del_archivo.lunf")`
 Por defecto, los archivos deben estar dentro de la carpeta `src/examples`. Esto está sujeto a cambios a medida que evolucione.
 
 ## Características
