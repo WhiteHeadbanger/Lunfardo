@@ -119,12 +119,19 @@ class ChetoInstance(Value):
 
     def get_instance_var(self, var_name):
         """
-        Retrieves an instance variable, including inherited variables
+        Retrieves an instance variable, including inherited variables.
+        If the variable is not found, it tries to retrieve a method.
+        If the method is also not found, None is returned.
         """
         value = self.instance_vars.get(var_name)
         if value is None and self.cheto.parent_class:
             parent_instance = self.cheto.parent_class.create_instance([], self.context).value
             value = parent_instance.get_instance_var(var_name)
+
+        if value is None:
+            method = self.cheto.get_method(var_name)
+            if method:
+                return method
         return value
     
     def set_instance_var(self, var_name, value):
