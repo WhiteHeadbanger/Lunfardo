@@ -147,6 +147,8 @@ class Laburo(BaseLaburo):
             self.arg_values,
             self.should_auto_return,
         )
+        if hasattr(self, "is_method"):
+            copy.is_method = self.is_method
         copy.set_context(self.context)
         copy.set_pos(self.pos_start, self.pos_end)
         return copy
