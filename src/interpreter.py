@@ -609,7 +609,6 @@ class Interpreter:
         """
         from lunfardo_types import Chamuyo
         from lunfardo_types.cheto import ChetoInstance
-        from nodes import PoneleQueAccessNode
 
         res = RTResult()
 
