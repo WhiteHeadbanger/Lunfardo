@@ -4,7 +4,7 @@ Main execution module for the Lunfardo programming language.
 This module contains the global symbol table setup, execution function,
 and the main REPL (Read-Eval-Print Loop) for the Lunfardo interpreter.
 """
-
+import argparse
 from lexer import Lexer
 from lunfardo_parser import Parser
 from lunfardo_types import Curro, Boloodean, Nada
@@ -112,4 +112,28 @@ def run() -> None:
 
 
 if __name__ == "__main__":
-    run()
+    # Argument parsing
+    parser = argparse.ArgumentParser(description="Ejecutá código Lunfardo desde un archivo o iniciá el REPL.")
+    parser.add_argument("file", nargs="?", help="Ruta del archivo Lunfardo a ejecutar.")
+    args = parser.parse_args()
+
+    if args.file:
+        try:
+            with open(args.file, "r", encoding="utf-8") as f:
+                code = f.read()
+            result, error = execute(args.file, code)
+
+            if error:
+                print(error.as_string())
+            elif result:
+                if len(result.elements) == 1:
+                    print(repr(result.elements[0]))
+                else:
+                    print(repr(result))
+
+        except FileNotFoundError:
+            print(f"Error: File '{args.file}' not found.")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+    else:
+        run()
