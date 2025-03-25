@@ -1,3 +1,4 @@
+import os
 from rtresult import RTResult
 from constants.tokens import *
 from lunfardo_types import Numero, Nada
@@ -1044,8 +1045,14 @@ class Interpreter:
 
         if module_name.replace(".lunf", "") in BUILTINS:
 
-            file_name = f"builtin/{module_name}" #prod
+            #file_name = f"builtin/{module_name}" #prod
             #file_name = f"src/builtin/{module_name}" #test (debugger)
+
+            file_name = context.cwd
+            while file_name.name != 'src':
+                file_name = file_name.parent
+            
+            file_name = os.path.join(file_name, "builtin", module_name)
 
             try:
                 with open(file_name, "r", encoding="utf-8") as f:
@@ -1100,7 +1107,9 @@ class Interpreter:
             
             context.add_module({module_name: import_value})
         
-        return res.success(import_value)
+            return res.success(import_value)
+        
+        return res.success(Nada.nada)
     
     def visit_ProbaSiBardeaNode(self, node: ProbaSiBardeaNode, context: Context) -> RTResult:
         res = RTResult()
