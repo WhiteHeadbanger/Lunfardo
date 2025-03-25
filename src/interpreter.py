@@ -99,6 +99,12 @@ class Interpreter:
         var_name = node.var_name_tok.value
         value = context.symbol_table.get(var_name)
 
+        if not value and context.modules:
+            for module in context.modules.values():
+                value = module.context.symbol_table.get(var_name)
+                if value:
+                    break
+                
         if not value:
             return res.failure(RTError(
                 node.pos_start, 
@@ -106,7 +112,6 @@ class Interpreter:
                 f"'{var_name}' no esta definido",
                 context
             ))
-        
         #value = value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
         value = value.set_pos(node.pos_start, node.pos_end).set_context(context)
         return res.success(value)
