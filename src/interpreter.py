@@ -499,13 +499,15 @@ class Interpreter:
         if node.parent_class:
             parent_class_name = node.parent_class.value
             parent_class = context.symbol_table.get(parent_class_name)
-            if not parent_class:
-                return res.failure(RTError(
-                    node.pos_start,
-                    node.pos_end,
-                    f"El cheto padre '{parent_class_name}' no está definido",
-                    context
-                ))
+            if not parent_class and context.modules:
+                parent_class = context.get_module(parent_class_name)
+                if not parent_class:
+                    return res.failure(RTError(
+                        node.pos_start,
+                        node.pos_end,
+                        f"'{parent_class_name}' no está definido",
+                        context
+                    ))
             
             if not isinstance(parent_class, Cheto):
                 return res.failure(RTError(
@@ -1033,6 +1035,7 @@ class Interpreter:
         from constants import BUILTINS
         res = RTResult()
         module_name = node.module_name_node.tok.value
+        ejecutar_func = context.symbol_table.get("ejecutar").set_pos(node.pos_start, node.pos_end)
 
         if module_name.replace(".lunf", "") in BUILTINS:
 
@@ -1055,7 +1058,7 @@ class Interpreter:
                     context
                 ))
 
-            module_context = Context(f"<module {module_name}>", context)
+            module_context = Context(f"<module {module_name}>", parent=context, cwd=context.cwd)
             module_context.symbol_table = SymbolTable(context.symbol_table)
 
             # Delegate library-specific handling to a static method.
@@ -1086,19 +1089,13 @@ class Interpreter:
             if res.error:
                 return res
 
-            ejecutar_func = context.symbol_table.get("ejecutar").set_pos(node.pos_start, node.pos_end)
-            if ejecutar_func:
-                res.register(ejecutar_func.execute([modulo], context))
-                if res.should_return():
-                    return res
-            else:
-                return res.failure(RTError(
-                    node.pos_start, node.pos_end,
-                    f"El modulo '{module_name}' no tiene una función 'ejecutar'",
-                    context
-                ))
-
-        return res.success(Nada.nada)
+            import_value = res.register(ejecutar_func.execute([modulo], context))
+            if res.should_return():
+                return res
+            
+            context.add_module({module_name: import_value})
+        
+        return res.success(import_value)
     
     def visit_ProbaSiBardeaNode(self, node: ProbaSiBardeaNode, context: Context) -> RTResult:
         res = RTResult()

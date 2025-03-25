@@ -115,6 +115,7 @@ class Laburo(BaseLaburo):
         # Cada vez que creamos una nueva funcion, es necesario crear un nuevo contexto con una nueva symbol table, que son destruidos una vez que la funcion retorna.
         interpreter = Interpreter()
         execution_context = self.generate_new_context()
+        execution_context.parent = current_context
 
         # Combine local and global contexts into one, this fixes the issue of not being able to access variables defined in the global context from inside a method.
         execution_context.symbol_table = SymbolTable(current_context.symbol_table)
@@ -169,6 +170,7 @@ class Curro(BaseLaburo):
     def execute(self, args, current_context):
         res = RTResult()
         execution_context = self.generate_new_context()
+        execution_context.parent = current_context
         
         if self.func:
             return_value = res.register(self.func(execution_context))
@@ -735,14 +737,12 @@ class Curro(BaseLaburo):
 
         fn = fn.value
 
-        from os import path
-
-        this_file = path.abspath(__file__)
-        src_dir = path.dirname(os.path.dirname(this_file))
-        fn = path.join(src_dir, "examples", fn)
+        import os
+        current_working_directory = exec_ctx.get_cwd()
+        file_path = os.path.join(current_working_directory, fn)
 
         try:
-            with open(fn, "r") as f:
+            with open(file_path, "r", encoding='utf-8') as f:
                 script = f.read()
         except FileNotFoundError:
             return RTResult().failure(
@@ -756,7 +756,7 @@ class Curro(BaseLaburo):
 
         from run import execute as run
 
-        _, error = run(fn, script)
+        result, error = run(file_path, script, current_working_directory, parent_context=exec_ctx)
 
         if error:
             return RTResult().failure(
@@ -768,7 +768,7 @@ class Curro(BaseLaburo):
                 )
             )
 
-        return RTResult().success(Nada.nada)
+        return RTResult().success(result)
 
     exec_ejecutar.arg_names = ["fn"]
 
