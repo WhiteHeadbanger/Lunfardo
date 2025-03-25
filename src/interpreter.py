@@ -98,24 +98,45 @@ class Interpreter:
         """
         res = RTResult()
         var_name = node.var_name_tok.value
+        
+        # Try getting the variable from the current context
         value = context.symbol_table.get(var_name)
+        if value is None:
+            # Determine where to start the module search:
+            # If context has no modules, traverse from the parent; otherwise, start from the current context.
+            search_context = context.parent if not context.modules else context
+            value = Interpreter.find_in_parent_module(var_name, search_context)
 
-        if not value and context.modules:
-            for module in context.modules.values():
-                value = module.context.symbol_table.get(var_name)
-                if value:
-                    break
-                
-        if not value:
+        # If the variable still isn't found, return a failure response
+        if value is None:
             return res.failure(RTError(
                 node.pos_start, 
                 node.pos_end,
-                f"'{var_name}' no esta definido",
+                f"'{var_name}' no está definido",
                 context
             ))
+        
         #value = value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
         value = value.set_pos(node.pos_start, node.pos_end).set_context(context)
         return res.success(value)
+    
+    @staticmethod
+    def find_in_parent_module(var_name: str, start_context: Context):
+        """
+        Traverse up from the given context until we find a module with submodules,
+        then search its submodules for the variable.
+        """
+        parent_module = start_context
+        # Traverse up until we find a module that has modules
+        while parent_module and not parent_module.modules:
+            parent_module = parent_module.parent
+
+        if parent_module:
+            for mod in parent_module.modules.values():
+                value = mod.context.symbol_table.get(var_name)
+                if value is not None:
+                    return value
+        return None
     
     def visit_PoneleQueAssignNode(self, node: PoneleQueAssignNode, context: Context) -> RTResult:
         """
@@ -1044,57 +1065,21 @@ class Interpreter:
         ejecutar_func = context.symbol_table.get("ejecutar").set_pos(node.pos_start, node.pos_end)
 
         if module_name.replace(".lunf", "") in BUILTINS:
-
-            #file_name = f"builtin/{module_name}" #prod
-            #file_name = f"src/builtin/{module_name}" #test (debugger)
-
-            file_name = context.cwd
-            while file_name.name != 'src':
-                file_name = file_name.parent
             
-            file_name = os.path.join(file_name, "builtin", module_name)
+            modulo = res.register(self.visit(node.module_name_node, context))
+            if res.should_return():
+                return res
+            
+            import_value = res.register(ejecutar_func.execute([modulo], context))
+            if res.should_return():
+                return res
 
-            try:
-                with open(file_name, "r", encoding="utf-8") as f:
-                    script = f.read()
-            except FileNotFoundError:
-                return res.failure(RTError(
-                    node.pos_start, node.pos_end,
-                    f"Fichero '{module_name}' no encontrado",
-                    context
-                ))
-            except Exception as e:
-                return res.failure(RTError(
-                    node.pos_start, node.pos_end,
-                    f"Bardo al abrir el fichero '{module_name}'\n" + str(e),
-                    context
-                ))
-
-            module_context = Context(f"<module {module_name}>", parent=context, cwd=context.cwd)
-            module_context.symbol_table = SymbolTable(context.symbol_table)
-
-            # Delegate library-specific handling to a static method.
-            lib_result = Interpreter.handle_library_import(module_name.replace(".lunf", ""), node, module_context, context)
+            # Delegate library-specific handling.
+            lib_result = Interpreter.handle_library_import(module_name.replace(".lunf", ""), node, import_value.context, context)
             if lib_result.error:
                 return res.failure(lib_result.error)
-
-            from lunfardo_parser import Parser
-            from lexer import Lexer
-            lexer = Lexer(file_name, script)
-            tokens, error = lexer.make_tokens()
-            if error:
-                return res.failure(error)
-            parser = Parser(tokens)
-            ast, error = parser.parse()
-            if error:
-                return res.failure(error)
-            for expression in ast.node.element_nodes:
-                res.register(self.visit(expression, module_context))
-                if res.error:
-                    return res
-
-            for name, value in module_context.symbol_table.symbols.items():
-                context.symbol_table.set(name, value)
+            
+            context.add_module({module_name: import_value})
 
         else:
             modulo = res.register(self.visit(node.module_name_node, context))
@@ -1107,9 +1092,7 @@ class Interpreter:
             
             context.add_module({module_name: import_value})
         
-            return res.success(import_value)
-        
-        return res.success(Nada.nada)
+        return res.success(import_value)
     
     def visit_ProbaSiBardeaNode(self, node: ProbaSiBardeaNode, context: Context) -> RTResult:
         res = RTResult()

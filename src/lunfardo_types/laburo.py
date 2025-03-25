@@ -738,25 +738,35 @@ class Curro(BaseLaburo):
         fn = fn.value
 
         import os
-        current_working_directory = exec_ctx.get_cwd()
-        file_path = os.path.join(current_working_directory, fn)
+        current_dir = exec_ctx.get_cwd()
+        file_path = os.path.join(current_dir, fn)
 
         try:
             with open(file_path, "r", encoding='utf-8') as f:
                 script = f.read()
         except FileNotFoundError:
-            return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    f"Uy que rompimo! No pudimos abrir el archivo '{fn}'\n El archivo no existe.",
-                    exec_ctx,
+            parent_dir = current_dir
+            while parent_dir.name != 'src':
+                parent_dir = parent_dir.parent
+            
+            file_path = os.path.join(parent_dir, 'builtin', fn)
+
+            try:
+                with open(file_path, "r", encoding='utf-8') as f:
+                    script = f.read()
+            except FileNotFoundError:
+                return RTResult().failure(
+                    RTError(
+                        self.pos_start,
+                        self.pos_end,
+                        f"Uy que rompimo! No pudimos abrir el archivo '{fn}'\n El archivo no existe.",
+                        exec_ctx,
+                    )
                 )
-            )
 
         from run import execute as run
 
-        result, error = run(file_path, script, current_working_directory, parent_context=exec_ctx)
+        result, error = run(file_path, script, current_dir, parent_context=exec_ctx)
 
         if error:
             return RTResult().failure(
