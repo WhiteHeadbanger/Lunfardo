@@ -82,7 +82,7 @@ class RTError(Bardo):
         
 
         while ctx:
-            result = f' {self.default_color}Fichero {self.accent_color}{pos.fn}{self.default_color}, línea {self.accent_color}{str(pos.ln + 1)}{self.default_color}, en {self.accent_color}{ctx.display_name}\n{result}'
+            result = f' {self.default_color}Fichero {self.accent_color}{pos.fn}{self.default_color}, línea {self.accent_color}{str(pos.ln + 1)}{self.default_color}, en {self.accent_color}{ctx.display_name if isinstance(ctx.display_name, str) else "<modulo>"}\n{result}'
             pos = ctx.parent_entry_pos
             ctx = ctx.parent
 

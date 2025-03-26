@@ -1,4 +1,4 @@
-importar "animal.lunf"
+importar animal
 
 cheto Perro(Animal)
     laburo ladrar(mi, cantidad)

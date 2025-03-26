@@ -4,11 +4,15 @@ Main execution module for the Lunfardo programming language.
 This module contains the global symbol table setup, execution function,
 and the main REPL (Read-Eval-Print Loop) for the Lunfardo interpreter.
 """
-
+import argparse
+import os
+import sys
+from pathlib import Path
 from lexer import Lexer
 from lunfardo_parser import Parser
 from lunfardo_types import Curro, Boloodean, Nada
-from interpreter import Interpreter, SymbolTable
+from interpreter import Interpreter
+from symbol_table import SymbolTable
 from context import Context
 from typing import Tuple
 
@@ -50,7 +54,7 @@ global_symbol_table.set("contexto", Curro.contexto_global)
 global_symbol_table.set("asciiAchamu", Curro.asciiAchamu)
 
 
-def execute(fn, text) -> Tuple:
+def execute(fn, text, cwd = None, file_path = None, parent_context = None) -> Tuple:
     """
     Execute Lunfardo code.
 
@@ -79,8 +83,11 @@ def execute(fn, text) -> Tuple:
 
     # Run
     interpreter = Interpreter()
-    context = Context("<programa>")
+    context = Context(fn, cwd = cwd, file = file_path)
     context.symbol_table = global_symbol_table
+    if parent_context:
+        context.parent = parent_context
+    
     result = interpreter.visit(ast.node, context)
 
     return result.value, result.error
@@ -98,7 +105,7 @@ def run() -> None:
         if text.strip() == "":
             continue
 
-        result, error = execute("<stdin>", text)
+        result, error = execute(fn = "<stdin>", text = text, cwd = os.getcwd())
 
         if error:
             print(error.as_string())
@@ -112,4 +119,33 @@ def run() -> None:
 
 
 if __name__ == "__main__":
-    run()
+    # Argument parsing
+    parser = argparse.ArgumentParser(description="Ejecutá código Lunfardo desde un archivo o iniciá el REPL.")
+    parser.add_argument("archivo", nargs="?", help="Ruta del archivo Lunfardo a ejecutar.")
+    args = parser.parse_args()
+
+    if args.archivo:
+        script_path = os.path.abspath(args.archivo)
+        if not os.path.isfile(script_path):
+            print(f"Error: No se encontró el archivo {script_path}")
+            sys.exit(1)
+        try:
+            with open(script_path, "r", encoding="utf-8") as f:
+                code = f.read()
+            file_path = Path(script_path)
+            _result, _error = execute(fn = file_path, text = code, cwd = file_path.parent)
+
+            if _error:
+                print(_error.as_string())
+            """ elif _result:
+                if len(_result.elements) == 1:
+                    print(repr(_result.elements[0]))
+                else:
+                    print(repr(_result)) """
+
+        except FileNotFoundError:
+            print(f"Error: Archivo '{args.archivo}' no se encuentra.")
+        except Exception as e:
+            print(f"Ocurrió un error: {e}")
+    else:
+        run()

@@ -13,7 +13,7 @@ class Cheto(Value):
         self.methods: dict = methods
         self.parent_context = parent_context
         self.parent_class = parent_class
-        self.context = Context(f"<cheto {self.name}>", parent_context)
+        self.context = Context(f"<cheto {self.name}>", parent=parent_context)
         self.context.symbol_table = SymbolTable(parent_context.symbol_table if parent_context else None)
 
     def create_instance(self, args, call_context):
@@ -62,7 +62,7 @@ class Cheto(Value):
             ))
         
         # Create a new execution context for the method call
-        method_context = Context(f"<método {method_name}>", call_context)
+        method_context = Context(f"<método {method_name}>", parent=call_context)
         #method_context.symbol_table = SymbolTable(call_context.symbol_table)
         method_context.symbol_table = SymbolTable(instance.context.symbol_table)
 
@@ -108,7 +108,7 @@ class ChetoInstance(Value):
         self.cheto = cheto
         self.name = cheto.name
         self.instance_vars = {}
-        self.context = Context(f"<instancia de {cheto.name}>", call_context)
+        self.context = Context(f"<instancia de {cheto.name}>", parent=call_context)
         self.context.symbol_table = SymbolTable(call_context.symbol_table)
         self.set_pos(cheto.pos_start, cheto.pos_end)
 
