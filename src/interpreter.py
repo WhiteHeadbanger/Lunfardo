@@ -1,4 +1,3 @@
-import os
 from rtresult import RTResult
 from constants.tokens import *
 from lunfardo_types import Numero, Nada
@@ -1064,33 +1063,21 @@ class Interpreter:
         module_name = node.module_name_node.tok.value
         ejecutar_func = context.symbol_table.get("ejecutar").set_pos(node.pos_start, node.pos_end)
 
+        modulo = res.register(self.visit(node.module_name_node, context))
+        if res.should_return():
+            return res
+        
+        import_value = res.register(ejecutar_func.execute([modulo], context))
+        if res.should_return():
+            return res
+        
         if module_name.replace(".lunf", "") in BUILTINS:
-            
-            modulo = res.register(self.visit(node.module_name_node, context))
-            if res.should_return():
-                return res
-            
-            import_value = res.register(ejecutar_func.execute([modulo], context))
-            if res.should_return():
-                return res
-
             # Delegate library-specific handling.
             lib_result = Interpreter.handle_library_import(module_name.replace(".lunf", ""), node, import_value.context, context)
             if lib_result.error:
                 return res.failure(lib_result.error)
-            
-            context.add_module({module_name: import_value})
-
-        else:
-            modulo = res.register(self.visit(node.module_name_node, context))
-            if res.error:
-                return res
-
-            import_value = res.register(ejecutar_func.execute([modulo], context))
-            if res.should_return():
-                return res
-            
-            context.add_module({module_name: import_value})
+        
+        context.add_module({module_name: import_value})
         
         return res.success(import_value)
     
