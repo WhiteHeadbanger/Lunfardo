@@ -11,7 +11,8 @@ from pathlib import Path
 from lexer import Lexer
 from lunfardo_parser import Parser
 from lunfardo_types import Curro, Boloodean, Nada
-from interpreter import Interpreter, SymbolTable
+from interpreter import Interpreter
+from symbol_table import SymbolTable
 from context import Context
 from typing import Tuple
 

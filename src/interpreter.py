@@ -3,7 +3,6 @@ from constants.tokens import *
 from lunfardo_types import Numero, Nada
 from errors.errors import RTError
 from context import Context
-from symbol_table import SymbolTable
 from nodes import *
 from typing import Union, NoReturn
 
@@ -1060,20 +1059,31 @@ class Interpreter:
 
         from constants import BUILTINS
         res = RTResult()
-        module_name = node.module_name_node.tok.value
+        
+        try: 
+            module_name = node.module_name_node.var_name_tok.value
+        except AttributeError: 
+            return res.failure(RTError(
+                node.pos_start,
+                node.pos_end,
+                'El nombre del módulo debe ser un identificador',
+                context
+            ))
+        
         ejecutar_func = context.symbol_table.get("ejecutar").set_pos(node.pos_start, node.pos_end)
-
-        modulo = res.register(self.visit(node.module_name_node, context))
+        
+        module = res.register(self.visit_ChamuyoNode(ChamuyoNode(node.module_name_node.var_name_tok), context))
         if res.should_return():
             return res
         
-        import_value = res.register(ejecutar_func.execute([modulo], context))
+        module.value += ".lunf"
+        import_value = res.register(ejecutar_func.execute([module], context))
         if res.should_return():
             return res
         
-        if module_name.replace(".lunf", "") in BUILTINS:
+        if module_name in BUILTINS:
             # Delegate library-specific handling.
-            lib_result = Interpreter.handle_library_import(module_name.replace(".lunf", ""), node, import_value.context, context)
+            lib_result = Interpreter.handle_library_import(module_name, node, import_value.context, context)
             if lib_result.error:
                 return res.failure(lib_result.error)
         

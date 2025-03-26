@@ -1840,12 +1840,12 @@ class Parser:
         res.register_advance()
         self.advance()
 
-        if self.current_tok.type != TT_STRING:
+        if self.current_tok.type != TT_IDENTIFIER:
             return res.failure(
                 InvalidSyntaxBardo(
                     self.current_tok.pos_start,
                     self.current_tok.pos_end,
-                    "El nombre del modulo a importar debe ser un chamuyo",
+                    "El nombre del modulo a importar debe ser un identificador",
                 )
             )
 

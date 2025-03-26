@@ -1,4 +1,4 @@
-importar "lacompu.lunf"
+importar lacompu
 
 matear("Dir actual: " + obtener_dir_actual())
 matear("Listado de directorio: ")
