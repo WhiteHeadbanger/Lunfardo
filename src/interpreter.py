@@ -1061,7 +1061,7 @@ class Interpreter:
         res = RTResult()
         
         try: 
-            module_name = node.module_name_node.var_name_tok.value
+            module_name = node.module_node.var_name_tok.value
         except AttributeError: 
             return res.failure(RTError(
                 node.pos_start,
@@ -1072,7 +1072,7 @@ class Interpreter:
         
         ejecutar_func = context.symbol_table.get("ejecutar").set_pos(node.pos_start, node.pos_end)
         
-        module = res.register(self.visit_ChamuyoNode(ChamuyoNode(node.module_name_node.var_name_tok), context))
+        module = res.register(self.visit_ChamuyoNode(ChamuyoNode(node.module_node.var_name_tok), context))
         if res.should_return():
             return res
         
