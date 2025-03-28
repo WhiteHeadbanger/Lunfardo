@@ -8,10 +8,12 @@ chau
 
 
 poneleque v = 1
-#retornar_bardo(v) sacar este comentario para que el mensaje de bardo de retornar_bardo() se muestre
+# Comentar la linea 12 para capturar el bardo
+retornar_bardo(v)
 
 proba:
     retornar_bardo("holis")
     retornar_bardo(v)
 sibardea bardo_de_valor:
     matear("Hubo un bardo de valor: " + chamu(v))
+chau
