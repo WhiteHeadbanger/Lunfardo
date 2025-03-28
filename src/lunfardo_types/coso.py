@@ -1,7 +1,7 @@
 from .value import Value
 from .numero import Numero
 from .boloodean import Boloodean
-from errors import RTError
+from errors import InvalidIndexBardo, InvalidTypeBardo
 
 from typing import List
 
@@ -47,7 +47,7 @@ class Coso(Value):
                 new_list.elements.pop(other.value)
                 return new_list, None
             except IndexError:
-                return None, RTError(
+                return None, InvalidIndexBardo(
                     other.pos_start,
                     other.pos_end,
                     f"Elemento con el índice {other.value} no pudo ser removido del coso porque el índice está fuera de los límites.",
@@ -89,14 +89,14 @@ class Coso(Value):
             try:
                 return self.elements[other.value], None
             except IndexError:
-                return None, RTError(
+                return None, InvalidIndexBardo(
                     other.pos_start,
                     other.pos_end,
                     f"Elemento con el índice {other.value} no pudo ser devuelto del coso porque el índice está fuera de los límites.",
                     self.context,
                 )
             except TypeError:
-                return None, RTError(
+                return None, InvalidTypeBardo(
                     other.pos_start,
                     other.pos_end,
                     f"Elemento con el índice {other.value} no pudo ser devuelto del coso porque el índice no es un número entero.",

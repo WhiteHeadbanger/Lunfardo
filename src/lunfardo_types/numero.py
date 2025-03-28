@@ -1,4 +1,4 @@
-from errors import RTError
+from errors import RTError, ZeroDivisionBardo
 from .value import Value
 from .boloodean import Boloodean
 from .nada import Nada
@@ -31,8 +31,8 @@ class Numero(Value):
     def divided_by(self, other):
         if isinstance(other, Numero):
             if other.value == 0:
-                return None, RTError(
-                    other.pos_start, other.pos_end, "Division por cero", self.context
+                return None, ZeroDivisionBardo(
+                    other.pos_start, other.pos_end, "Division por cero"
                 )
             return Numero(self.value / other.value).set_context(self.context), None
 

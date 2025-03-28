@@ -4,7 +4,7 @@ Main execution module for the Lunfardo programming language.
 This module contains the global symbol table setup, execution function,
 and the main REPL (Read-Eval-Print Loop) for the Lunfardo interpreter.
 """
-
+import sys
 from pathlib import Path
 from typing import Tuple
 from lexer import Lexer
@@ -55,7 +55,6 @@ class Lunfardo:
         self.global_symbol_table.set("contexto", Curro.contexto_global)
         self.global_symbol_table.set("asciiAchamu", Curro.asciiAchamu)
 
-    @staticmethod
     def execute(self, fn: str, text: str, cwd: str = None, file_path: str = None, parent_context: Context = None) -> Tuple:
         """
         Execute Lunfardo code.
@@ -67,6 +66,11 @@ class Lunfardo:
         Returns:
             tuple: A tuple containing the execution result and any error encountered.
         """
+        # Increase Python's recursion limit to avoid hitting the recursion limit prematurely
+        # 12025 is the maximum number of recursive calls that can be made in the Lunfardo's interpreter at maximum 
+        # Lunfardo's recursive calls (1000) at the moment.
+        sys.setrecursionlimit(12025)
+
         lexer = Lexer(fn, text)
         tokens, error = lexer.make_tokens()
         if error:
@@ -100,15 +104,13 @@ class Lunfardo:
             with open(script_path, "r", encoding="utf-8") as f:
                 code = f.read()
             file_path = Path(script_path)
-            result, error = self.execute(fn=file_path, text=code, cwd=file_path.parent)
+            _, error = self.execute(fn=file_path, text=code, cwd=file_path.parent)
 
             if error:
                 print(error.as_string())
 
         except FileNotFoundError:
             print(f"Error: File '{script_path}' not found.")
-        except Exception as e:
-            print(f"An error occurred: {e}")
 
     def run_repl(self) -> None:
         """Run the Lunfardo REPL (Read-Eval-Print Loop)."""

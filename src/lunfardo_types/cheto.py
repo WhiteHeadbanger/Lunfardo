@@ -1,7 +1,7 @@
 from .value import Value
 from .boloodean import Boloodean
 from rtresult import RTResult
-from errors import RTError
+from errors import RTError, UndefinedVarBardo
 from context import Context
 from symbol_table import SymbolTable
 
@@ -16,7 +16,7 @@ class Cheto(Value):
         self.context = Context(f"<cheto {self.name}>", parent=parent_context)
         self.context.symbol_table = SymbolTable(parent_context.symbol_table if parent_context else None)
 
-    def create_instance(self, args, call_context):
+    def create_instance(self, args, call_context, interpreter):
         """
         Creates a new cheto instance
         """
@@ -31,7 +31,7 @@ class Cheto(Value):
         # Call the arranque method if it exists
         arranque_method = self.methods.get("arranque")
         if arranque_method:
-            res.register(self.call_method(instance, "arranque", args, call_context))
+            res.register(self.call_method(instance, "arranque", args, call_context, interpreter))
             if res.should_return():
                 return res
             
@@ -46,7 +46,7 @@ class Cheto(Value):
             method = self.parent_class.get_method(method_name)
         return method
     
-    def call_method(self, instance, method_name, args, call_context):
+    def call_method(self, instance, method_name, args, call_context, interpreter):
         """
         Calls a method on a cheto's instance
         """
@@ -54,7 +54,7 @@ class Cheto(Value):
         method = self.get_method(method_name)
 
         if not method:
-            return res.failure(RTError(
+            return res.failure(UndefinedVarBardo(
                 self.pos_start,
                 self.pos_end,
                 f"Método '{method_name}' no se encuentra en cheto '{self.name}'",
@@ -75,7 +75,7 @@ class Cheto(Value):
             return res
 
         # Execute the method
-        return_value = res.register(method.execute([instance] + args, method_context))
+        return_value = res.register(method.execute([instance] + args, method_context, interpreter))
         if res.should_return():
             return res
         
@@ -152,7 +152,7 @@ class ChetoInstance(Value):
             # Move to the parent context
             current_context = current_context.parent
 
-    def execute(self, args, call_context):
+    def execute(self, args, call_context, interpreter):
         """
         Handles method calls on the instance
         """
@@ -167,7 +167,7 @@ class ChetoInstance(Value):
             ))
         
         method_name = args[0].value
-        return self.cheto.call_method(self, method_name, args[1:], call_context)
+        return self.cheto.call_method(self, method_name, args[1:], call_context, interpreter)
     
     def copy(self):
         """
