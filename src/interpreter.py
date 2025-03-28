@@ -1,7 +1,7 @@
 from rtresult import RTResult
 from constants.tokens import *
 from lunfardo_types import Numero, Nada
-from errors.errors import RTError
+from errors.errors import RTError, MaxRecursionBardo, UndefinedVarBardo, InvalidTypeBardo, AttributeBardo
 from context import Context
 from nodes import *
 from typing import Union, NoReturn
@@ -22,6 +22,11 @@ class Interpreter:
     control structures, and other language features defined in the Lunfardo
     specification.
     """
+
+    def __init__(self):
+        self._recursion_depth = 0
+        self._max_recursion_depth = 1000
+        self._current_function_name = None
 
     def visit(self, node: LunfardoNode, context: Context) -> RTResult:
         """
@@ -107,7 +112,7 @@ class Interpreter:
 
         # If the variable still isn't found, return a failure response
         if value is None:
-            return res.failure(RTError(
+            return res.failure(UndefinedVarBardo(
                 node.pos_start, 
                 node.pos_end,
                 f"'{var_name}' no está definido",
@@ -173,7 +178,7 @@ class Interpreter:
 
         if not context.symbol_table.get(var_name):
             return res.failure(
-                RTError(
+                UndefinedVarBardo(
                     node.var_name_tok.pos_start,
                     node.var_name_tok.pos_end,
                     f"'{var_name}' no está definido",
@@ -488,9 +493,6 @@ class Interpreter:
 
         if not node.is_method:
             context.symbol_table.set(func_name, func_value)
-
-        """ if node.var_name_tok:
-            context.symbol_table.set(func_name, func_value) """
         
         return res.success(func_value)
     
@@ -527,7 +529,7 @@ class Interpreter:
             if not parent_class and context.modules:
                 parent_class = context.get_module(parent_class_name)
                 if not parent_class:
-                    return res.failure(RTError(
+                    return res.failure(UndefinedVarBardo(
                         node.pos_start,
                         node.pos_end,
                         f"'{parent_class_name}' no está definido",
@@ -535,7 +537,7 @@ class Interpreter:
                     ))
             
             if not isinstance(parent_class, Cheto):
-                return res.failure(RTError(
+                return res.failure(InvalidTypeBardo(
                     node.pos_start,
                     node.pos_end,
                     f"'{parent_class_name}' no es un cheto",
@@ -548,7 +550,7 @@ class Interpreter:
             if res.should_return():
                 return res
             if not isinstance(method_value, Laburo):
-                return res.failure(RTError(
+                return res.failure(InvalidTypeBardo(
                     method_node.pos_start,
                     method_node.pos_end,
                     f"Se esperaba un laburo para el método '{method_node.var_name_tok.value}', pero se obtuvo '{type(method_value)}'",
@@ -562,7 +564,7 @@ class Interpreter:
             if res.should_return():
                 return res
             if not isinstance(arranque_method_value, Laburo):
-                return res.failure(RTError(
+                return res.failure(InvalidTypeBardo(
                     node.arranque_method.pos_start,
                     node.arranque_method.pos_end,
                     f"Se esperaba un laburo para el método '{node.arranque_method.var_name_tok.value}', pero se obtuvo '{type(node.arranque_method)}'",
@@ -602,16 +604,40 @@ class Interpreter:
         
         value_to_call = value_to_call.copy().set_pos(node.pos_start, node.pos_end)
 
+        # Check for recursion
+        function_name = None
+        if hasattr(value_to_call, 'name'):
+            function_name = value_to_call.name
+
+        if function_name == self._current_function_name:
+            self._recursion_depth += 1
+            if self._recursion_depth > self._max_recursion_depth:
+                return res.failure(MaxRecursionBardo(
+                    node.pos_start,
+                    node.pos_end,
+                    f"(Recursión máxima alcanzada: {self._max_recursion_depth})",
+                    context
+                ))
+            
         for arg_node in node.arg_nodes:
             args.append(res.register(self.visit(arg_node, context)))
             if res.should_return():
                 return res
-            
-        return_value = res.register(value_to_call.execute(args, context))
+
+        # Store the current function name before execution
+        previous_function_name = self._current_function_name
+        if hasattr(value_to_call, 'name'):
+            self._current_function_name = value_to_call.name
+
+        return_value = res.register(value_to_call.execute(args, context, self))
         if res.should_return():
             return res
         
-        #return_value = return_value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
+        # Restore the previous function name and decrement recursion depth
+        self._current_function_name = previous_function_name
+        if function_name == previous_function_name:
+            self._recursion_depth -= 1
+        
         return_value = return_value.set_pos(node.pos_start, node.pos_end).set_context(context)
         
         return res.success(return_value)
@@ -655,7 +681,7 @@ class Interpreter:
 
         current_value = context.symbol_table.get(base_object_name)
         if not current_value:
-            return res.failure(RTError(
+            return res.failure(UndefinedVarBardo(
                 node.pos_start,
                 node.pos_end,
                 f"'{base_object_name}' no está definido",
@@ -669,7 +695,7 @@ class Interpreter:
                 var_name = access_token.value
                 current_value = current_value.get_instance_var(var_name)
                 if current_value is None:
-                    return res.failure(RTError(
+                    return res.failure(AttributeBardo(
                         node.pos_start,
                         node.pos_end,
                         f"La variable de instancia '{var_name}' no pudo ser encontrada en '{base_object_name}'",
@@ -677,7 +703,7 @@ class Interpreter:
                     ))
             
             else:
-                return res.failure(RTError(
+                return res.failure(AttributeBardo(
                     node.pos_start,
                     node.pos_end,
                     f"No se puede acceder al atributo '{access_token.value}' porque no pertenece a ninguna instancia de objeto",
@@ -693,7 +719,7 @@ class Interpreter:
             ))
 
         # Call the method
-        return_value = res.register(current_value.execute([Chamuyo(method_name)] + args, context))
+        return_value = res.register(current_value.execute([Chamuyo(method_name)] + args, context, self))
         if res.should_return():
             return res
         
@@ -727,14 +753,14 @@ class Interpreter:
         class_value = context.symbol_table.get(class_name)
 
         if not class_value:
-            return res.failure(RTError(
+            return res.failure(UndefinedVarBardo(
                 node.pos_start, node.pos_end,
                 f"La clase '{class_name}' no está definida",
                 context
             ))
         
         if not isinstance(class_value, Cheto):
-            return res.failure(RTError(
+            return res.failure(InvalidTypeBardo(
                 node.pos_start, node.pos_end,
                 f"'{class_name}' no es un cheto",
                 context
@@ -749,12 +775,11 @@ class Interpreter:
             args.append(arg_value)
         
         # Create the instance
-        instance = res.register(class_value.create_instance(args, context))
+        instance = res.register(class_value.create_instance(args, context, self))
 
         if res.should_return():
             return res
         
-        #instance = instance.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
         return res.success(instance)
     
     def visit_InstanceVarAssignNode(self, node: InstanceVarAssignNode, context: Context) -> RTResult:
@@ -784,7 +809,7 @@ class Interpreter:
 
         object_value = context.symbol_table.get(object_name)
         if not object_value:
-            return res.failure(RTError(
+            return res.failure(UndefinedVarBardo(
                 node.pos_start,
                 node.pos_end,
                 f"'{object_name}' no está definido",
@@ -830,7 +855,7 @@ class Interpreter:
 
         current_value = context.symbol_table.get(base_object_name)
         if not current_value:
-            return res.failure(RTError(
+            return res.failure(UndefinedVarBardo(
                 node.pos_start,
                 node.pos_end,
                 f"'{base_object_name}' no está definido",
@@ -842,7 +867,7 @@ class Interpreter:
                 var_name = access_token.value
                 current_value = current_value.get_instance_var(var_name)
                 if current_value is None:
-                    return res.failure(RTError(
+                    return res.failure(AttributeBardo(
                         node.pos_start,
                         node.pos_end,
                         f"La variable de instancia '{var_name}' no fue encontrada en '{base_object_name}'",
@@ -850,7 +875,7 @@ class Interpreter:
                     ))
             
             else:
-                return res.failure(RTError(
+                return res.failure(AttributeBardo(
                     node.pos_start,
                     node.pos_end,
                     f"No se puede acceder al atributo '{access_token.value}' porque no pertenece a ninguna instancia de cheto",
@@ -870,7 +895,7 @@ class Interpreter:
 
         current_value = context.symbol_table.get(base_object_name)
         if not current_value:
-            return res.failure(RTError(
+            return res.failure(UndefinedVarBardo(
                 node.pos_start,
                 node.pos_end,
                 f"'{base_object_name}' no está definido",
@@ -882,7 +907,7 @@ class Interpreter:
                 var_name = access_token.value
                 current_value = current_value.get_instance_var(var_name)
                 if current_value is None:
-                    return res.failure(RTError(
+                    return res.failure(UndefinedVarBardo(
                         node.pos_start,
                         node.pos_end,
                         f"La variable de instancia '{var_name}' no existe",
@@ -891,7 +916,7 @@ class Interpreter:
                 var_to_assign = var_name
             
             else:
-                return res.failure(RTError(
+                return res.failure(AttributeBardo(
                     node.pos_start,
                     node.pos_end,
                     f"No se puede acceder al atributo '{access_token.value}' porque no pertenece a ninguna instancia de cheto",
@@ -1029,10 +1054,10 @@ class Interpreter:
             
             if isinstance(key, Laburo):
                 return res.failure(
-                    RTError(
+                    InvalidTypeBardo(
                         key.pos_start,
                         key.pos_end,
-                        "'laburo' no es hashable",
+                        "'laburo' no es hasheable",
                         context
                     )
                 )
@@ -1063,7 +1088,7 @@ class Interpreter:
         try: 
             module_name = node.module_node.var_name_tok.value
         except AttributeError: 
-            return res.failure(RTError(
+            return res.failure(InvalidTypeBardo(
                 node.pos_start,
                 node.pos_end,
                 'El nombre del módulo debe ser un identificador',
@@ -1077,7 +1102,7 @@ class Interpreter:
             return res
         
         module.value += ".lunf"
-        import_value = res.register(ejecutar_func.execute([module], context))
+        import_value = res.register(ejecutar_func.execute([module], context, self))
         if res.should_return():
             return res
         
@@ -1111,23 +1136,27 @@ class Interpreter:
     def visit_BardeaNode(self, node: BardeaNode, context: Context) -> RTResult:
         res = RTResult()
         from errors import (
-            IllegalCharBardo,
-            InvalidSyntaxBardo,
-            ExpectedCharBardo,
             InvalidTypeBardo,
-            InvalidIndexBardo,
+            MaxRecursionBardo,
+            AttributeBardo,
+            UndefinedVarBardo,
+            InvalidValueBardo,
+            ZeroDivisionBardo,
             InvalidKeyBardo,
-            InvalidValueBardo
+            InvalidIndexBardo,
+            FileNotFoundBardo
         )
 
         AVAILABLE_BARDOS = {
-            'caracter_ilegal': IllegalCharBardo,
-            'sintaxis_invalida': InvalidSyntaxBardo,
-            'caracter_esperado': ExpectedCharBardo,
             'bardo_de_tipo': InvalidTypeBardo,
-            'bardo_de_indice': InvalidIndexBardo,
+            'limite_de_recursion': MaxRecursionBardo,
+            'bardo_de_atributo': AttributeBardo,
+            'variable_indefinida': UndefinedVarBardo,
+            'bardo_de_valor': InvalidValueBardo,
+            'division_por_cero': ZeroDivisionBardo,
             'bardo_de_clave': InvalidKeyBardo,
-            'bardo_de_valor': InvalidValueBardo
+            'bardo_de_indice': InvalidIndexBardo,
+            'archivo_no_encontrado': FileNotFoundBardo
         }
         
         bardo_msg = res.register(self.visit(node.bardo_msg_node, context))
@@ -1139,7 +1168,8 @@ class Interpreter:
             AVAILABLE_BARDOS[bardo_name](
                 node.pos_start,
                 node.pos_end,
-                f"{bardo_msg.value}"
+                f"{bardo_msg.value}",
+                context
             )
         )
         

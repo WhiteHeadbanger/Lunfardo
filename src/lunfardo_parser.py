@@ -1907,13 +1907,15 @@ class Parser:
         self.advance()
 
         if not (self.current_tok.type == TT_IDENTIFIER and self.current_tok.value in (
-            'caracter_ilegal',
-            'sintaxis_invalida',
-            'caracter_esperado',
             'bardo_de_tipo',
-            'bardo_de_indice',
+            'limite_de_recursion',
+            'bardo_de_atributo',
+            'variable_indefinida',
+            'bardo_de_valor',
+            'division_por_cero',
             'bardo_de_clave',
-            'bardo_de_valor'
+            'bardo_de_indice',
+            'archivo_no_encontrado'
         )):
             return res.failure(
                 InvalidSyntaxBardo(

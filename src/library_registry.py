@@ -1,5 +1,6 @@
 from errors.errors import RTError
 from rtresult import RTResult
+from lunfardo_types import Nada
 
 LIBRARY_HANDLERS = {}
 
@@ -51,7 +52,7 @@ def init_gualichos(module_context, node, context):
         return res.failure(RTError(node.pos_start, node.pos_end, f"Bardo al importar la librería 'gualichos': {str(e)}", context))
     except AttributeError:
         return res.failure(RTError(node.pos_start, node.pos_end, "Bardo en la librería 'gualichos'", context))
-    return res.success(None)
+    return res.success(Nada.nada)
 
 def init_lacompu(module_context, node, context):
     res = RTResult()
@@ -94,7 +95,7 @@ def init_lacompu(module_context, node, context):
     except AttributeError:
         return res.failure(RTError(node.pos_start, node.pos_end, "Bardo en la librería 'lacompu'", context))
     
-    return res.success(None)
+    return res.success(Nada.nada)
 
 
 register_library_handler("gualichos", init_gualichos)
