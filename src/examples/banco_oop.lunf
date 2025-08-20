@@ -1,0 +1,197 @@
+cheto Banco
+    laburo arranque(mi)
+        poneleque mi.cuentas = {}
+    chau
+
+    laburo crear_cuenta(mi, nombre, clave, confirmacion_clave)
+        si mi.registro_validacion_datos(clave, confirmacion_clave) entonces
+            poneleque nueva_cuenta = nuevo CuentaDeBanco(nombre, clave)
+            metele_en(mi.cuentas, nombre, nueva_cuenta)
+            devolver nueva_cuenta
+        chau
+
+        bardea bardo_de_valor -> "Hubo un problema al registrarse"
+    chau
+
+    laburo cambiar_cuenta(mi, nombre, clave)
+        poneleque cuenta = agarra_de(mi.cuentas, nombre)
+        si cuenta entonces
+            si mi.acceso_validacion_datos(cuenta, clave) entonces
+                devolver cuenta
+            chau
+
+            matear("Datos incorrectos")
+            devolver trucho
+        chau
+
+        matear("Cuenta inexistente")
+        devolver nada
+    chau
+
+    laburo registro_validacion_datos(mi, clave, confirmacion)
+        si clave == confirmacion y longitud(clave) >= 8 entonces
+            devolver posta
+        chau
+
+        devolver trucho
+    chau
+
+    laburo acceso_validacion_datos(mi, cuenta, clave)
+        si cuenta.clave == clave entonces
+            devolver posta
+        chau
+
+        devolver trucho
+    chau
+chau
+
+cheto CuentaDeBanco
+    laburo arranque(mi, nombre, clave)
+        poneleque mi.nombre = nombre
+        poneleque mi.clave = clave
+        poneleque mi.balance = 0
+    chau
+
+    laburo deposito(mi, cantidad)
+        si cantidad > 0 entonces
+            mi.balance = mi.balance + cantidad
+            devolver posta
+        chau
+
+        devolver trucho
+    chau
+
+    laburo retiro(mi, cantidad)
+        si (cantidad >= 0) y (cantidad <= mi.balance) entonces
+            mi.balance = mi.balance - cantidad
+            devolver posta
+        chau
+
+        devolver trucho
+    chau
+
+    laburo balance(mi)
+        devolver mi.balance
+    chau
+chau
+
+cheto ManejadorDelBanco
+    laburo arranque(mi)
+        poneleque mi.banco = nuevo Banco()
+    chau
+
+    laburo crear_cuenta(mi)
+        mientras posta entonces
+            poneleque nombre = morfar("Nombre: ")
+            poneleque clave = morfar("Clave: ")
+            poneleque conf_clave = morfar("Confirmacion de clave: ")
+            
+            proba:
+                poneleque nueva_cuenta = mi.banco.crear_cuenta(nombre, clave, conf_clave)
+                matear("Cuenta creada satisfactoriamente!")
+                devolver nueva_cuenta
+            sibardea bardo_de_valor:
+                matear("Hubo un problema al crear la cuenta. Por favor intenta nuevamente.")
+                continuar
+            chau
+        chau
+    chau
+
+    laburo cambiar_cuenta(mi)
+        poneleque nombre = morfar("Nombre: ")
+        poneleque clave = morfar("Clave: ")
+
+        poneleque cuenta = mi.banco.cambiar_cuenta(nombre, clave)
+        si cuenta entonces
+            matear("Acceso exitoso!")
+            devolver cuenta
+        sino
+            matear("Hubo un problema al acceder a la cuenta")
+        chau
+    chau
+
+    laburo borrar_cuenta(mi, cuenta)
+        mientras posta entonces
+            poneleque confirmacion = morfar("Para confirmar, escriba la palabra 'confirmar': ")
+            si confirmacion == "confirmar" entonces
+                matear("Usted no puede borrar la cuenta. Usted esta atrapado por siempre.")
+                matear("Tenemos todos sus datos.")
+                rajar
+            sino
+                continuar
+            chau
+        chau
+    chau
+
+    laburo deposito(mi, cuenta)
+        poneleque cant = num(morfar("Cantidad a depositar: "))
+        poneleque resultado = cuenta.deposito(cant)
+        si resultado entonces
+            matear("Deposito realizado! Nuevo balance: $" + chamu(cuenta.balance()))
+        sino
+            matear("No se puede depositar una cantidad negativa o cero")
+        chau
+    chau
+
+    laburo retiro(mi, cuenta)
+        poneleque cant = num(morfar("Cantidad a retirar: "))
+        poneleque resultado = cuenta.retiro(cant)
+        si resultado entonces
+            matear("Retiro realizado. Nuevo balance: $" + chamu(cuenta.balance()))
+        sino
+            matear("No se puede retirar una cantidad negativa o mayor al balance")
+        chau
+    chau
+
+    laburo balance(mi, cuenta)
+        matear("Balance: " + chamu(cuenta.balance()))
+    chau
+chau
+
+
+laburo main()
+    poneleque opcion = nada
+    poneleque cuenta = nada
+    poneleque manejador = nuevo ManejadorDelBanco()
+
+    poneleque menu_principal = {"1": manejador.crear_cuenta, "2": manejador.cambiar_cuenta}
+    poneleque menu_cuenta = nada
+    poneleque menu_opcion = nada
+
+    mientras posta entonces
+        matear("<1> Crear cuenta")
+        matear("<2> Cambiar cuenta")
+        matear("<q> Salir")
+
+        opcion = morfar("Seleccione una opcion: ")
+        
+        si opcion == "q" entonces
+            matear("Gracias por confiar en nuestro banco.")
+            rajar
+        chau
+
+        menu_opcion = agarra_de(menu_principal, opcion)
+        cuenta = menu_opcion(manejador)
+
+        menu_cuenta = {"1": manejador.deposito, "2": manejador.retiro, "3": manejador.balance, "4": manejador.borrar_cuenta}
+
+        mientras posta entonces
+            matear("<1> Deposito")
+            matear("<2> Retiro")
+            matear("<3> Balance")
+            matear("<4> Borrar cuenta")
+            matear("<q> Salir")
+
+            opcion = morfar("Seleccione una opcion: ")
+
+            si opcion == "q" entonces
+                rajar
+            chau
+
+            menu_opcion = agarra_de(menu_cuenta, opcion)
+            menu_opcion(manejador, cuenta)
+        chau
+    chau
+chau
+
+main()

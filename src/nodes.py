@@ -132,6 +132,27 @@ class AccessAndAssignNode:
 
     def __repr__(self) -> str:
         return f'AccessAndAssignNode({self.var_name_tok}, {self.value_node})'
+    
+class InstanceVarAccessAndAssignNode:
+    """Represents a name of a declared instanced variable and its value in the AST."""
+
+    def __init__(self, instance_var_name_tok, access_chain, value_node) -> None:
+        """
+        Initialize an InstanceVarAccessAndAssignNode.
+
+        Args:
+            instance_var_name_tok (Token): Token representing the first identifier.
+            access_chain (List): List of tokens representing the access chain.
+            value_node (Node): Node representing the value of the variable.
+        """
+        self.instance_var_name_tok = instance_var_name_tok
+        self.access_chain = access_chain
+        self.value_node = value_node
+        self.pos_start = self.instance_var_name_tok.pos_start
+        self.pos_end = self.value_node.pos_end
+
+    def __repr__(self) -> str:
+        return f'InstanceVarAccessAndAssignNode({self.instance_var_name_tok}, {self.access_chain}, {self.value_node})'
 
     
 class BinOpNode:
@@ -285,7 +306,7 @@ class ChetoDefNode:
         Args:
             var_name_tok (Token): Token representing the name of the cheto.
             methods (list): List of Nodes representing the methods of the cheto.
-            arranque_method (Node): Node representing the "arranque" (constructor) method of the cheto.
+            arranque_method (LaburoDefNode): Node representing the "arranque" (constructor) method of the cheto.
             parent_class (Node): Node representing the parent cheto of the cheto to inherit from.
         """
         self.var_name_tok = var_name_tok
@@ -301,7 +322,7 @@ class ChetoDefNode:
 class MethodCallNode:
     """Represents a method call in the AST."""
 
-    def __init__(self, object_tok, method_name_tok, arg_nodes) -> None:
+    def __init__(self, object_tok, access_chain, method_name_tok, arg_nodes) -> None:
         """
         Initialize a MethodCallNode.
 
@@ -311,6 +332,7 @@ class MethodCallNode:
             arg_nodes (list): List of Nodes representing the arguments of the method call.
         """
         self.object_tok = object_tok
+        self.access_chain = access_chain
         self.method_name_tok = method_name_tok
         self.arg_nodes = arg_nodes
 
@@ -363,7 +385,7 @@ class InstanceVarAssignNode:
 class InstanceVarAccessNode:
     """Represents an instance variable access in the AST."""
 
-    def __init__(self, object_tok, var_name_tok) -> None:
+    def __init__(self, object_tok, access_chain) -> None:
         """
         Initialize an InstanceVarAccessNode.
 
@@ -372,12 +394,12 @@ class InstanceVarAccessNode:
             var_name_tok (Token): Token representing the name of the instance variable.
         """
         self.object_tok = object_tok
-        self.var_name_tok = var_name_tok
+        self.access_chain = access_chain
         self.pos_start = self.object_tok.pos_start
-        self.pos_end = self.var_name_tok.pos_end
+        self.pos_end = self.access_chain[-1].pos_end if access_chain else self.object_tok.pos_end
 
     def __repr__(self) -> str:
-        return f'InstanceVarAccessNode({self.object_tok}, {self.var_name_tok})'
+        return f'InstanceVarAccessNode({self.object_tok}, {self.access_chain})'
     
 class CallNode:
     """Represents a call in the AST."""
@@ -465,22 +487,22 @@ class RajarNode:
 class ImportarNode:
     """Represents an import statement in the AST."""
 
-    def __init__(self, module_name_node: ChamuyoNode) -> None:
+    def __init__(self, module_node: PoneleQueAccessNode) -> None:
         """
         Initialize an ImportarNode.
 
         Args:
             module_name_node (ChamuyoNode): Node representing the module name.
         """
-        self.module_name_node = module_name_node
-        self.pos_start = self.module_name_node.pos_start
-        self.pos_end = self.module_name_node.pos_end
+        self.module_node = module_node
+        self.pos_start = self.module_node.pos_start
+        self.pos_end = self.module_node.pos_end
 
     def __repr__(self) -> str:
-        return f'ImportarNode({self.module_name_node})'
+        return f'ImportarNode({self.module_node})'
     
     def __str__(self) -> str:
-        return f'ImportarNode({self.module_name_node})'
+        return f'ImportarNode({self.module_node})'
     
 class ProbaSiBardeaNode:
     """ Represents a try-except code block in the AST """

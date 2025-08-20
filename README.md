@@ -28,16 +28,22 @@ git clone https://github.com/WhiteHeadbanger/Lunfardo.git
 ### Ejecución
 
 ```sh
-cd src
-python3 run.py
+python3 src/run.py
 ```
 
 Esto iniciará el intérprete interactivo de Lunfardo.
 
 ### Ejecutar un archivo
 
-`ejecutar(nombre_del_archivo.lunf)`
-Por defecto, los archivos deben estar dentro de la carpeta `src/examples`. Esto está sujeto a cambios a medida que evolucione.
+```sh
+python3 src/run.py <ruta_del_archivo.lunf>
+```
+
+#### Ejemplo
+
+```sh
+python3 src/run.py src/examples/banco_oop.lunf
+```
 
 ## Características
 

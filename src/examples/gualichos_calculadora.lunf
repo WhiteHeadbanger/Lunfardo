@@ -1,4 +1,4 @@
-importar "gualichos.lunf"
+importar gualichos
 
 poneleque menu_opciones = ["Sumar", "Restar", "Multiplicar", "Dividir", "Salir"]
 

@@ -1,73 +1,16 @@
 from rtresult import RTResult
 from constants.tokens import *
 from lunfardo_types import Numero, Nada
-from errors.errors import RTError
+from errors.errors import RTError, MaxRecursionBardo, UndefinedVarBardo, InvalidTypeBardo, AttributeBardo
 from context import Context
 from nodes import *
-from typing import Optional, Union, NoReturn
+from typing import Union, NoReturn
 
 LunfardoNode = Union[NumeroNode, ChamuyoNode, CosoNode, MataburrosNode, PoneleQueAccessNode,
                      PoneleQueAssignNode, BinOpNode, UnaryOpNode, SiNode, ParaNode,
                      MientrasNode, LaburoDefNode, ChetoDefNode, MethodCallNode,
                      InstanceNode, InstanceVarAssignNode, InstanceVarAccessNode,
                      CallNode, DevolverNode, ContinuarNode, RajarNode, ImportarNode]
-
-#TODO RTResult deberia estar acá en vez de en el parser.
-
-class SymbolTable:
-    """
-    Manages symbol tables for variable and function scoping in Lunfardo.
-
-    This class implements a symbol table with support for nested scopes,
-    allowing for efficient symbol lookup and management across different
-    levels of the program execution.
-    """
-
-    def __init__(self, parent: Optional["SymbolTable"] = None) -> None:
-        """
-        Initialize a new SymbolTable.
-
-        Args:
-            parent (SymbolTable, optional): Parent symbol table for nested scopes.
-        """
-        self.symbols = {}
-        self.parent = parent
-
-    #TODO: getters y setters pythonicos.
-    def get(self, name: str):
-        """
-        Retrieve a symbol's value from the current or parent scopes.
-
-        Args:
-            name (str): The name of the symbol to retrieve.
-
-        Returns:
-            The value associated with the symbol, or None if not found.
-        """
-        value = self.symbols.get(name, None)
-        if value is None and self.parent is not None:
-            return self.parent.get(name)
-        
-        return value
-    
-    def set(self, name: str, value):
-        """
-        Set a symbol's value in the current scope.
-
-        Args:
-            name (str): The name of the symbol.
-            value: The value to associate with the symbol.
-        """
-        self.symbols[name] = value
-
-    def remove(self, name):
-        """
-        Remove a symbol from the current scope.
-
-        Args:
-            name (str): The name of the symbol to remove.
-        """
-        del self.symbols[name]
 
 class Interpreter:
     """
@@ -79,6 +22,11 @@ class Interpreter:
     control structures, and other language features defined in the Lunfardo
     specification.
     """
+
+    def __init__(self):
+        self._recursion_depth = 0
+        self._max_recursion_depth = 1000
+        self._current_function_name = None
 
     def visit(self, node: LunfardoNode, context: Context) -> RTResult:
         """
@@ -153,18 +101,45 @@ class Interpreter:
         """
         res = RTResult()
         var_name = node.var_name_tok.value
+        
+        # Try getting the variable from the current context
         value = context.symbol_table.get(var_name)
+        if value is None:
+            # Determine where to start the module search:
+            # If context has no modules, traverse from the parent; otherwise, start from the current context.
+            search_context = context.parent if not context.modules else context
+            value = Interpreter.find_in_parent_module(var_name, search_context)
 
-        if not value:
-            return res.failure(RTError(
+        # If the variable still isn't found, return a failure response
+        if value is None:
+            return res.failure(UndefinedVarBardo(
                 node.pos_start, 
                 node.pos_end,
-                f"'{var_name}' no esta definido",
+                f"'{var_name}' no está definido",
                 context
             ))
         
-        value = value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
+        #value = value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
+        value = value.set_pos(node.pos_start, node.pos_end).set_context(context)
         return res.success(value)
+    
+    @staticmethod
+    def find_in_parent_module(var_name: str, start_context: Context):
+        """
+        Traverse up from the given context until we find a module with submodules,
+        then search its submodules for the variable.
+        """
+        parent_module = start_context
+        # Traverse up until we find a module that has modules
+        while parent_module and not parent_module.modules:
+            parent_module = parent_module.parent
+
+        if parent_module:
+            for mod in parent_module.modules.values():
+                value = mod.context.symbol_table.get(var_name)
+                if value is not None:
+                    return value
+        return None
     
     def visit_PoneleQueAssignNode(self, node: PoneleQueAssignNode, context: Context) -> RTResult:
         """
@@ -203,7 +178,7 @@ class Interpreter:
 
         if not context.symbol_table.get(var_name):
             return res.failure(
-                RTError(
+                UndefinedVarBardo(
                     node.var_name_tok.pos_start,
                     node.var_name_tok.pos_end,
                     f"'{var_name}' no está definido",
@@ -518,9 +493,6 @@ class Interpreter:
 
         if not node.is_method:
             context.symbol_table.set(func_name, func_value)
-
-        """ if node.var_name_tok:
-            context.symbol_table.set(func_name, func_value) """
         
         return res.success(func_value)
     
@@ -543,47 +515,66 @@ class Interpreter:
             - All methods, including 'arranque', are marked as instance methods.
             - The class is added to the current context's symbol table.
         """
-        from lunfardo_types import Cheto
+        from lunfardo_types import Cheto, Laburo
         res = RTResult()
 
         class_name = node.var_name_tok.value
-        parent_class = node.parent_class if node.parent_class else None
         methods = {}
-        if parent_class is not None:
-            cheto_value = context.symbol_table.get(parent_class.value)
-            cheto_value = cheto_value.copy()
-            cheto_value.name = class_name
-            context.symbol_table.set(class_name, cheto_value)
+        parent_class = None
 
-            for method_node in node.methods:
-                method_node.is_method = True
-                method_name = method_node.var_name_tok.value
-                method_value = res.register(self.visit(method_node, context))
-                if res.should_return(): return res
+        # Process parent class, if any.
+        if node.parent_class:
+            parent_class_name = node.parent_class.value
+            parent_class = context.symbol_table.get(parent_class_name)
+            if not parent_class and context.modules:
+                parent_class = context.get_module(parent_class_name)
+                if not parent_class:
+                    return res.failure(UndefinedVarBardo(
+                        node.pos_start,
+                        node.pos_end,
+                        f"'{parent_class_name}' no está definido",
+                        context
+                    ))
+            
+            if not isinstance(parent_class, Cheto):
+                return res.failure(InvalidTypeBardo(
+                    node.pos_start,
+                    node.pos_end,
+                    f"'{parent_class_name}' no es un cheto",
+                    context
+                ))
 
-                cheto_value.methods[method_name] = method_value
-
-            return res.success(cheto_value)
-        
-        arranque_method_node = node.arranque_method
-        if arranque_method_node:
-            arranque_method_node.is_method = True
-            arranque_method_value = res.register(self.visit(arranque_method_node, context))
-            if res.should_return(): return res
-
-            cheto_value = Cheto(class_name, methods, context)
-            context.symbol_table.set(class_name, cheto_value)
-        
+        # Process methods
         for method_node in node.methods:
-            method_node.is_method = True
-            method_name = method_node.var_name_tok.value
             method_value = res.register(self.visit(method_node, context))
-            if res.should_return(): return res
+            if res.should_return():
+                return res
+            if not isinstance(method_value, Laburo):
+                return res.failure(InvalidTypeBardo(
+                    method_node.pos_start,
+                    method_node.pos_end,
+                    f"Se esperaba un laburo para el método '{method_node.var_name_tok.value}', pero se obtuvo '{type(method_value)}'",
+                    context
+                ))
+            methods[method_node.var_name_tok.value] = method_value
 
-            methods[method_name] = method_value #TODO tal vez usar instance_vars en vez de methods
-
-        if arranque_method_node:
-            cheto_value.methods['arranque'] = arranque_method_value #TODO tal vez usar instance_vars en vez de methods
+        # Process constructor arranque method
+        if node.arranque_method:
+            arranque_method_value = res.register(self.visit(node.arranque_method, context))
+            if res.should_return():
+                return res
+            if not isinstance(arranque_method_value, Laburo):
+                return res.failure(InvalidTypeBardo(
+                    node.arranque_method.pos_start,
+                    node.arranque_method.pos_end,
+                    f"Se esperaba un laburo para el método '{node.arranque_method.var_name_tok.value}', pero se obtuvo '{type(node.arranque_method)}'",
+                    context
+                ))
+            methods[node.arranque_method.var_name_tok.value] = arranque_method_value
+        
+        # Create the cheto definition
+        cheto_value = Cheto(class_name, methods, context, parent_class).set_pos(node.pos_start, node.pos_end)
+        context.symbol_table.set(class_name, cheto_value)
 
         return res.success(cheto_value)
     
@@ -613,16 +604,41 @@ class Interpreter:
         
         value_to_call = value_to_call.copy().set_pos(node.pos_start, node.pos_end)
 
+        # Check for recursion
+        function_name = None
+        if hasattr(value_to_call, 'name'):
+            function_name = value_to_call.name
+
+        if function_name == self._current_function_name:
+            self._recursion_depth += 1
+            if self._recursion_depth > self._max_recursion_depth:
+                return res.failure(MaxRecursionBardo(
+                    node.pos_start,
+                    node.pos_end,
+                    f"(Recursión máxima alcanzada: {self._max_recursion_depth})",
+                    context
+                ))
+            
         for arg_node in node.arg_nodes:
             args.append(res.register(self.visit(arg_node, context)))
             if res.should_return():
                 return res
-            
-        return_value = res.register(value_to_call.execute(args, context))
+
+        # Store the current function name before execution
+        previous_function_name = self._current_function_name
+        if hasattr(value_to_call, 'name'):
+            self._current_function_name = value_to_call.name
+
+        return_value = res.register(value_to_call.execute(args, context, self))
         if res.should_return():
             return res
         
-        return_value = return_value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
+        # Restore the previous function name and decrement recursion depth
+        self._current_function_name = previous_function_name
+        if function_name == previous_function_name:
+            self._recursion_depth -= 1
+        
+        return_value = return_value.set_pos(node.pos_start, node.pos_end).set_context(context)
         
         return res.success(return_value)
     
@@ -646,34 +662,70 @@ class Interpreter:
             - The object itself is passed as the first argument to the method.
             - All other arguments are evaluated in the current context before being passed to the method.
         """
-        from lunfardo_types import Cheto
-        from nodes import PoneleQueAccessNode
+        from lunfardo_types import Chamuyo
+        from lunfardo_types.cheto import ChetoInstance
 
         res = RTResult()
 
-        object_value = res.register(self.visit(PoneleQueAccessNode(node.object_tok), context))
-        if res.should_return(): return res
+        base_object_name = node.object_tok.value
+        access_chain = node.access_chain
+        method_name = node.method_name_tok.value
 
-        if isinstance(object_value, Cheto):
-            method = object_value.get_method(node.method_name_tok.value)
-            if method:
-                args = [object_value] + [res.register(self.visit(arg_node, context)) for arg_node in node.arg_nodes]
-                if res.should_return(): return res
-                return_value = res.register(method.execute(args, context))
-                return res.success(return_value)
-            else:
-                return res.failure(RTError(
-                    node.pos_start, node.pos_end,
-                    f"El método '{node.method_name_tok.value}' no existe en el objeto '{node.object_tok.value}'",
-                    context
-                ))
-        else:
-            return res.failure(RTError(
-                node.pos_start, node.pos_end,
-                f"'{node.object_tok.value}' no es un objeto cheto",
+        # Evaluate arguments
+        args = []
+        for arg_node in node.arg_nodes:
+            arg_value = res.register(self.visit(arg_node, context))
+            if res.should_return():
+                return res
+            args.append(arg_value)
+
+        current_value = context.symbol_table.get(base_object_name)
+        if not current_value:
+            return res.failure(UndefinedVarBardo(
+                node.pos_start,
+                node.pos_end,
+                f"'{base_object_name}' no está definido",
                 context
             ))
-    
+        
+        # access_chain NO DEBE contener el nombre del método en el último índice.
+        # sólo debe contener las variables que están entre base_object_name y method_name
+        for access_token in access_chain:
+            if isinstance(current_value, ChetoInstance):
+                var_name = access_token.value
+                current_value = current_value.get_instance_var(var_name)
+                if current_value is None:
+                    return res.failure(AttributeBardo(
+                        node.pos_start,
+                        node.pos_end,
+                        f"La variable de instancia '{var_name}' no pudo ser encontrada en '{base_object_name}'",
+                        context
+                    ))
+            
+            else:
+                return res.failure(AttributeBardo(
+                    node.pos_start,
+                    node.pos_end,
+                    f"No se puede acceder al atributo '{access_token.value}' porque no pertenece a ninguna instancia de objeto",
+                    context
+                ))
+
+        if not isinstance(current_value, ChetoInstance):
+            return res.failure(RTError(
+                node.pos_start,
+                node.pos_end,
+                f"'{base_object_name}' no es una instancia de un cheto",
+                context
+            ))
+
+        # Call the method
+        return_value = res.register(current_value.execute([Chamuyo(method_name)] + args, context, self))
+        if res.should_return():
+            return res
+        
+        return_value = return_value.set_pos(node.pos_start, node.pos_end).set_context(context)
+        return res.success(return_value)
+
     def visit_InstanceNode(self, node: InstanceNode, context: Context) -> RTResult:
         """
         Visit and interpret an InstanceNode (object instantiation node) in the Lunfardo language.
@@ -701,31 +753,32 @@ class Interpreter:
         class_value = context.symbol_table.get(class_name)
 
         if not class_value:
-            return res.failure(RTError(
+            return res.failure(UndefinedVarBardo(
                 node.pos_start, node.pos_end,
-                f"La clase '{class_name}' no existe",
+                f"La clase '{class_name}' no está definida",
                 context
             ))
         
         if not isinstance(class_value, Cheto):
-            return res.failure(RTError(
+            return res.failure(InvalidTypeBardo(
                 node.pos_start, node.pos_end,
-                f"'{class_name}' no es un objeto cheto",
+                f"'{class_name}' no es un cheto",
                 context
             ))
         
+        # Evaluate arguments
         args = []
         for arg_node in node.arg_nodes:
-            args.append(res.register(self.visit(arg_node, context)))
-            if res.should_return(): return res
-
+            arg_value = res.register(self.visit(arg_node, context))
+            if res.should_return():
+                return res
+            args.append(arg_value)
         
-        instance = class_value.copy().set_context(context).set_pos(node.pos_start, node.pos_end)
-        arranque_method = instance.get_method('arranque')
+        # Create the instance
+        instance = res.register(class_value.create_instance(args, context, self))
 
-        if arranque_method:
-            res.register(arranque_method.execute([instance] + args, context))
-            if res.should_return(): return res
+        if res.should_return():
+            return res
         
         return res.success(instance)
     
@@ -748,17 +801,34 @@ class Interpreter:
             - The instance variable is set in the object's own context.
             - The returned value is a copy of the assigned value, with position and context set.
         """
+        from lunfardo_types.cheto import ChetoInstance
         res = RTResult()
 
-        object_value = res.register(self.visit(node.value_node, context))
-        if res.should_return(): return res
+        object_name = node.object_tok.value
+        var_name = node.var_name_tok.value
+
+        object_value = context.symbol_table.get(object_name)
+        if not object_value:
+            return res.failure(UndefinedVarBardo(
+                node.pos_start,
+                node.pos_end,
+                f"'{object_name}' no está definido",
+                context
+            ))
         
-        current_context = object_value.context.symbol_table.symbols[node.object_tok.value]
-        current_context.set_instance_var(node.var_name_tok.value, object_value)
+        if not isinstance(object_value, ChetoInstance):
+            return res.failure(RTError(
+                node.pos_start,
+                node.pos_end,
+                f"'{object_name}' no es una instancia de un cheto",
+                context
+            ))
 
-        instance_var = object_value.copy().set_pos(node.pos_start, node.pos_end).set_context(current_context)
+        value = res.register(self.visit(node.value_node, context))
+        if res.should_return(): return res
 
-        return res.success(instance_var)
+        object_value.set_instance_var(var_name, value)
+        return res.success(value)
     
     def visit_InstanceVarAccessNode(self, node: InstanceVarAccessNode, context: Context) -> RTResult:
         """
@@ -778,23 +848,87 @@ class Interpreter:
             - If the instance variable is not defined, an RTError is returned.
             - The returned value is a copy of the instance variable, with position and context set.
         """
+        from lunfardo_types.cheto import ChetoInstance
         res = RTResult()
-        object_tok_name = node.object_tok.value
-        var_name = node.var_name_tok.value
-        
-        current_context = context.symbol_table.symbols[object_tok_name]
-        value = current_context.get_instance_var(var_name)
+        base_object_name = node.object_tok.value
+        access_chain = node.access_chain
 
-        if not value:
-            return res.failure(RTError(
-                node.pos_start, 
+        current_value = context.symbol_table.get(base_object_name)
+        if not current_value:
+            return res.failure(UndefinedVarBardo(
+                node.pos_start,
                 node.pos_end,
-                f"'{var_name}' no esta definido",
+                f"'{base_object_name}' no está definido",
                 context
             ))
         
-        value = value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
-        return res.success(value)
+        for access_token in access_chain:
+            if isinstance(current_value, ChetoInstance):
+                var_name = access_token.value
+                current_value = current_value.get_instance_var(var_name)
+                if current_value is None:
+                    return res.failure(AttributeBardo(
+                        node.pos_start,
+                        node.pos_end,
+                        f"La variable de instancia '{var_name}' no fue encontrada en '{base_object_name}'",
+                        context
+                    ))
+            
+            else:
+                return res.failure(AttributeBardo(
+                    node.pos_start,
+                    node.pos_end,
+                    f"No se puede acceder al atributo '{access_token.value}' porque no pertenece a ninguna instancia de cheto",
+                    context
+                ))
+        
+        current_value = current_value.set_pos(node.pos_start, node.pos_end).set_context(context)
+        return res.success(current_value)
+    
+    def visit_InstanceVarAccessAndAssignNode(self, node: InstanceVarAccessAndAssignNode, context: Context) -> RTResult:
+        from lunfardo_types.cheto import ChetoInstance
+        res = RTResult()
+
+        base_object_name = node.instance_var_name_tok.value
+        access_chain = node.access_chain.copy()
+        var_to_assign = access_chain.pop().value
+
+        current_value = context.symbol_table.get(base_object_name)
+        if not current_value:
+            return res.failure(UndefinedVarBardo(
+                node.pos_start,
+                node.pos_end,
+                f"'{base_object_name}' no está definido",
+                context
+            ))
+        
+        for access_token in access_chain:
+            if isinstance(current_value, ChetoInstance):
+                var_name = access_token.value
+                current_value = current_value.get_instance_var(var_name)
+                if current_value is None:
+                    return res.failure(UndefinedVarBardo(
+                        node.pos_start,
+                        node.pos_end,
+                        f"La variable de instancia '{var_name}' no existe",
+                        context
+                    ))
+                var_to_assign = var_name
+            
+            else:
+                return res.failure(AttributeBardo(
+                    node.pos_start,
+                    node.pos_end,
+                    f"No se puede acceder al atributo '{access_token.value}' porque no pertenece a ninguna instancia de cheto",
+                    context
+                ))
+        
+        new_value = res.register(self.visit(node.value_node, context))
+        if res.should_return():
+            return res
+        
+        current_value.set_instance_var(var_to_assign, new_value)
+        return res.success(new_value)
     
     def visit_DevolverNode(self, node: DevolverNode, context: Context) -> RTResult:
         """
@@ -920,10 +1054,10 @@ class Interpreter:
             
             if isinstance(key, Laburo):
                 return res.failure(
-                    RTError(
+                    InvalidTypeBardo(
                         key.pos_start,
                         key.pos_end,
-                        "'laburo' no es hashable",
+                        "'laburo' no es hasheable",
                         context
                     )
                 )
@@ -950,111 +1084,79 @@ class Interpreter:
 
         from constants import BUILTINS
         res = RTResult()
-        module_name = node.module_name_node.tok.value
-
-        if module_name.replace(".lunf", "") in BUILTINS:
-
-            file_name = f"builtin/{module_name}" #prod
-            #file_name = f"src/builtin/{module_name}" #test (debugger)
-
-            try:
-                with open(file_name, "r", encoding="utf-8") as f:
-                    script = f.read()
-            except FileNotFoundError:
-                return res.failure(RTError(
-                    node.pos_start, node.pos_end,
-                    f"Fichero '{module_name}' no encontrado",
-                    context
-                ))
-            except Exception as e:
-                return res.failure(RTError(
-                    node.pos_start, node.pos_end,
-                    f"Bardo al abrir el fichero '{module_name}'\n" + str(e),
-                    context
-                ))
-
-            module_context = Context(f"<module {module_name}>", context)
-            module_context.symbol_table = SymbolTable(context.symbol_table)
-
-            # Delegate library-specific handling to a static method.
-            lib_result = Interpreter.handle_library_import(module_name.replace(".lunf", ""), node, module_context, context)
+        
+        try: 
+            module_name = node.module_node.var_name_tok.value
+        except AttributeError: 
+            return res.failure(InvalidTypeBardo(
+                node.pos_start,
+                node.pos_end,
+                'El nombre del módulo debe ser un identificador',
+                context
+            ))
+        
+        ejecutar_func = context.symbol_table.get("ejecutar").set_pos(node.pos_start, node.pos_end)
+        
+        module = res.register(self.visit_ChamuyoNode(ChamuyoNode(node.module_node.var_name_tok), context))
+        if res.should_return():
+            return res
+        
+        module.value += ".lunf"
+        import_value = res.register(ejecutar_func.execute([module], context, self))
+        if res.should_return():
+            return res
+        
+        if module_name in BUILTINS:
+            # Delegate library-specific handling.
+            lib_result = Interpreter.handle_library_import(module_name, node, import_value.context, context)
             if lib_result.error:
                 return res.failure(lib_result.error)
-
-            from lunfardo_parser import Parser
-            from lexer import Lexer
-            lexer = Lexer(file_name, script)
-            tokens, error = lexer.make_tokens()
-            if error:
-                return res.failure(error)
-            parser = Parser(tokens)
-            ast, error = parser.parse()
-            if error:
-                return res.failure(error)
-            for expression in ast.node.element_nodes:
-                res.register(self.visit(expression, module_context))
-                if res.error:
-                    return res
-
-            for name, value in module_context.symbol_table.symbols.items():
-                context.symbol_table.set(name, value)
-
-        else:
-            modulo = res.register(self.visit(node.module_name_node, context))
-            if res.error:
-                return res
-
-            ejecutar_func = context.symbol_table.get("ejecutar").set_pos(node.pos_start, node.pos_end)
-            if ejecutar_func:
-                res.register(ejecutar_func.execute([modulo], context))
-                if res.should_return():
-                    return res
-            else:
-                return res.failure(RTError(
-                    node.pos_start, node.pos_end,
-                    f"El modulo '{module_name}' no tiene una función 'ejecutar'",
-                    context
-                ))
-
-        return res.success(Nada.nada)
+        
+        context.add_module({module_name: import_value})
+        
+        return res.success(import_value)
     
     def visit_ProbaSiBardeaNode(self, node: ProbaSiBardeaNode, context: Context) -> RTResult:
         res = RTResult()
 
         try_value = res.register(self.visit(node.try_body_node, context))
         if res.should_return():
-            if res.error.name == node.bardo_name:
-                except_value = res.register(self.visit(node.except_body_node, context))
-                
-                if res.should_return():
-                    return res
-                
-                return res.success(except_value)
-            
+            if res.error is not None:
+                if res.error.name == node.bardo_name:
+                    except_value = res.register(self.visit(node.except_body_node, context))
+                    
+                    if res.should_return():
+                        return res
+                    
+                    return res.success(except_value)
+                return res
             return res
-        
         return res.success(try_value)
     
     def visit_BardeaNode(self, node: BardeaNode, context: Context) -> RTResult:
         res = RTResult()
         from errors import (
-            IllegalCharBardo,
-            InvalidSyntaxBardo,
-            ExpectedCharBardo,
             InvalidTypeBardo,
-            InvalidIndexBardo,
+            MaxRecursionBardo,
+            AttributeBardo,
+            UndefinedVarBardo,
+            InvalidValueBardo,
+            ZeroDivisionBardo,
             InvalidKeyBardo,
-            InvalidValueBardo
+            InvalidIndexBardo,
+            FileNotFoundBardo
         )
 
         AVAILABLE_BARDOS = {
-            'caracter_ilegal': IllegalCharBardo,
-            'sintaxis_invalida': InvalidSyntaxBardo,
-            'caracter_esperado': ExpectedCharBardo,
             'bardo_de_tipo': InvalidTypeBardo,
-            'bardo_de_indice': InvalidIndexBardo,
+            'limite_de_recursion': MaxRecursionBardo,
+            'bardo_de_atributo': AttributeBardo,
+            'variable_indefinida': UndefinedVarBardo,
+            'bardo_de_valor': InvalidValueBardo,
+            'division_por_cero': ZeroDivisionBardo,
             'bardo_de_clave': InvalidKeyBardo,
-            'bardo_de_valor': InvalidValueBardo
+            'bardo_de_indice': InvalidIndexBardo,
+            'archivo_no_encontrado': FileNotFoundBardo
         }
         
         bardo_msg = res.register(self.visit(node.bardo_msg_node, context))
@@ -1066,7 +1168,8 @@ class Interpreter:
             AVAILABLE_BARDOS[bardo_name](
                 node.pos_start,
                 node.pos_end,
-                f"{bardo_msg.value}"
+                f"{bardo_msg.value}",
+                context
             )
         )
         

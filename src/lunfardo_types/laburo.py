@@ -1,8 +1,9 @@
 from .value import Value
 from rtresult import RTResult
-from interpreter import SymbolTable, Interpreter
+from interpreter import Interpreter
+from symbol_table import SymbolTable
 from context import Context
-from errors import RTError
+from errors import RTError, InvalidTypeBardo
 import os
 
 
@@ -30,7 +31,7 @@ class BaseLaburo(Value):
 
         if len(args) > len(arg_names):
             return res.failure(
-                RTError(
+                InvalidTypeBardo(
                     self.pos_start,
                     self.pos_end,
                     f"demasiados argumentos pasados a '{self.name}'() (esperados {len(arg_names)}, recibidos {len(args)})",
@@ -43,7 +44,7 @@ class BaseLaburo(Value):
                 [arg_value for arg_value in arg_values if arg_value is None]
             ):
                 return res.failure(
-                    RTError(
+                    InvalidTypeBardo(
                         self.pos_start,
                         self.pos_end,
                         f"pocos argumentos pasados a '{self.name}'() (esperados {len(arg_names)}, recibidos {len(args)})",
@@ -65,7 +66,7 @@ class BaseLaburo(Value):
 
             if arg_value is None:
                 return res.failure(
-                    RTError(
+                    InvalidTypeBardo(
                         self.pos_start,
                         self.pos_end,
                         f"no se encontró valor para el argumento '{arg}' en '{self.name}'()",
@@ -107,13 +108,14 @@ class Laburo(BaseLaburo):
         self.global_context = None
         self.memory_address = id(self)
 
-    def execute(self, args, current_context):
+    def execute(self, args, current_context: Context, interpreter: Interpreter):
         from . import Nada
 
         res = RTResult()
         # Cada vez que creamos una nueva funcion, es necesario crear un nuevo contexto con una nueva symbol table, que son destruidos una vez que la funcion retorna.
-        interpreter = Interpreter()
+        #interpreter = Interpreter()
         execution_context = self.generate_new_context()
+        execution_context.parent = current_context
 
         # Combine local and global contexts into one, this fixes the issue of not being able to access variables defined in the global context from inside a method.
         execution_context.symbol_table = SymbolTable(current_context.symbol_table)
@@ -146,6 +148,8 @@ class Laburo(BaseLaburo):
             self.arg_values,
             self.should_auto_return,
         )
+        if hasattr(self, "is_method"):
+            copy.is_method = self.is_method
         copy.set_context(self.context)
         copy.set_pos(self.pos_start, self.pos_end)
         return copy
@@ -163,9 +167,10 @@ class Curro(BaseLaburo):
         super().__init__(name)
         self.func = func
 
-    def execute(self, args, current_context):
+    def execute(self, args, current_context, _):
         res = RTResult()
         execution_context = self.generate_new_context()
+        execution_context.parent = current_context
         
         if self.func:
             return_value = res.register(self.func(execution_context))
@@ -208,18 +213,18 @@ class Curro(BaseLaburo):
     #########################################
 
     def exec_chamu(self, exec_ctx):
-        from . import Chamuyo, Numero, Coso
+        from . import Chamuyo, Numero, Coso, Nada
         from errors import InvalidTypeBardo
 
         value = exec_ctx.symbol_table.get("value")
 
-        if not value:
+        if not value or value == Nada.nada:
             return RTResult().failure(
-                RTError(
+                InvalidTypeBardo(
                     self.pos_start,
                     self.pos_end,
                     f"pocos argumentos pasados en '{self.name}'() (esperados 1, recibidos 0)",
-                    exec_ctx,
+                    exec_ctx
                 )
             )
 
@@ -239,7 +244,8 @@ class Curro(BaseLaburo):
             InvalidTypeBardo(
                 value.pos_start,
                 value.pos_end,
-                "El argumento solo puede ser numero, chamuyo, coso o laburo."
+                "El valor del argumento solo puede ser numero, chamuyo, coso o laburo.",
+                exec_ctx
             )
         )
 
@@ -256,7 +262,8 @@ class Curro(BaseLaburo):
                 InvalidTypeBardo(
                     self.pos_start,
                     self.pos_end,
-                    f"pocos argumentos pasados en '{self.name}'() (esperados 1, recibidos 0)"
+                    f"pocos argumentos pasados en '{self.name}'() (esperados 1, recibidos 0)",
+                    exec_ctx
                 )
             )
 
@@ -275,7 +282,8 @@ class Curro(BaseLaburo):
                         InvalidValueBardo(
                             value.pos_start,
                             value.pos_end,
-                            f"Literal invalido para '{self.name}()' con base 10: '{value.value}'"
+                            f"Literal invalido para '{self.name}()' con base 10: '{value.value}'",
+                            exec_ctx
                         )
                     )
 
@@ -286,7 +294,8 @@ class Curro(BaseLaburo):
                 InvalidTypeBardo(
                     value.pos_start,
                     value.pos_end,
-                    f"El argumento de {self.name}() debe ser un chamuyo o un número, no un 'laburo'"
+                    f"El argumento de {self.name}() debe ser un chamuyo o un número, no un 'laburo'",
+                    exec_ctx
                 )
             )
 
@@ -382,7 +391,8 @@ class Curro(BaseLaburo):
                 InvalidTypeBardo(
                     list_.pos_start,
                     list_.pos_end,
-                    "El argumento debe ser de tipo coso"
+                    "El argumento debe ser de tipo coso",
+                    exec_ctx
                 )
             )
 
@@ -404,7 +414,8 @@ class Curro(BaseLaburo):
                 InvalidTypeBardo(
                     list_.pos_start,
                     list_.pos_end,
-                    "El argumento debe ser de tipo coso"
+                    "El argumento debe ser de tipo coso",
+                    exec_ctx
                 )
             )
 
@@ -413,7 +424,8 @@ class Curro(BaseLaburo):
                 InvalidTypeBardo(
                     index.pos_start,
                     index.pos_end,
-                    "El argumento debe ser de tipo numero"
+                    "El argumento debe ser de tipo numero",
+                    exec_ctx
                 )
             )
 
@@ -424,7 +436,8 @@ class Curro(BaseLaburo):
                 InvalidTypeBardo(
                     index.pos_start,
                     index.pos_end,
-                    "El argumento debe ser un entero."
+                    "El argumento debe ser un entero.",
+                    exec_ctx
                 )
             )
 
@@ -445,7 +458,8 @@ class Curro(BaseLaburo):
                 InvalidTypeBardo(
                     list_.pos_start,
                     list_.pos_end,
-                    "El argumento debe ser de tipo coso"
+                    "El argumento debe ser de tipo coso",
+                    exec_ctx
                 )
             )
 
@@ -454,7 +468,8 @@ class Curro(BaseLaburo):
                 InvalidTypeBardo(
                     index.pos_start,
                     index.pos_end,
-                    "El argumento debe ser de tipo numero"
+                    "El argumento debe ser de tipo numero",
+                    exec_ctx
                 )
             )
 
@@ -465,7 +480,8 @@ class Curro(BaseLaburo):
                 InvalidTypeBardo(
                     index.pos_start,
                     index.pos_end,
-                    "El argumento debe ser un entero."
+                    "El argumento debe ser un entero.",
+                    exec_ctx
                 )
             )
         except IndexError:
@@ -473,7 +489,8 @@ class Curro(BaseLaburo):
                 InvalidIndexBardo(
                     index.pos_start,
                     index.pos_end,
-                    f"Elemento con el índice '{index.value}' no pudo ser reemplazado del coso porque el índice está fuera de los límites."
+                    f"Elemento con el índice '{index.value}' no pudo ser reemplazado del coso porque el índice está fuera de los límites.",
+                    exec_ctx
                 )
             )
 
@@ -493,7 +510,8 @@ class Curro(BaseLaburo):
                 InvalidTypeBardo(
                     list_.pos_start,
                     list_.pos_end,
-                    "El argumento debe ser de tipo coso."
+                    "El argumento debe ser de tipo coso.",
+                    exec_ctx
                 )
             )
 
@@ -502,7 +520,8 @@ class Curro(BaseLaburo):
                 InvalidTypeBardo(
                     index.pos_start,
                     index.pos_end,
-                    "El argumento debe ser de tipo numero."
+                    "El argumento debe ser de tipo numero.",
+                    exec_ctx
                 )
             )
 
@@ -513,7 +532,8 @@ class Curro(BaseLaburo):
                 InvalidIndexBardo(
                     self.pos_start,
                     self.pos_end,
-                    f"Elemento con el índice '{index.value}' no pudo ser removido del coso porque el índice está fuera de los límites."
+                    f"Elemento con el índice '{index.value}' no pudo ser removido del coso porque el índice está fuera de los límites.",
+                    exec_ctx
                 )
             )
 
@@ -533,7 +553,8 @@ class Curro(BaseLaburo):
                 InvalidTypeBardo(
                     listA.pos_start,
                     listA.pos_end,
-                    "El argumento debe ser de tipo coso."
+                    "El argumento debe ser de tipo coso.",
+                    exec_ctx
                 )
             )
 
@@ -542,7 +563,8 @@ class Curro(BaseLaburo):
                 InvalidTypeBardo(
                     listB.pos_start,
                     listB.pos_end,
-                    "El argumento debe ser de tipo coso."
+                    "El argumento debe ser de tipo coso.",
+                    exec_ctx
                 )
             )
 
@@ -564,7 +586,8 @@ class Curro(BaseLaburo):
                 InvalidTypeBardo(
                     dict_.pos_start,
                     dict_.pos_end,
-                    "El argumento debe ser de tipo mataburros"
+                    "El argumento debe ser de tipo mataburros",
+                    exec_ctx
                 )
             )
 
@@ -573,7 +596,8 @@ class Curro(BaseLaburo):
                 InvalidTypeBardo(
                     key.pos_start,
                     key.pos_end,
-                    "El argumento debe ser de tipo numero o chamuyo."
+                    "El argumento debe ser de tipo numero o chamuyo.",
+                    exec_ctx
                 )
             )
 
@@ -598,7 +622,8 @@ class Curro(BaseLaburo):
                 InvalidTypeBardo(
                     dict_.pos_start,
                     dict_.pos_end,
-                    "El argumento debe ser de tipo mataburros"
+                    "El argumento debe ser de tipo mataburros",
+                    exec_ctx
                 )
             )
 
@@ -607,7 +632,8 @@ class Curro(BaseLaburo):
                 InvalidTypeBardo(
                     key.pos_start,
                     key.pos_end,
-                    "El argumento debe ser de tipo numero o chamuyo."
+                    "El argumento debe ser de tipo numero o chamuyo.",
+                    exec_ctx
                 )
             )
 
@@ -628,7 +654,8 @@ class Curro(BaseLaburo):
                 InvalidTypeBardo(
                     dict_.pos_start,
                     dict_.pos_end,
-                    "El argumento debe ser de tipo mataburros"
+                    "El argumento debe ser de tipo mataburros",
+                    exec_ctx
                 )
             )
 
@@ -637,7 +664,8 @@ class Curro(BaseLaburo):
                 InvalidTypeBardo(
                     key.pos_start,
                     key.pos_end,
-                    "El argumento debe ser de tipo numero o chamuyo."
+                    "El argumento debe ser de tipo numero o chamuyo.",
+                    exec_ctx
                 )
             )
 
@@ -649,7 +677,8 @@ class Curro(BaseLaburo):
             InvalidKeyBardo(
                 key.pos_start,
                 key.pos_end,
-                f"El elemento con la clave {key} no pudo ser encontrado en el mataburros."
+                f"El elemento con la clave {key} no pudo ser encontrado en el mataburros.",
+                exec_ctx
             )
         )
 
@@ -667,7 +696,8 @@ class Curro(BaseLaburo):
                 InvalidTypeBardo(
                     dict_.pos_start,
                     dict_.pos_end,
-                    "El argumento debe ser de tipo mataburros"
+                    "El argumento debe ser de tipo mataburros",
+                    exec_ctx
                 )
             )
 
@@ -676,7 +706,8 @@ class Curro(BaseLaburo):
                 InvalidTypeBardo(
                     key.pos_start,
                     key.pos_end,
-                    "El argumento debe ser de tipo numero, chamuyo, nada o boloodean"
+                    "El argumento debe ser de tipo numero, chamuyo, nada o boloodean",
+                    exec_ctx
                 )
             )
 
@@ -698,7 +729,8 @@ class Curro(BaseLaburo):
                 InvalidTypeBardo(
                     arg.pos_start,
                     arg.pos_end,
-                    "El argumento debe ser de tipo coso, chamuyo o mataburros"
+                    "El argumento debe ser de tipo coso, chamuyo o mataburros",
+                    exec_ctx
                 )
             )
 
@@ -716,8 +748,8 @@ class Curro(BaseLaburo):
     exec_longitud.arg_names = ["arg"]
 
     def exec_ejecutar(self, exec_ctx):
-        from . import Chamuyo, Nada
-        from errors import InvalidTypeBardo
+        from . import Chamuyo
+        from errors import InvalidTypeBardo, FileNotFoundBardo
 
         fn = exec_ctx.symbol_table.get("fn")
 
@@ -726,34 +758,43 @@ class Curro(BaseLaburo):
                 InvalidTypeBardo(
                     fn.pos_start,
                     fn.pos_end,
-                    "El argumento debe ser de tipo chamuyo"
+                    "El argumento debe ser de tipo chamuyo",
+                    exec_ctx
                 )
             )
 
         fn = fn.value
 
-        from os import path
-
-        this_file = path.abspath(__file__)
-        src_dir = path.dirname(os.path.dirname(this_file))
-        fn = path.join(src_dir, "examples", fn)
+        import os
+        current_dir = exec_ctx.get_cwd()
+        file_path = os.path.join(current_dir, fn)
 
         try:
-            with open(fn, "r") as f:
+            with open(file_path, "r", encoding='utf-8') as f:
                 script = f.read()
         except FileNotFoundError:
-            return RTResult().failure(
-                RTError(
-                    self.pos_start,
-                    self.pos_end,
-                    f"Uy que rompimo! No pudimos abrir el archivo '{fn}'\n El archivo no existe.",
-                    exec_ctx,
+            parent_dir = current_dir
+            while parent_dir.name != 'src':
+                parent_dir = parent_dir.parent
+            
+            file_path = os.path.join(parent_dir, 'builtin', fn)
+
+            try:
+                with open(file_path, "r", encoding='utf-8') as f:
+                    script = f.read()
+            except FileNotFoundError:
+                return RTResult().failure(
+                    FileNotFoundBardo(
+                        self.pos_start,
+                        self.pos_end,
+                        fn,
+                        exec_ctx
+                    )
                 )
-            )
 
-        from run import execute as run
+        from lunfardo import Lunfardo
 
-        _, error = run(fn, script)
+        result, error = Lunfardo().execute(file_path, script, current_dir, parent_context=exec_ctx)
 
         if error:
             return RTResult().failure(
@@ -765,7 +806,7 @@ class Curro(BaseLaburo):
                 )
             )
 
-        return RTResult().success(Nada.nada)
+        return RTResult().success(result)
 
     exec_ejecutar.arg_names = ["fn"]
 
@@ -803,7 +844,8 @@ class Curro(BaseLaburo):
                 InvalidTypeBardo(
                     code.pos_start,
                     code.pos_end,
-                    "El argumento debe ser de tipo numero"
+                    "El argumento debe ser de tipo numero",
+                    exec_ctx
                 )
             )
         
