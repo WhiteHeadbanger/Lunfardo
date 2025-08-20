@@ -3,5 +3,3 @@
 __pycache__/
 .vscode/
 examples_test/
-.python-version
-uv.lock
