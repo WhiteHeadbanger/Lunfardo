@@ -1,4 +1,4 @@
-from errors import RTError, ZeroDivisionBardo
+from src.errors import RTError, ZeroDivisionBardo
 from .value import Value
 from .boloodean import Boloodean
 from .nada import Nada

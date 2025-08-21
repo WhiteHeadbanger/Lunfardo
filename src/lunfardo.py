@@ -7,12 +7,13 @@ and the main REPL (Read-Eval-Print Loop) for the Lunfardo interpreter.
 import sys
 from pathlib import Path
 from typing import Tuple
-from lexer import Lexer
-from lunfardo_parser import Parser
-from lunfardo_types import Curro, Boloodean, Nada
-from interpreter import Interpreter
-from symbol_table import SymbolTable
-from context import Context
+from os import getcwd
+from .lexer import Lexer
+from .lunfardo_parser import Parser
+from .lunfardo_types import Curro, Boloodean, Nada
+from .interpreter import Interpreter
+from .symbol_table import SymbolTable
+from .context import Context
 
 class Lunfardo:
 
@@ -55,7 +56,7 @@ class Lunfardo:
         self.global_symbol_table.set("contexto", Curro.contexto_global)
         self.global_symbol_table.set("asciiAchamu", Curro.asciiAchamu)
 
-    def execute(self, fn: str, text: str, cwd: str = None, file_path: str = None, parent_context: Context = None) -> Tuple:
+    def execute(self, fn: str, text: str, cwd: str = None, file_path: str = None, parent_context: Context = None, interpreter_cls: Interpreter = Interpreter) -> Tuple:
         """
         Execute Lunfardo code.
 
@@ -88,7 +89,7 @@ class Lunfardo:
             return None, ast.error
 
         # Run
-        interpreter = Interpreter()
+        interpreter = interpreter_cls()
         context = Context(fn, cwd = cwd, file = file_path)
         context.symbol_table = self.global_symbol_table
         if parent_context:
@@ -96,7 +97,7 @@ class Lunfardo:
         
         result = interpreter.visit(ast.node, context)
 
-        return result.value, result.error
+        return result.value, result.error, interpreter
 
     def execute_file(self, script_path: str) -> None:
         """Execute a Lunfardo file."""
@@ -104,7 +105,7 @@ class Lunfardo:
             with open(script_path, "r", encoding="utf-8") as f:
                 code = f.read()
             file_path = Path(script_path)
-            _, error = self.execute(fn=file_path, text=code, cwd=file_path.parent)
+            _, error, _ = self.execute(fn=file_path, text=code, cwd=file_path.parent)
 
             if error:
                 print(error.as_string())
@@ -125,7 +126,7 @@ class Lunfardo:
             if text.strip() == "":
                 continue
 
-            result, error = self.execute(fn="<stdin>", text=text, cwd=os.getcwd())
+            result, error, _ = self.execute(fn="<stdin>", text=text, cwd=getcwd())
 
             if error:
                 print(error.as_string())

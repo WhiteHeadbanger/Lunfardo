@@ -6,9 +6,9 @@ the input source code into a sequence of tokens that can be processed by
 the parser.
 """
 
-from constants import *
-from lunfardo_token import Position, Token
-from errors.errors import IllegalCharBardo, ExpectedCharBardo
+from .constants import *
+from .lunfardo_token import Position, Token
+from .errors.errors import IllegalCharBardo, ExpectedCharBardo
 from typing import Tuple, List
 
 class Lexer:

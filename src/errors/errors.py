@@ -1,5 +1,5 @@
 from . import string_with_arrows
-from constants.colors import ACCENT, BOLD_ACCENT, DEFAULT
+from src.constants.colors import ACCENT, BOLD_ACCENT, DEFAULT
 
 class Bardo:
 
