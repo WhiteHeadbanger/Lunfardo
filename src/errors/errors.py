@@ -36,6 +36,12 @@ class ExpectedCharBardo(Bardo):
         super().__init__(pos_start, pos_end, '\n[Carácter esperado] Flaco, fijate que te olvidaste de un carácter', details)
         self.name = "caracter_esperado"
 
+class NotHashableBardo(Bardo):
+
+    def __init__(self, pos_start, pos_end, details):
+        super().__init__(pos_start, pos_end, '\n[No hasheable] Seguí así y pasas la entrevista', details)
+        self.name = "no_hasheable"
+
 # Run time error
 class RTError(Bardo):
 
