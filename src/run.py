@@ -4,7 +4,7 @@ Lunfardo entry point.
 import argparse
 import os
 import sys
-from lunfardo import Lunfardo
+from .lunfardo import Lunfardo
 
 def main() -> None:
     """Main entry point of the Lunfardo interpreter."""

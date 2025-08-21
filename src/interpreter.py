@@ -1,9 +1,9 @@
-from rtresult import RTResult
-from constants.tokens import *
-from lunfardo_types import Numero, Nada
-from errors.errors import RTError, MaxRecursionBardo, UndefinedVarBardo, InvalidTypeBardo, AttributeBardo
-from context import Context
-from nodes import *
+from .rtresult import RTResult
+from .constants.tokens import *
+from .lunfardo_types import Numero, Nada
+from .errors.errors import RTError, MaxRecursionBardo, UndefinedVarBardo, InvalidTypeBardo, AttributeBardo
+from .context import Context
+from .nodes import *
 from typing import Union, NoReturn
 
 LunfardoNode = Union[NumeroNode, ChamuyoNode, CosoNode, MataburrosNode, PoneleQueAccessNode,
@@ -82,7 +82,7 @@ class Interpreter:
         Returns:
             RTResult: A runtime result containing the Chamuyo value.
         """
-        from lunfardo_types import Chamuyo
+        from .lunfardo_types import Chamuyo
         
         return RTResult().success(
             Chamuyo(node.tok.value).set_context(context).set_pos(node.pos_start, node.pos_end)
@@ -357,7 +357,7 @@ class Interpreter:
             - Handles continue and break statements within the loop.
             - Creates a new variable in the context for each iteration.
         """
-        from lunfardo_types import Coso
+        from .lunfardo_types import Coso
         res = RTResult()
         elements = []
         
@@ -423,7 +423,7 @@ class Interpreter:
             - Supports break and continue statements within the loop.
             - Accumulates results of each iteration in a list if not returning Nada.
         """
-        from lunfardo_types import Coso
+        from .lunfardo_types import Coso
         res = RTResult()
         elements = []
 
@@ -471,7 +471,7 @@ class Interpreter:
             - Evaluates default argument values.
             - Sets the function in the context's symbol table if it's not a method.
         """
-        from lunfardo_types import Laburo
+        from .lunfardo_types import Laburo
         res = RTResult()
 
         func_name = node.var_name_tok.value if node.var_name_tok else None
@@ -515,7 +515,7 @@ class Interpreter:
             - All methods, including 'arranque', are marked as instance methods.
             - The class is added to the current context's symbol table.
         """
-        from lunfardo_types import Cheto, Laburo
+        from .lunfardo_types import Cheto, Laburo
         res = RTResult()
 
         class_name = node.var_name_tok.value
@@ -662,8 +662,8 @@ class Interpreter:
             - The object itself is passed as the first argument to the method.
             - All other arguments are evaluated in the current context before being passed to the method.
         """
-        from lunfardo_types import Chamuyo
-        from lunfardo_types.cheto import ChetoInstance
+        from .lunfardo_types import Chamuyo
+        from .lunfardo_types.cheto import ChetoInstance
 
         res = RTResult()
 
@@ -746,7 +746,7 @@ class Interpreter:
             - If an 'arranque' method exists, it's called with the new instance as the first argument,
             followed by any additional arguments provided during instantiation.
         """
-        from lunfardo_types import Cheto
+        from .lunfardo_types import Cheto
         res = RTResult()
 
         class_name = node.class_name_tok.value
@@ -801,7 +801,7 @@ class Interpreter:
             - The instance variable is set in the object's own context.
             - The returned value is a copy of the assigned value, with position and context set.
         """
-        from lunfardo_types.cheto import ChetoInstance
+        from .lunfardo_types.cheto import ChetoInstance
         res = RTResult()
 
         object_name = node.object_tok.value
@@ -848,7 +848,7 @@ class Interpreter:
             - If the instance variable is not defined, an RTError is returned.
             - The returned value is a copy of the instance variable, with position and context set.
         """
-        from lunfardo_types.cheto import ChetoInstance
+        from .lunfardo_types.cheto import ChetoInstance
         res = RTResult()
         base_object_name = node.object_tok.value
         access_chain = node.access_chain
@@ -886,7 +886,7 @@ class Interpreter:
         return res.success(current_value)
     
     def visit_InstanceVarAccessAndAssignNode(self, node: InstanceVarAccessAndAssignNode, context: Context) -> RTResult:
-        from lunfardo_types.cheto import ChetoInstance
+        from .lunfardo_types.cheto import ChetoInstance
         res = RTResult()
 
         base_object_name = node.instance_var_name_tok.value
@@ -1007,7 +1007,7 @@ class Interpreter:
             - Each element in the list is evaluated in the current context.
             - The resulting Coso object is set with the current context and position.
         """
-        from lunfardo_types import Coso
+        from .lunfardo_types import Coso
         res = RTResult()
 
         elements = []
@@ -1038,7 +1038,7 @@ class Interpreter:
             - Both keys and values are evaluated in the current context.
             - The resulting Mataburros object is set with the current context and position.
         """
-        from lunfardo_types import Mataburros, Laburo
+        from .lunfardo_types import Mataburros, Laburo
         res = RTResult()
 
         mataburros = Mataburros()
@@ -1082,7 +1082,7 @@ class Interpreter:
             RTResult: The result of the interpretation, containing the imported module.
         """
 
-        from constants import BUILTINS
+        from .constants import BUILTINS
         res = RTResult()
         
         try: 

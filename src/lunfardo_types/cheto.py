@@ -1,9 +1,9 @@
 from .value import Value
 from .boloodean import Boloodean
-from rtresult import RTResult
-from errors import RTError, UndefinedVarBardo
-from context import Context
-from symbol_table import SymbolTable
+from src.rtresult import RTResult
+from src.errors import RTError, UndefinedVarBardo
+from src.context import Context
+from src.symbol_table import SymbolTable
 
 class Cheto(Value):
     
