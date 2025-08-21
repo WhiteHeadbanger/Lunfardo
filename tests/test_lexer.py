@@ -91,14 +91,14 @@ def test_lexer_identifiers():
     assert tokens[3].type == TT_EOF
 
 def test_lexer_keywords():
-    lexer = Lexer("<test>", "poneleque y o  entonces chau sino mientras laburo para hasta entre")
+    lexer = Lexer("<test>", "poneleque y o entonces chau sino mientras laburo para hasta entre truchar si osi cheto nuevo devolver continuar rajar importar proba sibardea bardea")
     tokens, error = lexer.make_tokens()
     assert error is None
-    assert len(tokens) == 16
+    assert len(tokens) == 24
     assert all(t.type == TT_KEYWORD for t in tokens[:-1])
-    assert tokens[15].type == TT_EOF
+    assert tokens[-1].type == TT_EOF
 
-def test_lexer_string():
+def test_lexer_chamuyo():
     lexer = Lexer("<test>", '"Hola, Mundo!"')
     tokens, error = lexer.make_tokens()
     assert error is None
@@ -106,7 +106,7 @@ def test_lexer_string():
     assert tokens[0].type == TT_STRING and tokens[0].value == "Hola, Mundo!"
     assert tokens[1].type == TT_EOF
 
-def test_lexer_empty_string():
+def test_lexer_chamuyo_vacio():
     lexer = Lexer("<test>", '""')
     tokens, error = lexer.make_tokens()
     assert error is None
@@ -114,7 +114,7 @@ def test_lexer_empty_string():
     assert tokens[0].type == TT_STRING and tokens[0].value == ""
     assert tokens[1].type == TT_EOF
 
-def test_lexer_string_with_escaped_chars():
+def test_lexer_chamuyo_con_chars_escapados():
     lexer = Lexer("<test>", '"a \\"new\\" line\\n and a tab\\t"')
     tokens, error = lexer.make_tokens()
     assert error is None
@@ -122,36 +122,36 @@ def test_lexer_string_with_escaped_chars():
     assert tokens[0].type == TT_STRING and tokens[0].value == 'a "new" line\n and a tab\t'
     assert tokens[1].type == TT_EOF
 
-def test_lexer_unterminated_string():
+def test_lexer_chamuyo_sin_comilla_final():
     lexer = Lexer("<test>", '"this is not closed')
     tokens, error = lexer.make_tokens()
     assert error is not None
-    assert error.error_name == "Se esperaba '\"'"
+    print(error.error_name)
+    assert error.error_name == "\n[Carácter esperado] Flaco, fijate que te olvidaste de un carácter"
 
-def test_lexer_illegal_character():
+def test_lexer_caracter_ilegal():
     lexer = Lexer("<test>", "@")
     tokens, error = lexer.make_tokens()
     assert error is not None
-    assert error.error_name == "Bardo de Caracter Ilegal"
+    assert error.error_name == "\n[Carácter ilegal] Flaco, fijate que metiste un carácter mal"
 
-def test_lexer_comment():
+def test_lexer_comentario():
     lexer = Lexer("<test>", "# esto es un comentario\n123")
-    tokens, error = lexer.make_tokens()
-    assert error is None
-    assert len(tokens) == 3
-    assert tokens[0].type == TT_NEWLINE
-    assert tokens[1].type == TT_INT and tokens[1].value == 123
-    assert tokens[2].type == TT_EOF
-
-def test_lexer_comment_at_eof():
-    lexer = Lexer("<test>", "123 # comment at the end")
     tokens, error = lexer.make_tokens()
     assert error is None
     assert len(tokens) == 2
     assert tokens[0].type == TT_INT and tokens[0].value == 123
     assert tokens[1].type == TT_EOF
 
-def test_lexer_minus_or_arrow():
+def test_lexer_comentario_al_final():
+    lexer = Lexer("<test>", "123 # comentario al final")
+    tokens, error = lexer.make_tokens()
+    assert error is None
+    assert len(tokens) == 2
+    assert tokens[0].type == TT_INT and tokens[0].value == 123
+    assert tokens[1].type == TT_EOF
+
+def test_lexer_flecha():
     lexer = Lexer("<test>", "->")
     tokens, error = lexer.make_tokens()
     assert error is None
@@ -159,7 +159,7 @@ def test_lexer_minus_or_arrow():
     assert tokens[0].type == TT_ARROW
     assert tokens[1].type == TT_EOF
 
-def test_lexer_not_equals():
+def test_lexer_diferente():
     lexer = Lexer("<test>", "!=")
     tokens, error = lexer.make_tokens()
     assert error is None
@@ -167,8 +167,8 @@ def test_lexer_not_equals():
     assert tokens[0].type == TT_NE
     assert tokens[1].type == TT_EOF
 
-def test_lexer_invalid_not_equals():
+def test_lexer_diferente_invalido():
     lexer = Lexer("<test>", "!")
     tokens, error = lexer.make_tokens()
     assert error is not None
-    assert error.error_name == "Bardo de Caracter Esperado"
+    assert error.error_name == "\n[Carácter esperado] Flaco, fijate que te olvidaste de un carácter"
