@@ -1,10 +1,14 @@
 [project]
 name = "lunfardo"
-version = "0.1.0"
-description = "Add your description here"
+version = "0.2.0"
+description = "Lunfardo es un lenguaje esotérico inspirado en el lunfardo argentino"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "pytest>=8.4.1",
     "windows-curses>=2.4.1",
 ]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
