@@ -1,6 +1,6 @@
 # TODO: implentar Value como una abstract class
-from errors import RTError
-from rtresult import RTResult
+from src.errors import RTError
+from src.rtresult import RTResult
 from typing import Self, Optional, Tuple, NoReturn
 
 

@@ -1,9 +1,9 @@
 from .value import Value
-from rtresult import RTResult
-from interpreter import Interpreter
-from symbol_table import SymbolTable
-from context import Context
-from errors import RTError, InvalidTypeBardo
+from src.rtresult import RTResult
+from src.interpreter import Interpreter
+from src.symbol_table import SymbolTable
+from src.context import Context
+from src.errors import RTError, InvalidTypeBardo
 import os
 
 

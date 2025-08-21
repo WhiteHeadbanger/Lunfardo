@@ -23,12 +23,15 @@ El lenguaje, naturalmente, no tiene un propósito serio, pero aún así se puede
 ```sh
 # Clonar el repositorio
 git clone https://github.com/WhiteHeadbanger/Lunfardo.git
+
+# Build
+pip install -e .
 ```
 
-### Ejecución
+### Ejecución del REPL
 
 ```sh
-python3 src/run.py
+python3 -m src.run
 ```
 
 Esto iniciará el intérprete interactivo de Lunfardo.
@@ -36,7 +39,7 @@ Esto iniciará el intérprete interactivo de Lunfardo.
 ### Ejecutar un archivo
 
 ```sh
-python3 src/run.py <ruta_del_archivo.lunf>
+python3 -m src.run <ruta_del_archivo.lunf>
 ```
 
 #### Ejemplo

@@ -3,3 +3,4 @@
 __pycache__/
 .vscode/
 examples_test/
+lunfardo.egg-info/

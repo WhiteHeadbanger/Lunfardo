@@ -66,8 +66,7 @@ class MataburrosNode:
         Initialize a MataburrosNode.
 
         Args:
-            keys_nodes (list): List of nodes representing the keys.
-            values_nodes (list): List of nodes representing the values.
+            pairs (tuple): Contains key-value expressions.
             pos_start (Position): Start position of the dictionary.
             pos_end (Position): End position of the dictionary.
         """

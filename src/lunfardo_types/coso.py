@@ -1,7 +1,7 @@
 from .value import Value
 from .numero import Numero
 from .boloodean import Boloodean
-from errors import InvalidIndexBardo, InvalidTypeBardo
+from src.errors import InvalidIndexBardo, InvalidTypeBardo
 
 from typing import List
 

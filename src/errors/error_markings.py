@@ -1,4 +1,4 @@
-from constants import ERROR_MARKING, DEFAULT
+from src.constants import ERROR_MARKING, DEFAULT
 
 def string_with_arrows(text, pos_start, pos_end):
     result = '\n'

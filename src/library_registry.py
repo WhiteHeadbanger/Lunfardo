@@ -1,6 +1,6 @@
-from errors.errors import RTError
-from rtresult import RTResult
-from lunfardo_types import Nada
+from .errors.errors import RTError
+from .rtresult import RTResult
+from .lunfardo_types import Nada
 
 LIBRARY_HANDLERS = {}
 
