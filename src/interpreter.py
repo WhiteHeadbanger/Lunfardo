@@ -1173,7 +1173,21 @@ class Interpreter:
             )
         )
         
+    def visit_ChusmeaNode(self, node: ChusmeaNode, context: Context) -> RTResult:
+        res = RTResult()
+        from .chusma import Chusma
+        from .lunfardo_types import Chamuyo, Nada
 
+        ch = Chusma(self, context, res)
+        ch.print_internals()
+
+        morfar_func = context.symbol_table.get("morfar")
+        morfar_value = res.register(morfar_func.execute([Chamuyo("Enter: continuar")], context, self))
+
+        """ if morfar_value.value:
+            pass """
+
+        return res.success(Nada.nada)
 
     @staticmethod
     def handle_library_import(lib_name: str, node: ImportarNode, module_context: Context, context: Context) -> RTResult:

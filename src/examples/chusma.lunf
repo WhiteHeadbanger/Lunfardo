@@ -1,0 +1,7 @@
+laburo sumar(a, b)
+    poneleque resultado = a + b
+    chusmea
+    devolver resultado
+chau
+
+matear(sumar(2, 3))
