@@ -45,7 +45,7 @@ python3 -m src.run <ruta_del_archivo.lunf>
 #### Ejemplo
 
 ```sh
-python3 src/run.py src/examples/banco_oop.lunf
+python3 -m src.run src/examples/banco_oop.lunf
 ```
 
 ## Características
