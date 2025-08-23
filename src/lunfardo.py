@@ -75,7 +75,7 @@ class Lunfardo:
         lexer = Lexer(fn, text)
         tokens, error = lexer.make_tokens()
         if error:
-            return None, error
+            return None, error, None
 
         # Generate AST
         parser = Parser(tokens)
@@ -83,10 +83,10 @@ class Lunfardo:
 
         # Fixing bug with only EOF token
         if eof:
-            return None, None
+            return None, None, None
 
         if ast.error:
-            return None, ast.error
+            return None, ast.error, None
 
         # Run
         interpreter = interpreter_cls()
