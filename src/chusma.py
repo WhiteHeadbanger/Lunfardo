@@ -6,7 +6,7 @@ from .rtresult import RTResult
 class Chusma:
     TITLE = "Chusmeando"
     PROMPT_LINE = "[Presioná Enter para seguir]"
-    MIN_NAME_COL = 12  # minimum width for the variable name column
+    MIN_NAME_COL = 20  # minimum width for the variable name column
     VAR_PREFIX = "  "  # two spaces so it appears as "│   <var_name> → ..."
 
     def __init__(self, interpreter: Interpreter, context: Context, res: RTResult) -> None:
@@ -14,6 +14,7 @@ class Chusma:
         self.context = context
         self.res = res
         self.matear_func = context.symbol_table.get("matear")
+        self.tipo_func = context.symbol_table.get("tipo")
 
     def print_internals(self) -> None:
         frame_name = getattr(self.context, "display_name", self.context.get_file())
@@ -26,7 +27,10 @@ class Chusma:
         lines = []
         lines.append(f"Frame: {frame_name}")
         for sym, value in raw_symbols.items():
-            lines.append(f"{self.VAR_PREFIX}{sym:<{name_col}} → {str(value)}")
+            # Execute the 'tipo' laburo within the Lunfardo context
+            type_value = self.res.register(self.tipo_func.execute([value], self.context, self))
+            # Build the whole line
+            lines.append(f"{self.VAR_PREFIX}{sym:<{name_col}}[{type_value:<{name_col}}] → {str(value)}")
         lines.append("")  # visual separator before the prompt
         lines.append(self.PROMPT_LINE)
 

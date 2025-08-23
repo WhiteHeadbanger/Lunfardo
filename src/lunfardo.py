@@ -36,6 +36,7 @@ class Lunfardo:
         self.global_symbol_table.set("es_mataburros", Curro.es_mataburros)
         self.global_symbol_table.set("chamu", Curro.chamu)
         self.global_symbol_table.set("num", Curro.num)
+        self.global_symbol_table.set("tipo", Curro.tipo)
         # Coso related
         self.global_symbol_table.set("guardar", Curro.guardar)
         self.global_symbol_table.set("insertar", Curro.insertar)

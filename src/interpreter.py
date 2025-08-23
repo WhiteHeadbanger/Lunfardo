@@ -28,6 +28,7 @@ class Interpreter:
         self._max_recursion_depth = 1000
         self._current_function_name = None
         self.call_stack = []
+        #self.debug_mode = True
 
     def visit(self, node: LunfardoNode, context: Context) -> RTResult:
         """
@@ -1183,6 +1184,7 @@ class Interpreter:
         from .chusma import Chusma
         from .lunfardo_types import Nada
 
+        #if self.debug_mode: indent the following when implemented
         ch = Chusma(self, context, res)
         ch.print_internals()
 
