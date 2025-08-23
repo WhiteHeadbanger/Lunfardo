@@ -15,6 +15,4 @@ laburo abba()
     chusmea
 chau
 
-#matear("Suma: 2 + 3 = " + chamu(sumar(2, 3)))
-#matear("Resta: 7 - 3 = " + chamu(restar(7, 3)))
 abba()
