@@ -7,6 +7,7 @@ class Chusma:
     TITLE = "Chusmeando"
     PROMPT_LINE = "[Presioná Enter para seguir]"
     MIN_NAME_COL = 20  # minimum width for the variable name column
+    MIN_TYPE_COL = 12
     VAR_PREFIX = "  "  # two spaces so it appears as "│   <var_name> → ..."
 
     def __init__(self, interpreter: Interpreter, context: Context, res: RTResult) -> None:
@@ -22,6 +23,7 @@ class Chusma:
 
         # dynamic padding: name column width and box inner width
         name_col = max(self.MIN_NAME_COL, max((len(str(s)) for s in raw_symbols.keys()), default=0))
+        type_col = self.MIN_TYPE_COL
 
         # build content lines (without borders)
         lines = []
@@ -29,8 +31,9 @@ class Chusma:
         for sym, value in raw_symbols.items():
             # Execute the 'tipo' laburo within the Lunfardo context
             type_value = self.res.register(self.tipo_func.execute([value], self.context, self))
+            type_value_str = f'[{type_value}]'
             # Build the whole line
-            lines.append(f"{self.VAR_PREFIX}{sym:<{name_col}}[{type_value:<{name_col}}] → {str(value)}")
+            lines.append(f"{self.VAR_PREFIX}{sym:<{name_col}}{type_value_str:<{type_col}} → {str(value)}")
         lines.append("")  # visual separator before the prompt
         lines.append(self.PROMPT_LINE)
 
