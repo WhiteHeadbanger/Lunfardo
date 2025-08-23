@@ -1,7 +1,20 @@
-laburo sumar(a, b)
-    poneleque resultado = a + b
+laburo abba()
+    poneleque matabu = {"a": 1, "b": 2}
     chusmea
-    devolver resultado
+    poneleque coso = [1, 2, 3]
+    chusmea
+    poneleque numero = 1
+    chusmea
+    poneleque cham = "hola"
+    chusmea
+    poneleque lab = abba
+    chusmea
+    poneleque bool = posta
+    chusmea
+    poneleque nad = nada
+    chusmea
 chau
 
-matear(sumar(2, 3))
+#matear("Suma: 2 + 3 = " + chamu(sumar(2, 3)))
+#matear("Resta: 7 - 3 = " + chamu(restar(7, 3)))
+abba()

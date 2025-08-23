@@ -27,6 +27,7 @@ class Interpreter:
         self._recursion_depth = 0
         self._max_recursion_depth = 1000
         self._current_function_name = None
+        self.call_stack = []
 
     def visit(self, node: LunfardoNode, context: Context) -> RTResult:
         """
@@ -629,7 +630,11 @@ class Interpreter:
         if hasattr(value_to_call, 'name'):
             self._current_function_name = value_to_call.name
 
+        # Add the call to the call stack, mostly for debugging purposes (chusmea)
+        self.call_stack.append(value_to_call)
+        
         return_value = res.register(value_to_call.execute(args, context, self))
+        
         if res.should_return():
             return res
         
@@ -1176,16 +1181,10 @@ class Interpreter:
     def visit_ChusmeaNode(self, node: ChusmeaNode, context: Context) -> RTResult:
         res = RTResult()
         from .chusma import Chusma
-        from .lunfardo_types import Chamuyo, Nada
+        from .lunfardo_types import Nada
 
         ch = Chusma(self, context, res)
         ch.print_internals()
-
-        morfar_func = context.symbol_table.get("morfar")
-        morfar_value = res.register(morfar_func.execute([Chamuyo("Enter: continuar")], context, self))
-
-        """ if morfar_value.value:
-            pass """
 
         return res.success(Nada.nada)
 
