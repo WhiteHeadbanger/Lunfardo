@@ -5,7 +5,7 @@ This module defines the Token class for representing lexical tokens and
 the Position class for tracking positions within the source code.
 """
 
-from typing import Self
+from typing import Self, Optional
 
 class Position:
     """
@@ -64,18 +64,37 @@ class Token:
     Represents a lexical token in the Lunfardo language.
     """
     
-    def __init__(self, type_, value = None, pos_start = None, pos_end = None) -> None:
+    def __init__(self, 
+                 type_: str, 
+                 value: Optional[int | float | str] = None, 
+                 pos_start: Optional[Position] = None, 
+                 pos_end: Optional[Position] = None, 
+                 orig_pos_start: Optional[Position] = None, 
+                 orig_pos_end: Optional[Position] = None
+                 ) -> None:
         """
         Initialize a Token object.
+        An original position is a position that was not processed by the pre-processor.
+        A processed position is a position that was pre-processed.
+        Lunfardo needs both so if there's an error in the code, it can mark it properly.
 
         Args:
             type_ (str): The type of the token.
             value (Any, optional): The value of the token.
-            pos_start (Position, optional): The starting position of the token.
-            pos_end (Position, optional): The ending position of the token.
+            pos_start (Position, optional): The starting processed position of the token.
+            pos_end (Position, optional): The ending processed position of the token.
+            orig_pos_start (Position, optional): The starting original position of the token.
+            orig_pos_end (Position, optional): The ending original position of the token.
+
+        Returns:
+            None
         """
         self.type = type_
         self.value = value
+        self.pos_start = pos_start
+        self.pos_end = pos_end
+        self.orig_pos_start = orig_pos_start
+        self.orig_pos_end = orig_pos_end
         
         if pos_start is not None:
             self.pos_start = pos_start.copy()
@@ -84,6 +103,12 @@ class Token:
 
         if pos_end is not None:
             self.pos_end = pos_end.copy()
+
+        if orig_pos_start is None and self.pos_start:
+            self.orig_pos_start = self.pos_start
+        
+        if orig_pos_end is None and self.pos_end:
+            self.orig_pos_end = self.pos_end
 
     def matches(self, type_, value) -> bool:
         """
@@ -99,7 +124,7 @@ class Token:
         return self.type == type_ and self.value == value
 
     def __repr__(self) -> str:
-        if self.value:
-            return f'{self.type}: {self.value}'
-        
-        return f'{self.type}'
+        val_str = f"{self.value}" if self.value is not None else ""
+        # Show original position by default for error reporting clarity
+        pos_str = f"@{self.orig_pos_start}" if self.orig_pos_start else ""
+        return f"[{self.type}: {val_str} {pos_str}]"

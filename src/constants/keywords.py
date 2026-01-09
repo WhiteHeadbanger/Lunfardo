@@ -22,4 +22,5 @@ KEYWORDS = [
     'proba', # try
     'sibardea', # except / catch
     'bardea', # raise / throw
+    'chusmea', # debugger / debug / inspect
 ]

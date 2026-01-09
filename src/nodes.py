@@ -548,3 +548,20 @@ class BardeaNode:
     
     def __str__(self) -> str:
         return f'BardeaNode({self.bardo_name_tok}, {self.bardo_msg_node})'
+
+class ChusmeaNode:
+    """ Represents a chusmea (debug/inspect) code expression in the AST """
+
+    def __init__(self, pos_start, pos_end) -> None:
+        """
+        Initialize a ChusmeaNode.
+
+        Args:
+            pos_start (Position): Start position of the chusmea statement.
+            pos_end (Position): End position of the chusmea statement.
+        """
+        self.pos_start = pos_start
+        self.pos_end = pos_end
+
+    def __repr__(self) -> str:
+        return f'ChusmeaNode({self.pos_start}, {self.pos_end})'

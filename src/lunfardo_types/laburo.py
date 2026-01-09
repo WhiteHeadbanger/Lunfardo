@@ -855,6 +855,32 @@ class Curro(BaseLaburo):
     
     exec_asciiAchamu.arg_names = ['ascii_code']
 
+    def exec_tipo(self, exec_ctx):
+        from src.lunfardo_types import Boloodean, Chamuyo, Cheto, Coso, Mataburros, Nada, Numero
+
+        obj = exec_ctx.symbol_table.get('obj')
+        if isinstance(obj, Boloodean):
+            return RTResult().success(Chamuyo('Boloodean'))
+        if isinstance(obj, Chamuyo):
+            return RTResult().success(Chamuyo('Chamuyo'))
+        if isinstance(obj, Cheto):
+            return RTResult().success(Chamuyo('Cheto'))
+        if isinstance(obj, Coso):
+            return RTResult().success(Chamuyo('Coso'))
+        if isinstance(obj, Curro):
+            return RTResult().success(Chamuyo('Curro'))
+        if isinstance(obj, Laburo):
+            return RTResult().success(Chamuyo('Laburo'))
+        if isinstance(obj, Mataburros):
+            return RTResult().success(Chamuyo('Mataburros'))
+        if isinstance(obj, Nada):
+            return RTResult().success(Chamuyo('Nada'))
+        if isinstance(obj, Numero):
+            return RTResult().success(Chamuyo('Numero'))
+
+        return RTResult().success(Nada.nada)
+    
+    exec_tipo.arg_names = ['obj']
 
 # I/O
 Curro.matear = Curro("matear")
@@ -867,6 +893,7 @@ Curro.es_laburo = Curro("es_laburo")
 Curro.es_mataburros = Curro("es_mataburros")
 Curro.chamu = Curro("chamu")
 Curro.num = Curro("num")
+Curro.tipo = Curro('tipo')
 # Coso related
 Curro.guardar = Curro("guardar")
 Curro.insertar = Curro("insertar")

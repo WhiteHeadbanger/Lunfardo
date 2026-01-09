@@ -38,7 +38,8 @@ LunfardoNode = Union[
     RajarNode,
     ImportarNode,
     ProbaSiBardeaNode,
-    BardeaNode
+    BardeaNode,
+    ChusmeaNode
 ]
 
 # MARK: Parser
@@ -233,6 +234,12 @@ class Parser:
 
             return res.success(RajarNode(pos_start, self.current_tok.pos_end.copy()))
 
+        if self.current_tok.matches(TT_KEYWORD, 'chusmea'):
+            res.register_advance()
+            self.advance()
+
+            return res.success(ChusmeaNode(pos_start, self.current_tok.pos_end.copy()))
+        
         if self.current_tok.matches(TT_KEYWORD, "chau") or \
         self.current_tok.matches(TT_KEYWORD, "osi") or \
         self.current_tok.matches(TT_KEYWORD, "sino") or \

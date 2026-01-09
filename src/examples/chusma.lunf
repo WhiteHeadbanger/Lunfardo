@@ -1,0 +1,44 @@
+laburo mapear(elementos, laburo_ref)
+    poneleque total = 1
+    para i = 0 hasta longitud(elementos) entonces
+        total = total * laburo_ref(elementos / i)
+        chusmea
+    chau
+    devolver total
+chau
+
+laburo suma(a, b)
+    poneleque resultado = a + b
+    chusmea
+    devolver resultado
+chau
+
+laburo multiplica_lista(nums)
+    chusmea
+    laburo iterar(i)
+        chusmea
+        devolver i
+    chau
+    poneleque total_producto = mapear(nums, iterar)
+    chusmea
+    devolver total_producto
+chau
+
+laburo principal()
+    poneleque dic = {"x": 10, "y": 5}
+    chusmea
+    poneleque lista = [1, 2, 3, 4]
+    chusmea
+
+    poneleque suma_total = suma(agarra_de(dic, "x"), agarra_de(dic, "y"))
+    chusmea
+
+    poneleque producto = multiplica_lista(lista)
+    chusmea
+
+    poneleque mensaje = "Fin del test"
+    chusmea
+chau
+
+principal()
+chusmea

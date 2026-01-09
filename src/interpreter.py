@@ -27,6 +27,8 @@ class Interpreter:
         self._recursion_depth = 0
         self._max_recursion_depth = 1000
         self._current_function_name = None
+        self.call_stack = []
+        #self.debug_mode = True
 
     def visit(self, node: LunfardoNode, context: Context) -> RTResult:
         """
@@ -629,7 +631,11 @@ class Interpreter:
         if hasattr(value_to_call, 'name'):
             self._current_function_name = value_to_call.name
 
+        # Add the call to the call stack, mostly for debugging purposes (chusmea)
+        self.call_stack.append(value_to_call)
+        
         return_value = res.register(value_to_call.execute(args, context, self))
+        
         if res.should_return():
             return res
         
@@ -1173,7 +1179,16 @@ class Interpreter:
             )
         )
         
+    def visit_ChusmeaNode(self, node: ChusmeaNode, context: Context) -> RTResult:
+        res = RTResult()
+        from .chusma import Chusma
+        from .lunfardo_types import Nada
 
+        #if self.debug_mode: indent the following when implemented
+        ch = Chusma(self, context, res)
+        ch.print_internals()
+
+        return res.success(Nada.nada)
 
     @staticmethod
     def handle_library_import(lib_name: str, node: ImportarNode, module_context: Context, context: Context) -> RTResult:

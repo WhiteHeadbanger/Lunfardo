@@ -46,3 +46,8 @@ class Chamuyo(Value):
 
     def __repr__(self):
         return f'"{self.value}"'
+
+    # Format is used for debugging purposes in src/chusma.py, to correctly show the value type without double quotes.
+    # Must not be used in normal Lunfardo execution
+    def __format__(self, format_spec):
+        return f'{self.value}'
