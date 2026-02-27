@@ -14,7 +14,7 @@ def main() -> None:
     parser.add_argument("file", nargs="?", help="Path to the Lunfardo file to execute.")
     args = parser.parse_args()
 
-    lunfardo = Lunfardo()  # Instance of the Lunfardo class
+    lunfardo = Lunfardo()
 
     if args.file:
         script_path = os.path.abspath(args.file)
