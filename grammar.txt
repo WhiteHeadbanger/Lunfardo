@@ -29,6 +29,7 @@ atom            :       INT|FLOAT|STRING|IDENTIFIER
                 :       for-expr
                 :       while-expr
                 :       func-def
+                :       class-def
 
 list-expr       :       LSQUARE (expr (COMMA expr)*)? RSQUARE
 
@@ -51,7 +52,6 @@ for-expr        :       KEYWORD:PARA IDENTIFIER EQ expr KEYWORD:HASTA expr
                         statement
                 |       (NEWLINE statements KEYWORD:CHAU)
 
-
 while-expr      :       KEYWORD:MIENTRAS expr KEYWORD:ENTONCES expr
                         statement
                 |       (NEWLINE statements KEYWORD:CHAU)
@@ -60,4 +60,10 @@ func-def        :       KEYWORD:LABURO IDENTIFIER?
                         LPAREN (IDENTIFIER (EQ expr)? (COMMA IDENTIFIER (EQ expr)?)*)? RPAREN
                         (COLON expr)
                 |       (NEWLINE statements KEYWORD:CHAU)
+
+class-def       :       KEYWORD:CHETO IDENTIFIER
+                        (LPAREN CLASS-IDENTIFIER RPAREN)?
+                        NEWLINE
+                        func-def?
+                        KEYWORD:CHAU
 

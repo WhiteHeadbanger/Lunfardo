@@ -1,20 +1,22 @@
 from .value import Value
 from .boloodean import Boloodean
+#from . import LUNFARDO_TYPES
+from typing import Self
 
 
 class Mataburros(Value):
 
-    def __init__(self, size=16):
+    def __init__(self, size=16) -> None:
         super().__init__()
         self.size = size # tamaño inicial
         self.buckets = [[] for _ in range(size)] # lista de listas para manejar colisiones
         self.count = 0 # cantidad de elementos almacenados
 
-    def _hash(self, key):
+    def _hash(self, key) -> int:
         """ Genera un índice para una clave """
         return hash(key) % self.size
     
-    def set_pair(self, key, value):
+    def set_pair(self, key, value) -> None:
         """ Inserta o actualiza un valor asociado a una clave """
         index = self._hash(key.value)
         bucket = self.buckets[index]
@@ -32,7 +34,7 @@ class Mataburros(Value):
         if self.count / self.size > 0.7:
             self._resize()
 
-    def get_value(self, key):
+    def get_value(self, key) -> object | None:
         """ Obtiene el valor asociado a una clave """
         index = self._hash(key.value)
         bucket = self.buckets[index]
@@ -43,7 +45,7 @@ class Mataburros(Value):
             
         return None
     
-    def del_key(self, key):
+    def del_key(self, key) -> bool:
         """ Elimina un valor por su clave """
         index = self._hash(key.value)
         bucket = self.buckets[index]
@@ -56,7 +58,7 @@ class Mataburros(Value):
         
         return False
     
-    def _resize(self):
+    def _resize(self) -> None:
         """ Duplica el tamaño del mataburros y reubica los elementos """
         new_size = self.size * 2
         new_buckets = [[] for _ in range(new_size)]
@@ -71,7 +73,7 @@ class Mataburros(Value):
 
 
     @classmethod
-    def from_dict(cls, _dict):
+    def from_dict(cls, _dict) -> Self:
         """
         Crea un Mataburros a partir de un diccionario Python estándar.
 
@@ -87,7 +89,7 @@ class Mataburros(Value):
             instance.set_pair(Chamuyo(key), value)
         return instance
 
-    def copy(self):
+    def copy(self) -> "Mataburros":
         copy = Mataburros(self.size)
         copy.buckets = self.buckets
         copy.count = self.count
@@ -95,21 +97,21 @@ class Mataburros(Value):
         copy.set_context(self.context)
         return copy
 
-    def is_true(self):
-        return (
-            Boloodean(self.count > 0).set_context(
-                self.context
-            ),
-            None,
-        )
+    def is_true(self) -> bool:
+        return bool(self.count)
+    
+    def notted(self) -> tuple["Boloodean", None]:
+        if self.count > 0:
+            return Boloodean.trucho.set_context(self.context), None
+        return Boloodean.posta.set_context(self.context), None
 
-    def __str__(self):
+    def __str__(self) -> str:
         elements = []
         for bucket in self.buckets:
             elements.extend([f"{repr(k)}: {repr(v)}" for k, v in bucket])
         return "{" + ", ".join(elements) + "}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         elements = []
         for bucket in self.buckets:
             elements.extend([f"{repr(k)}: {repr(v)}" for k, v in bucket])
