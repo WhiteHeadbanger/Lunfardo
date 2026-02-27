@@ -1,113 +1,33 @@
-from src.errors import RTError, ZeroDivisionBardo
 from .value import Value
 from .boloodean import Boloodean
-from .nada import Nada
-
 
 class Numero(Value):
 
-    def __init__(self, value):
+    def __init__(self, value: int | float) -> None:
         super().__init__()
         self.value = value
 
-    def added_to(self, other):
-        if isinstance(other, Numero):
-            return Numero(self.value + other.value).set_context(self.context), None
+    def is_true(self) -> bool:
+        return bool(self.value)
+    
+    def notted(self) -> tuple["Boloodean", None]:
+        if self.value:
+            return Boloodean.trucho.set_context(self.context), None
+        return Boloodean.posta.set_context(self.context), None
 
-        return None, Value.illegal_operation(self, other)
-
-    def subtracted_by(self, other):
-        if isinstance(other, Numero):
-            return Numero(self.value - other.value).set_context(self.context), None
-
-        return None, Value.illegal_operation(self, other)
-
-    def multiplied_by(self, other):
-        if isinstance(other, Numero):
-            return Numero(self.value * other.value).set_context(self.context), None
-
-        return None, Value.illegal_operation(self, other)
-
-    def divided_by(self, other):
-        if isinstance(other, Numero):
-            if other.value == 0:
-                return None, ZeroDivisionBardo(
-                    other.pos_start, other.pos_end, "Division por cero"
-                )
-            return Numero(self.value / other.value).set_context(self.context), None
-
-        return None, Value.illegal_operation(self, other)
-
-    def powered_by(self, other):
-        if isinstance(other, Numero):
-            return Numero(self.value**other.value).set_context(self.context), None
-
-        return None, Value.illegal_operation(self, other)
-
-    def get_comparison_eq(self, other):
-        if isinstance(other, (Numero, Boloodean, Nada)):
-            return Boloodean(self.value == other.value).set_context(self.context), None
-
-        return None, Value.illegal_operation(self, other)
-
-    def get_comparison_ne(self, other):
-        if isinstance(other, (Numero, Boloodean, Nada)):
-            return Boloodean(self.value != other.value).set_context(self.context), None
-
-        return None, Value.illegal_operation(self, other)
-
-    def get_comparison_lt(self, other):
-        if isinstance(other, Numero):
-            return Boloodean(self.value < other.value).set_context(self.context), None
-
-        return None, Value.illegal_operation(self, other)
-
-    def get_comparison_gt(self, other):
-        if isinstance(other, Numero):
-            return Boloodean(self.value > other.value).set_context(self.context), None
-
-        return None, Value.illegal_operation(self, other)
-
-    def get_comparison_lte(self, other):
-        if isinstance(other, Numero):
-            return Boloodean(self.value <= other.value).set_context(self.context), None
-
-        return None, Value.illegal_operation(self, other)
-
-    def get_comparison_gte(self, other):
-        if isinstance(other, Numero):
-            return Boloodean(self.value >= other.value).set_context(self.context), None
-
-        return None, Value.illegal_operation(self, other)
-
-    def anded_by(self, other):
-        if isinstance(other, (Numero, Boloodean)):
-            return Boloodean(self.value and other.value).set_context(self.context), None
-
-        return None, Value.illegal_operation(self, other)
-
-    def ored_by(self, other):
-        if isinstance(other, (Numero, Boloodean)):
-            return Boloodean(self.value or other.value).set_context(self.context), None
-
-        return None, Value.illegal_operation(self, other)
-
-    # Deprecated. There's Posta and Trucho Boloodean types now, instead of just numbers so it doesn't make sense to have this method.
-    def notted(self):
-        if isinstance(self, Numero):
-            return Boloodean(not self.value).set_context(self.context), None
-
-    def is_true(self):
-        return Boloodean(self.value != 0).set_context(self.context), None
-
-    def copy(self):
+    def copy(self) -> 'Numero':
         copy = Numero(self.value)
         copy.set_pos(self.pos_start, self.pos_end)
         copy.set_context(self.context)
         return copy
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.value)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.value)
+    
+
+
+
+

@@ -7,16 +7,16 @@ from src.symbol_table import SymbolTable
 
 class Cheto(Value):
     
-    def __init__(self, name, methods, parent_context = None, parent_class = None):
+    def __init__(self, name: str, methods: dict, parent_context: Context | None = None, parent_class: 'Cheto | None' = None) -> None:
         super().__init__()
         self.name = name
-        self.methods: dict = methods
+        self.methods = methods
         self.parent_context = parent_context
         self.parent_class = parent_class
         self.context = Context(f"<cheto {self.name}>", parent=parent_context)
         self.context.symbol_table = SymbolTable(parent_context.symbol_table if parent_context else None)
 
-    def create_instance(self, args, call_context, interpreter):
+    def create_instance(self, args, call_context, interpreter) -> RTResult:
         """
         Creates a new cheto instance
         """
@@ -37,7 +37,7 @@ class Cheto(Value):
             
         return res.success(instance)
     
-    def get_method(self, method_name):
+    def get_method(self, method_name: str) :
         """
         Retrieves a method from the cheto definition
         """
@@ -46,7 +46,7 @@ class Cheto(Value):
             method = self.parent_class.get_method(method_name)
         return method
     
-    def call_method(self, instance, method_name, args, call_context, interpreter):
+    def call_method(self, instance, method_name, args, call_context, interpreter) -> RTResult:
         """
         Calls a method on a cheto's instance
         """
@@ -81,7 +81,7 @@ class Cheto(Value):
         
         return res.success(return_value)
 
-    def copy(self):
+    def copy(self) -> 'Cheto':
         """
         Creates a copy of the cheto definition
         """
@@ -90,20 +90,20 @@ class Cheto(Value):
         copy.set_context(self.context)
         return copy
     
-    def is_true(self):
-        return Boloodean(True).set_context(self.context), None
+    def is_true(self) -> bool:
+        return False
     
-    def __str__(self):
+    def __str__(self) -> str:
         return f"<cheto {self.name}>"
     
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'Cheto({self.name}, {self.methods})'
     
 class ChetoInstance(Value):
     """
     Represents an instance of a cheto in Lunfardo
     """
-    def __init__(self, cheto, call_context):
+    def __init__(self, cheto: 'Cheto', call_context: Context):
         super().__init__()
         self.cheto = cheto
         self.name = cheto.name
@@ -180,7 +180,7 @@ class ChetoInstance(Value):
         return copy
     
     def is_true(self):
-        return Boloodean(True).set_context(self.context), None
+        return True
     
     def __repr__(self):
         return f"ChetoInstance({self.cheto.name})"

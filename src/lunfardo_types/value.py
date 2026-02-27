@@ -1,10 +1,10 @@
-# TODO: implentar Value como una abstract class
+from abc import ABC, abstractmethod
 from src.errors import RTError
 from src.rtresult import RTResult
-from typing import Self, Optional, Tuple, NoReturn
+from typing import Self, Optional, Tuple
 
 
-class Value:
+class Value(ABC):
     """
     Base class for all value types in the Lunfardo language.
 
@@ -15,8 +15,10 @@ class Value:
     def __init__(self) -> None:
         self.set_pos()
         self.set_context()
+        
+        from src.runtime.op_registry import operators
+        self.operators = operators
 
-    # TODO: capaz implementar getters y setters pythonicos.
     def set_pos(self, pos_start=None, pos_end=None) -> Self:
         """
         Set the start and end positions of this value in the source code.
@@ -55,7 +57,7 @@ class Value:
         Returns:
             A tuple containing the result and any error that occurred.
         """
-        return None, self.illegal_operation(other)
+        return self.operators.dispatch("+", self, other, self.context)
 
     def subtracted_by(
         self, other: "Value"
@@ -69,7 +71,7 @@ class Value:
         Returns:
             A tuple containing the result and any error that occurred.
         """
-        return None, self.illegal_operation(other)
+        return self.operators.dispatch("-", self, other, self.context)
 
     def multiplied_by(
         self, other: "Value"
@@ -83,7 +85,7 @@ class Value:
         Returns:
             A tuple containing the result and any error that occurred.
         """
-        return None, self.illegal_operation(other)
+        return self.operators.dispatch("*", self, other, self.context)
 
     def divided_by(self, other: "Value") -> Tuple[Optional["Value"], Optional[RTError]]:
         """
@@ -95,7 +97,7 @@ class Value:
         Returns:
             A tuple containing the result and any error that occurred.
         """
-        return None, self.illegal_operation(other)
+        return self.operators.dispatch("/", self, other, self.context)
 
     def powered_by(self, other: "Value") -> Tuple[Optional["Value"], Optional[RTError]]:
         """
@@ -107,7 +109,7 @@ class Value:
         Returns:
             A tuple containing the result and any error that occurred.
         """
-        return None, self.illegal_operation(other)
+        return self.operators.dispatch("^", self, other, self.context)
 
     def get_comparison_eq(
         self, other: "Value"
@@ -121,7 +123,7 @@ class Value:
         Returns:
             A tuple containing the result and any error that occurred.
         """
-        return None, self.illegal_operation(other)
+        return self.operators.dispatch("==", self, other, self.context)
 
     def get_comparison_ne(
         self, other: "Value"
@@ -135,7 +137,7 @@ class Value:
         Returns:
             A tuple containing the result and any error that occurred.
         """
-        return None, self.illegal_operation(other)
+        return self.operators.dispatch("!=", self, other, self.context)
 
     def get_comparison_lt(
         self, other: "Value"
@@ -149,7 +151,7 @@ class Value:
         Returns:
             A tuple containing the result and any error that occurred.
         """
-        return None, self.illegal_operation(other)
+        return self.operators.dispatch("<", self, other, self.context)
 
     def get_comparison_gt(
         self, other: "Value"
@@ -163,7 +165,7 @@ class Value:
         Returns:
             A tuple containing the result and any error that occurred.
         """
-        return None, self.illegal_operation(other)
+        return self.operators.dispatch(">", self, other, self.context)
 
     def get_comparison_lte(
         self, other: "Value"
@@ -177,7 +179,7 @@ class Value:
         Returns:
             A tuple containing the result and any error that occurred.
         """
-        return None, self.illegal_operation(other)
+        return self.operators.dispatch("<=", self, other, self.context)
 
     def get_comparison_gte(
         self, other: "Value"
@@ -191,7 +193,7 @@ class Value:
         Returns:
             A tuple containing the result and any error that occurred.
         """
-        return None, self.illegal_operation(other)
+        return self.operators.dispatch(">=", self, other, self.context)
 
     def anded_by(self, other: "Value") -> Tuple[Optional["Value"], Optional[RTError]]:
         """
@@ -203,7 +205,7 @@ class Value:
         Returns:
             A tuple containing the result and any error that occurred.
         """
-        return None, self.illegal_operation(other)
+        return self.operators.dispatch("y", self, other, self.context)
 
     def ored_by(self, other: "Value") -> Tuple[Optional["Value"], Optional[RTError]]:
         """
@@ -215,8 +217,9 @@ class Value:
         Returns:
             A tuple containing the result and any error that occurred.
         """
-        return None, self.illegal_operation(other)
+        return self.operators.dispatch("o", self, other, self.context)
 
+    
     def notted(self) -> Tuple[Optional["Value"], Optional[RTError]]:
         """
         Perform logical NOT operation on this value.
@@ -224,7 +227,7 @@ class Value:
         Returns:
             A tuple containing the result and any error that occurred.
         """
-        return None, self.illegal_operation()
+        return None, self.illegal_operation(self)
 
     def illegal_operation(self, other=None) -> RTError:
         """
@@ -250,20 +253,38 @@ class Value:
         """
         return RTResult().failure(self.illegal_operation())
 
-    def copy(self) -> NoReturn:
+    @abstractmethod
+    def copy(self) -> None:
         """
         Create a copy of this value.
 
         Returns:
             A copy of the Value object.
         """
-        raise Exception("No copy method defined")
 
+    @abstractmethod
     def is_true(self) -> bool:
         """
-        Determine if this value is considered true in a Boloodean context.
+        Determine if this value is considered true (used by the interpreter internals).
 
         Returns:
-            A Boloodean indicating whether this value is considered true.
+            A boolean indicating whether this value is considered true.
         """
-        return False
+
+    @abstractmethod
+    def __str__(self) -> str:
+        """
+        Get the string representation of this value.
+
+        Returns:
+            A string representing this value.
+        """
+
+    @abstractmethod
+    def __repr__(self) -> str:
+        """
+        Get the official string representation of this value.
+
+        Returns:
+            A string representing this value.
+        """

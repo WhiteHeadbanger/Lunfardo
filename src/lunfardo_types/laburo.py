@@ -1,4 +1,5 @@
 from .value import Value
+from .boloodean import Boloodean
 from src.rtresult import RTResult
 from src.interpreter import Interpreter
 from src.symbol_table import SymbolTable
@@ -8,7 +9,7 @@ import os
 
 
 class BaseLaburo(Value):
-    def __init__(self, name):
+    def __init__(self, name: str | None = None) -> None:
         super().__init__()
         self.name = name or "<injunable>"
         self.parent_context = None
@@ -139,8 +140,11 @@ class Laburo(BaseLaburo):
             or Nada.nada
         )
         return res.success(return_value)
+    
+    def is_true(self) -> bool:
+        return True
 
-    def copy(self):
+    def copy(self) -> 'Laburo':
         copy = Laburo(
             self.name,
             self.body_node,
@@ -154,20 +158,23 @@ class Laburo(BaseLaburo):
         copy.set_pos(self.pos_start, self.pos_end)
         return copy
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"<laburo {self.name}>"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<laburo {self.name}>"
 
 
 class Curro(BaseLaburo):
 
-    def __init__(self, name, func=None):
+    def __init__(self, name: str | None = None, func=None) -> None:
         super().__init__(name)
         self.func = func
 
-    def execute(self, args, current_context, _):
+    def is_true(self) -> bool:
+        return True
+
+    def execute(self, args, current_context, _) -> RTResult:
         res = RTResult()
         execution_context = self.generate_new_context()
         execution_context.parent = current_context
@@ -193,26 +200,26 @@ class Curro(BaseLaburo):
 
         return res.success(return_value)
 
-    def no_visit_method(self, node, context):
+    def no_visit_method(self, node, context) -> Exception:
         raise Exception(f"No exec_{self.name} method defined.")
 
-    def copy(self):
+    def copy(self) -> 'Curro':
         copy = Curro(self.name, self.func)
         copy.set_context(self.context)
         copy.set_pos(self.pos_start, self.pos_end)
         return copy
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<curro {self.name}>"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"<curro {self.name}>"
 
     #########################################
     # MARK:CURROS (BUILT-IN FUNCTIONS)
     #########################################
 
-    def exec_chamu(self, exec_ctx):
+    def exec_chamu(self, exec_ctx: Context) -> RTResult:
         from . import Chamuyo, Numero, Coso, Nada
         from errors import InvalidTypeBardo
 
@@ -251,8 +258,8 @@ class Curro(BaseLaburo):
 
     exec_chamu.arg_names = ["value"]
 
-    def exec_num(self, exec_ctx):
-        from . import Chamuyo, Numero
+    def exec_num(self, exec_ctx: Context) -> RTResult:
+        from . import Chamuyo, Numero, Nada
         from errors import InvalidTypeBardo, InvalidValueBardo
 
         value = exec_ctx.symbol_table.get("value")
@@ -298,10 +305,12 @@ class Curro(BaseLaburo):
                     exec_ctx
                 )
             )
+        
+        return RTResult().success(Nada.nada)
 
     exec_num.arg_names = ["value"]
 
-    def exec_matear(self, exec_ctx):
+    def exec_matear(self, exec_ctx: Context) -> RTResult:
         from . import Coso, Mataburros, Nada
 
         value = exec_ctx.symbol_table.get("value")
@@ -316,7 +325,7 @@ class Curro(BaseLaburo):
 
     exec_matear.arg_names = ["value"]
 
-    def exec_morfar(self, exec_ctx):
+    def exec_morfar(self, exec_ctx: Context) -> RTResult:
         from . import Chamuyo
         from lunfardo_types import Nada
 
@@ -331,7 +340,7 @@ class Curro(BaseLaburo):
 
     exec_morfar.arg_names = ["value"]
 
-    def exec_limpiavidrios(self, exec_ctx):
+    def exec_limpiavidrios(self, exec_ctx: Context) -> RTResult:
         from . import Nada
 
         os.system("cls" if os.name == "nt" else "clear")
@@ -339,7 +348,7 @@ class Curro(BaseLaburo):
 
     exec_limpiavidrios.arg_names = []
 
-    def exec_es_num(self, exec_ctx):
+    def exec_es_num(self, exec_ctx: Context) -> RTResult:
         from . import Boloodean, Numero
 
         is_number = isinstance(exec_ctx.symbol_table.get("value"), Numero)
@@ -347,7 +356,7 @@ class Curro(BaseLaburo):
 
     exec_es_num.arg_names = ["value"]
 
-    def exec_es_chamu(self, exec_ctx):
+    def exec_es_chamu(self, exec_ctx: Context) -> RTResult:
         from . import Boloodean, Chamuyo
 
         is_string = isinstance(exec_ctx.symbol_table.get("value"), Chamuyo)
@@ -355,7 +364,7 @@ class Curro(BaseLaburo):
 
     exec_es_chamu.arg_names = ["value"]
 
-    def exec_es_coso(self, exec_ctx):
+    def exec_es_coso(self, exec_ctx: Context) -> RTResult:
         from . import Boloodean, Coso
 
         is_list = isinstance(exec_ctx.symbol_table.get("value"), Coso)
@@ -363,7 +372,7 @@ class Curro(BaseLaburo):
 
     exec_es_coso.arg_names = ["value"]
 
-    def exec_es_laburo(self, exec_ctx):
+    def exec_es_laburo(self, exec_ctx: Context) -> RTResult:
         from . import Boloodean
 
         is_func = isinstance(exec_ctx.symbol_table.get("value"), BaseLaburo)
@@ -371,7 +380,7 @@ class Curro(BaseLaburo):
 
     exec_es_laburo.arg_names = ["value"]
 
-    def exec_es_mataburros(self, exec_ctx):
+    def exec_es_mataburros(self, exec_ctx: Context) -> RTResult:
         from . import Boloodean, Mataburros
 
         is_mataburros = isinstance(exec_ctx.symbol_table.get("value"), Mataburros)
@@ -379,7 +388,7 @@ class Curro(BaseLaburo):
 
     exec_es_mataburros.arg_names = ["value"]
 
-    def exec_guardar(self, exec_ctx):
+    def exec_guardar(self, exec_ctx: Context) -> RTResult:
         from . import Nada, Coso
         from errors import InvalidTypeBardo
 
@@ -401,7 +410,7 @@ class Curro(BaseLaburo):
 
     exec_guardar.arg_names = ["list", "value"]
 
-    def exec_insertar(self, exec_ctx):
+    def exec_insertar(self, exec_ctx: Context) -> RTResult:
         from . import Coso, Numero, Nada
         from errors import InvalidTypeBardo
 
@@ -445,7 +454,7 @@ class Curro(BaseLaburo):
 
     exec_insertar.arg_names = ["list", "index", "value"]
 
-    def exec_cambiaso(self, exec_ctx):
+    def exec_cambiaso(self, exec_ctx: Context) -> RTResult:
         from . import Coso, Numero, Nada
         from errors import InvalidIndexBardo, InvalidTypeBardo
 
@@ -498,7 +507,7 @@ class Curro(BaseLaburo):
 
     exec_cambiaso.arg_names = ["list", "index", "value"]
 
-    def exec_sacar(self, exec_ctx):
+    def exec_sacar(self, exec_ctx: Context) -> RTResult:
         from . import Numero, Coso
         from errors import InvalidIndexBardo, InvalidTypeBardo
 
@@ -541,7 +550,7 @@ class Curro(BaseLaburo):
 
     exec_sacar.arg_names = ["list", "index"]
 
-    def exec_extender(self, exec_ctx):
+    def exec_extender(self, exec_ctx: Context) -> RTResult:
         from . import Nada, Coso
         from errors import InvalidTypeBardo
 
@@ -574,7 +583,7 @@ class Curro(BaseLaburo):
 
     exec_extender.arg_names = ["listA", "listB"]
 
-    def exec_agarra_de(self, exec_ctx):
+    def exec_agarra_de(self, exec_ctx: Context) -> RTResult:
         from . import Chamuyo, Numero, Mataburros, Nada
         from errors import InvalidTypeBardo
 
@@ -609,7 +618,7 @@ class Curro(BaseLaburo):
 
     exec_agarra_de.arg_names = ["dict", "key"]
 
-    def exec_metele_en(self, exec_ctx):
+    def exec_metele_en(self, exec_ctx: Context) -> RTResult:
         from . import Chamuyo, Numero, Mataburros, Nada
         from errors import InvalidTypeBardo
 
@@ -642,7 +651,7 @@ class Curro(BaseLaburo):
 
     exec_metele_en.arg_names = ["dict", "key", "value"]
 
-    def exec_borra_de(self, exec_ctx):
+    def exec_borra_de(self, exec_ctx: Context) -> RTResult:
         from . import Chamuyo, Numero, Mataburros, Nada
         from errors import InvalidTypeBardo, InvalidKeyBardo
 
@@ -684,7 +693,7 @@ class Curro(BaseLaburo):
 
     exec_borra_de.arg_names = ["dict", "key"]
 
-    def exec_existe_clave(self, exec_ctx):
+    def exec_existe_clave(self, exec_ctx: Context) -> RTResult:
         from . import Chamuyo, Numero, Mataburros, Nada, Boloodean
         from errors import InvalidTypeBardo
 
@@ -718,7 +727,7 @@ class Curro(BaseLaburo):
 
     exec_existe_clave.arg_names = ["dict", "key"]
 
-    def exec_longitud(self, exec_ctx):
+    def exec_longitud(self, exec_ctx: Context) -> RTResult:
         from . import Numero, Coso, Mataburros, Chamuyo, Nada
         from errors import InvalidTypeBardo
 
@@ -747,7 +756,7 @@ class Curro(BaseLaburo):
 
     exec_longitud.arg_names = ["arg"]
 
-    def exec_ejecutar(self, exec_ctx):
+    def exec_ejecutar(self, exec_ctx: Context) -> RTResult:
         from . import Chamuyo
         from errors import InvalidTypeBardo, FileNotFoundBardo
 
@@ -810,14 +819,14 @@ class Curro(BaseLaburo):
 
     exec_ejecutar.arg_names = ["fn"]
 
-    def exec_renuncio(self, exec_ctx):
+    def exec_renuncio(self, exec_ctx: Context) -> RTResult:
         import sys
 
         return RTResult().success(sys.exit())
 
     exec_renuncio.arg_names = []
 
-    def exec_contexto_global(self, exec_ctx):
+    def exec_contexto_global(self, exec_ctx: Context) -> RTResult:
         from . import Mataburros, Boloodean
 
         _local = exec_ctx.symbol_table.get("local")
@@ -834,7 +843,7 @@ class Curro(BaseLaburo):
     
     exec_contexto_global.arg_names = ['local']
 
-    def exec_asciiAchamu(self, exec_ctx):
+    def exec_asciiAchamu(self, exec_ctx: Context) -> RTResult:
         from . import Chamuyo, Numero
         from errors import InvalidTypeBardo
 
@@ -855,7 +864,7 @@ class Curro(BaseLaburo):
     
     exec_asciiAchamu.arg_names = ['ascii_code']
 
-    def exec_tipo(self, exec_ctx):
+    def exec_tipo(self, exec_ctx: Context) -> RTResult:
         from src.lunfardo_types import Boloodean, Chamuyo, Cheto, Coso, Mataburros, Nada, Numero
 
         obj = exec_ctx.symbol_table.get('obj')
