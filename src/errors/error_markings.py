@@ -1,6 +1,6 @@
 from src.constants import ERROR_MARKING, DEFAULT
 
-def string_with_arrows(text, pos_start, pos_end):
+def string_with_arrows(text, pos_start, pos_end) -> str:
     result = '\n'
     accent_color = ERROR_MARKING
     default_color = DEFAULT

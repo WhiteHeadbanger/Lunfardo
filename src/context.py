@@ -5,7 +5,7 @@ This module defines the Context class, which represents the execution context
 for Lunfardo code, including scope and symbol table information.
 """
 
-from typing import Dict, Optional
+from .symbol_table import SymbolTable
 
 class Context:
     """
@@ -29,10 +29,10 @@ class Context:
         self.parent_entry_pos = parent_entry_pos
         self.cwd = cwd
         self.file = file
-        self.symbol_table = None
+        self.symbol_table: SymbolTable | None = None
         self.modules = {}
 
-    def get_cwd(self):
+    def get_cwd(self) -> str | None:
         """
         Retrieve the current working directory for this context.
         """
@@ -50,13 +50,13 @@ class Context:
             file = self.parent.get_file()
         return file
     
-    def get_parent(self) -> Optional["Context"]:
+    def get_parent(self) -> 'Context | None':
         """
         Retrieve the parent context for this context.
         """
         return self.parent
     
-    def add_module(self, module: Dict) -> None:
+    def add_module(self, module: dict) -> None:
         """
         Add a module to this context.
         """
