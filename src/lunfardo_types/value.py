@@ -66,7 +66,7 @@ class Value(ABC):
         Perform subtraction with another value.
 
         Args:
-            other: The value to add to this one.
+            other: The value to subtract from this one.
 
         Returns:
             A tuple containing the result and any error that occurred.
@@ -80,7 +80,7 @@ class Value(ABC):
         Perform multiplication with another value.
 
         Args:
-            other: The value to add to this one.
+            other: The value to multiply with this one.
 
         Returns:
             A tuple containing the result and any error that occurred.
@@ -92,7 +92,7 @@ class Value(ABC):
         Perform divition with another value.
 
         Args:
-            other: The value to add to this one.
+            other: The value to divide this one by.
 
         Returns:
             A tuple containing the result and any error that occurred.
@@ -116,7 +116,7 @@ class Value(ABC):
         Perform exponentiation with another value.
 
         Args:
-            other: The value to add to this one.
+            other: The value to raise this one to the power of.
 
         Returns:
             A tuple containing the result and any error that occurred.
