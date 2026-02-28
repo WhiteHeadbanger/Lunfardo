@@ -123,7 +123,7 @@ class Parser:
                     InvalidSyntaxBardo(
                         self.current_tok.pos_start,
                         self.current_tok.pos_end,
-                        "Se esperaba '+', '-', '*', '/', '^', '==', '!=', '<', '>', '<=', '>=', 'y' ó 'o'",
+                        "Se esperaba '+', '-', '*', '/', '^', '%','==', '!=', '<', '>', '<=', '>=', 'y' ó 'o'",
                     )
                 ),
                 False,
@@ -578,14 +578,14 @@ class Parser:
         """
         Parse a term in the Lunfardo language.
 
-        This method handles multiplication and division operations.
-        It uses the binary operation parsing method with multiplication
-        and division tokens, calling the 'factor' method for each operand.
+        This method handles multiplication, division, and modulo operations.
+        It uses the binary operation parsing method with multiplication,
+        division, and modulo tokens, calling the 'factor' method for each operand.
 
         Returns:
             ParseResult: The result of parsing the term.
         """
-        return self.bin_op(self.factor, (TT_MUL, TT_DIV))
+        return self.bin_op(self.factor, (TT_MUL, TT_DIV, TT_MOD))
 
     # MARK: term | comp_expr
     def comp_expr(self) -> "ParseResult":

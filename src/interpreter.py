@@ -201,7 +201,7 @@ class Interpreter:
         Evaluate a BinOpNode (binary operation) in the AST.
 
         This method handles various binary operations including:
-        - Arithmetic: addition, subtraction, multiplication, division, power
+        - Arithmetic: addition, subtraction, multiplication, division, modulo, power
         - Comparison: equality, inequality, less than, greater than, etc.
         - Logical: 'y' (and), 'o' (or)
 
@@ -235,6 +235,9 @@ class Interpreter:
         
         elif node.op_tok.type == TT_DIV:
             result, error = left.divided_by(right)
+        
+        elif node.op_tok.type == TT_MOD:
+            result, error = left.modulo_by(right)
         
         elif node.op_tok.type == TT_POW:
             result, error = left.powered_by(right)
