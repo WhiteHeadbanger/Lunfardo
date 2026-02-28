@@ -483,12 +483,12 @@ class RajarNode:
     def __str__(self) -> str:
         return f'RajarNode({self.pos_start, self.pos_end})'
     
-class ImportarNode:
+class DameNode:
     """Represents an import statement in the AST."""
 
     def __init__(self, module_node: PoneleQueAccessNode) -> None:
         """
-        Initialize an ImportarNode.
+        Initialize an DameNode.
 
         Args:
             module_name_node (ChamuyoNode): Node representing the module name.
@@ -498,10 +498,10 @@ class ImportarNode:
         self.pos_end = self.module_node.pos_end
 
     def __repr__(self) -> str:
-        return f'ImportarNode({self.module_node})'
+        return f'DameNode({self.module_node})'
     
     def __str__(self) -> str:
-        return f'ImportarNode({self.module_node})'
+        return f'DameNode({self.module_node})'
     
 class ProbaSiBardeaNode:
     """ Represents a try-except code block in the AST """

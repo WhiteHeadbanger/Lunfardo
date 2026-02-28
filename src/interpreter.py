@@ -10,7 +10,7 @@ LunfardoNode = Union[NumeroNode, ChamuyoNode, CosoNode, MataburrosNode, PoneleQu
                      PoneleQueAssignNode, BinOpNode, UnaryOpNode, SiNode, ParaNode,
                      MientrasNode, LaburoDefNode, ChetoDefNode, MethodCallNode,
                      InstanceNode, InstanceVarAssignNode, InstanceVarAccessNode,
-                     CallNode, DevolverNode, ContinuarNode, RajarNode, ImportarNode]
+                     CallNode, DevolverNode, ContinuarNode, RajarNode, DameNode]
 
 class Interpreter:
     """
@@ -1077,14 +1077,14 @@ class Interpreter:
             mataburros.set_context(context).set_pos(node.pos_start, node.pos_end)
         )
     
-    def visit_ImportarNode(self, node: ImportarNode, context: Context) -> RTResult:
+    def visit_DameNode(self, node: DameNode, context: Context) -> RTResult:
         """
-        Visit and interpret an ImportarNode (import node) in the Lunfardo language.
+        Visit and interpret an DameNode (import node) in the Lunfardo language.
 
         This method imports a module by executing the file.
 
         Args:
-            node (ImportarNode): The import node to interpret.
+            node (DameNode): The import node to interpret.
             context (Context): The current execution context.
 
         Returns:
@@ -1194,14 +1194,14 @@ class Interpreter:
         return res.success(Nada.nada)
 
     @staticmethod
-    def handle_library_import(lib_name: str, node: ImportarNode, module_context: Context, context: Context) -> RTResult:
+    def handle_library_import(lib_name: str, node: DameNode, module_context: Context, context: Context) -> RTResult:
         """
         Handles library-specific initialization logic in a generic way
         using a registry of library handlers.
 
         Args:
             lib_name (str): The name of the library.
-            node (ImportarNode): The import node from the AST.
+            node (DameNode): The import node from the AST.
             module_context (Context): The module's execution context.
             context (Context): The parent context.
 

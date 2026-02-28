@@ -1,4 +1,4 @@
-importar animal
+dame animal
 
 cheto Perro(Animal)
     laburo ladrar(mi, cantidad)
