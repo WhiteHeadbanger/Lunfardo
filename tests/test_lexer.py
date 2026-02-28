@@ -91,7 +91,7 @@ def test_lexer_identifiers():
     assert tokens[3].type == TT_EOF
 
 def test_lexer_keywords():
-    lexer = Lexer("<test>", "poneleque y o entonces chau sino mientras laburo para hasta entre truchar si osi cheto nuevo devolver continuar rajar importar proba sibardea bardea")
+    lexer = Lexer("<test>", "poneleque y o entonces chau sino mientras laburo para hasta entre truchar si osi cheto nuevo devolver continuar rajar dame proba sibardea bardea")
     tokens, error = lexer.make_tokens()
     assert error is None
     assert len(tokens) == 24

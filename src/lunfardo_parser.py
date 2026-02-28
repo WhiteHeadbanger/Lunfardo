@@ -36,7 +36,7 @@ LunfardoNode = Union[
     DevolverNode,
     ContinuarNode,
     RajarNode,
-    ImportarNode,
+    DameNode,
     ProbaSiBardeaNode,
     BardeaNode,
     ChusmeaNode
@@ -501,7 +501,7 @@ class Parser:
 
             return res.success(instance)
 
-        if tok.matches(TT_KEYWORD, "importar"):
+        if tok.matches(TT_KEYWORD, "dame"):
             import_expr = res.register(self.import_expr())
 
             if res.error:
@@ -1864,7 +1864,7 @@ class Parser:
         res.register_advance()
         self.advance()
 
-        return res.success(ImportarNode(import_module_node))
+        return res.success(DameNode(import_module_node))
     
     def try_expr(self) -> "ParseResult":
         """

@@ -18,7 +18,7 @@ KEYWORDS = [
     'devolver', # return
     'continuar', # continue
     'rajar', # break
-    'importar', # import
+    'dame', # import
     'proba', # try
     'sibardea', # except / catch
     'bardea', # raise / throw
