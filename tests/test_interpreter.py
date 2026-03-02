@@ -48,9 +48,14 @@ def test_interpreter_multiplicacion(lunfardo_instance: Lunfardo):
     assert result.elements[0].value == 6
 
 def test_interpreter_division(lunfardo_instance: Lunfardo):
-    result, error, interp = lunfardo_instance.execute("<test>", "4 / 2", interpreter_cls = InterpreterTester)
+    result, error, interp = lunfardo_instance.execute("<test>", "10 / 2", interpreter_cls = InterpreterTester)
     assert error is None
-    assert result.elements[0].value == 2
+    assert result.elements[0].value == 5.0
+
+def test_interpreter_division_entera(lunfardo_instance: Lunfardo):
+    result, error, interp = lunfardo_instance.execute("<test>", "10 // 2", interpreter_cls = InterpreterTester)
+    assert error is None
+    assert result.elements[0].value == 5
 
 def test_interpreter_potencia(lunfardo_instance: Lunfardo):
     result, error, interp = lunfardo_instance.execute("<test>", "2 ^ 3", interpreter_cls = InterpreterTester)
