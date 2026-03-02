@@ -4,7 +4,7 @@ from .constants.tokens import (
     TT_EE, TT_NE, TT_LT, TT_GT, TT_LTE, TT_GTE,
     TT_KEYWORD
 )
-from .lunfardo_types import Numero, Nada, Curro
+from .lunfardo_types import Numero, Nada
 from .errors.errors import RTError, MaxRecursionBardo, UndefinedVarBardo, InvalidTypeBardo, AttributeBardo
 from .context import Context
 from .nodes import (
