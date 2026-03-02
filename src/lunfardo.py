@@ -57,7 +57,7 @@ class Lunfardo:
         self.global_symbol_table.set("contexto", Curro.contexto_global)
         self.global_symbol_table.set("asciiAchamu", Curro.asciiAchamu)
 
-    def execute(self, fn: str, text: str, cwd: str = None, file_path: str = None, parent_context: Context = None, interpreter_cls: Interpreter = Interpreter) -> Tuple:
+    def execute(self, fn: str, text: str, cwd: str | None = None, file_path: str | None = None, parent_context: Context | None = None, interpreter_cls: type[Interpreter] = Interpreter) -> Tuple:
         """
         Execute Lunfardo code.
 

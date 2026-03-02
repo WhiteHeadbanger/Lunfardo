@@ -32,10 +32,14 @@ def coso_plus_coso(left: Coso, right: Coso) -> tuple[Coso, None]:
     new_list.elements.extend(right.elements)
     return new_list, None
 
-def coso_mul_numero(left: Coso, right: Numero) -> tuple[None, InvalidValueBardo] | tuple[Coso, None]:
+def coso_mul_numero(left: Coso, right: Numero) -> tuple[None, InvalidValueBardo] | tuple[None, InvalidTypeBardo] | tuple[Coso, None]:
     if right.value < 0:
         return None, InvalidValueBardo(
             right.pos_start, right.pos_end, "No se puede multiplicar un coso por un número negativo", right.context
+        )
+    if not isinstance(right.value, int):
+        return None, InvalidTypeBardo(
+            right.pos_start, right.pos_end, "El multiplicador debe ser un número entero", right.context
         )
     new_list = left.copy()
     new_list.elements.clear()
@@ -43,7 +47,11 @@ def coso_mul_numero(left: Coso, right: Numero) -> tuple[None, InvalidValueBardo]
         new_list.elements.extend(left.elements)
     return new_list, None
 
-def coso_sub_numero(left: Coso, right: Numero) -> tuple[None, InvalidIndexBardo] | tuple[Coso, None]:
+def coso_sub_numero(left: Coso, right: Numero) -> tuple[None, InvalidIndexBardo] | tuple[None, InvalidTypeBardo] | tuple[Coso, None]:
+    if not isinstance(right.value, int):
+        return None, InvalidTypeBardo(
+            right.pos_start, right.pos_end, "El índice debe ser un número entero", right.context
+        )
     new_list = left.copy()
     try:
         new_list.elements.pop(right.value)
@@ -84,6 +92,10 @@ def coso_sub_coso(left: Coso, right: Coso) -> tuple[Coso, None]:
     return new_list, None
 
 def coso_div_numero(left: Coso, right: Numero) -> tuple[None, InvalidIndexBardo] | tuple[None, InvalidTypeBardo] | tuple[Coso, None]:
+    if not isinstance(right.value, int):
+        return None, InvalidTypeBardo(
+            right.pos_start, right.pos_end, "El índice debe ser un número entero", right.context
+        )
     try:
         return left.elements[right.value], None
     except IndexError:

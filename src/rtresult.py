@@ -1,4 +1,7 @@
-from typing import Self
+from typing import Self, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.lunfardo_types import LUNFARDO_TYPES
 
 # Run Time Result
 class RTResult:
@@ -13,13 +16,14 @@ class RTResult:
         self.reset()
 
     def reset(self) -> None:
-        self.value = None
+        from src.lunfardo_types import Nada
+        self.value: "LUNFARDO_TYPES" = Nada.nada
         self.error = None
-        self.func_return_value = None
-        self.loop_should_continue = False
-        self.loop_should_break = False
+        self.func_return_value: "LUNFARDO_TYPES | None" = None
+        self.loop_should_continue: bool = False
+        self.loop_should_break: bool = False
 
-    def register(self, res):
+    def register(self, res: "RTResult") -> "LUNFARDO_TYPES":
         self.error = res.error
         self.func_return_value = res.func_return_value
         self.loop_should_continue = res.loop_should_continue

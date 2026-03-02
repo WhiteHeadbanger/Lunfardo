@@ -1,7 +1,9 @@
 from .value import Value
 from .boloodean import Boloodean
+from typing import ClassVar
 
 class Nada(Value):
+    nada: ClassVar['Nada']
 
     def __init__(self, value: None) -> None:
         super().__init__()

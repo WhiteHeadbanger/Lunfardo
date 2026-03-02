@@ -1,6 +1,9 @@
 from .value import Value
+from typing import ClassVar
 
 class Boloodean(Value):
+    posta: ClassVar['Boloodean']
+    trucho: ClassVar['Boloodean']
 
     def __init__(self, value: bool) -> None:
         super().__init__()

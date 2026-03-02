@@ -15,7 +15,7 @@ class Context:
     including its parent context and symbol table.
     """
     
-    def __init__(self, display_name, parent = None, parent_entry_pos = None, cwd = None, file = None) -> None:
+    def __init__(self, display_name: str, parent: 'Context | None' = None, parent_entry_pos = None, cwd = None, file = None) -> None:
         """
         Initialize a Context object.
 

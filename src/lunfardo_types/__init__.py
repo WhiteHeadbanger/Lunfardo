@@ -38,8 +38,7 @@ from src.runtime.operators_eq import (
 )
 from src.runtime.operators_logic import (
     and_operator,
-    or_operator,
-    not_operator
+    or_operator
 )
 
 operators.register("+", Numero, Numero, numero_plus_numero)

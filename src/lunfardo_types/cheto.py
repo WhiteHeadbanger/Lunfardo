@@ -1,5 +1,4 @@
 from .value import Value
-from .boloodean import Boloodean
 from src.rtresult import RTResult
 from src.errors import RTError, UndefinedVarBardo
 from src.context import Context
@@ -25,8 +24,8 @@ class Cheto(Value):
 
         # Inherit instance variables from parent class
         if self.parent_class:
-            res_parent_instance = self.parent_class.create_instance(args if args else [], call_context)
-            instance.instance_vars.update(res_parent_instance.value.instance_vars)
+            parent_instance = self.parent_class.create_instance(args if args else [], call_context, interpreter).value
+            instance.instance_vars.update(parent_instance.instance_vars)
 
         # Call the arranque method if it exists
         arranque_method = self.methods.get("arranque")
@@ -112,7 +111,7 @@ class ChetoInstance(Value):
         self.context.symbol_table = SymbolTable(call_context.symbol_table)
         self.set_pos(cheto.pos_start, cheto.pos_end)
 
-    def get_instance_var(self, var_name):
+    def get_instance_var(self, var_name, interpreter):
         """
         Retrieves an instance variable, including inherited variables.
         If the variable is not found, it tries to retrieve a method.
@@ -120,8 +119,8 @@ class ChetoInstance(Value):
         """
         value = self.instance_vars.get(var_name)
         if value is None and self.cheto.parent_class:
-            parent_instance = self.cheto.parent_class.create_instance([], self.context).value
-            value = parent_instance.get_instance_var(var_name)
+            parent_instance = self.cheto.parent_class.create_instance([], self.context, interpreter).value
+            value = parent_instance.get_instance_var(var_name, interpreter)
 
         if value is None:
             method = self.cheto.get_method(var_name)
