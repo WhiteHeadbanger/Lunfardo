@@ -18,6 +18,7 @@ from src.runtime.operators_arithmetic import (
         numero_sub_numero,
         numero_mul_numero,
         numero_div_numero,
+        numero_intdiv_numero,
         numero_mod_numero,
         numero_pow_numero,
         coso_plus_coso,
@@ -46,6 +47,7 @@ operators.register("-", Numero, Numero, numero_sub_numero)
 operators.register("*", Numero, Numero, numero_mul_numero)
 operators.register("/", Numero, Numero, numero_div_numero)
 operators.register("%", Numero, Numero, numero_mod_numero)
+operators.register("//", Numero, Numero, numero_intdiv_numero)
 operators.register("^", Numero, Numero, numero_pow_numero)
 operators.register("+", Coso, Coso, coso_plus_coso)
 operators.register("*", Coso, Numero, coso_mul_numero)
