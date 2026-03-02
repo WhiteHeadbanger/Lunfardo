@@ -17,7 +17,7 @@ class LaCompu:
     def getcwd(self) -> str:
         return os.getcwd()
     
-    def getenv(self, key: str) -> str:
+    def getenv(self, key: str) -> str | None:
         return os.getenv(key)
     
     def listdir(self, path: str) -> list:

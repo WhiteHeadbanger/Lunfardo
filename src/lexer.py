@@ -41,7 +41,7 @@ class Lexer:
         self.pos.advance(self.current_char)
         self.current_char = self.text[self.pos.idx] if self.pos.idx < len(self.text) else None
 
-    def make_tokens(self) -> Tuple[List[Token], IllegalCharBardo | None]:
+    def make_tokens(self) -> Tuple[List[Token], IllegalCharBardo | ExpectedCharBardo | None]:
         """
         Generate a list of tokens from the input text.
 
@@ -186,7 +186,7 @@ class Lexer:
         
         return Token(TT_FLOAT, float(num_str), pos_start, self.pos)
     
-    def make_string(self) -> Token:
+    def make_string(self) -> tuple[Token, None] | tuple[None, ExpectedCharBardo]:
         """
         Parse and create a string token.
 

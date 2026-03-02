@@ -1,9 +1,20 @@
 from .rtresult import RTResult
-from .constants.tokens import *
-from .lunfardo_types import Numero, Nada
+from .constants.tokens import (
+    TT_PLUS, TT_MINUS, TT_MUL, TT_DIV, TT_MOD, TT_POW,
+    TT_EE, TT_NE, TT_LT, TT_GT, TT_LTE, TT_GTE,
+    TT_KEYWORD
+)
+from .lunfardo_types import Numero, Nada, Curro
 from .errors.errors import RTError, MaxRecursionBardo, UndefinedVarBardo, InvalidTypeBardo, AttributeBardo
 from .context import Context
-from .nodes import *
+from .nodes import (
+    NumeroNode, ChamuyoNode, CosoNode, MataburrosNode, PoneleQueAccessNode,
+    PoneleQueAssignNode, BinOpNode, UnaryOpNode, SiNode, ParaNode,
+    MientrasNode, LaburoDefNode, ChetoDefNode, MethodCallNode,
+    InstanceNode, InstanceVarAssignNode, InstanceVarAccessNode,
+    CallNode, DevolverNode, ContinuarNode, RajarNode, DameNode,
+    AccessAndAssignNode, InstanceVarAccessAndAssignNode, ProbaSiBardeaNode, BardeaNode, ChusmeaNode
+)
 from typing import Union, NoReturn
 
 LunfardoNode = Union[NumeroNode, ChamuyoNode, CosoNode, MataburrosNode, PoneleQueAccessNode,
@@ -29,6 +40,11 @@ class Interpreter:
         self._current_function_name = None
         self.call_stack = []
         #self.debug_mode = True
+
+    def print_debug(self):
+        print("Call Stack:")
+        for i, call in enumerate(self.call_stack):
+            print(f"{i}: {call}")
 
     def visit(self, node: LunfardoNode, context: Context) -> RTResult:
         """
@@ -103,14 +119,17 @@ class Interpreter:
         """
         res = RTResult()
         var_name = node.var_name_tok.value
+        value = None
         
         # Try getting the variable from the current context
-        value = context.symbol_table.get(var_name)
+        if context.symbol_table is not None:
+            value = context.symbol_table.get(var_name)
         if value is None:
             # Determine where to start the module search:
             # If context has no modules, traverse from the parent; otherwise, start from the current context.
             search_context = context.parent if not context.modules else context
-            value = Interpreter.find_in_parent_module(var_name, search_context)
+            if search_context is not None:
+                value = Interpreter.find_in_parent_module(var_name, search_context)
 
         # If the variable still isn't found, return a failure response
         if value is None:
@@ -161,7 +180,8 @@ class Interpreter:
         if res.should_return():
             return res
         
-        context.symbol_table.set(var_name, value)
+        if context.symbol_table is not None:
+            context.symbol_table.set(var_name, value)
         return res.success(value)
     
     def visit_AccessAndAssignNode(self, node: AccessAndAssignNode, context: Context) -> RTResult:
@@ -178,22 +198,24 @@ class Interpreter:
         res = RTResult()
         var_name = node.var_name_tok.value
 
-        if not context.symbol_table.get(var_name):
-            return res.failure(
-                UndefinedVarBardo(
-                    node.var_name_tok.pos_start,
-                    node.var_name_tok.pos_end,
-                    f"'{var_name}' no está definido",
-                    context
+        if context.symbol_table is not None:
+            if not context.symbol_table.get(var_name):
+                return res.failure(
+                    UndefinedVarBardo(
+                        node.var_name_tok.pos_start,
+                        node.var_name_tok.pos_end,
+                        f"'{var_name}' no está definido",
+                        context
+                    )
                 )
-            )
         
         value = res.register(self.visit(node.value_node, context))
         
         if res.should_return():
             return res
         
-        context.symbol_table.set(var_name, value)
+        if context.symbol_table is not None:
+            context.symbol_table.set(var_name, value)
         return res.success(value)
 
     def visit_BinOpNode(self, node: BinOpNode, context: Context) -> RTResult:
@@ -212,8 +234,9 @@ class Interpreter:
         Returns:
             RTResult: A runtime result containing the outcome of the binary operation or RTError if an error occurs.
         """
+        from src.lunfardo_types import LUNFARDO_TYPES
         res = RTResult()
-        left = res.register(self.visit(node.left_node, context))
+        left: LUNFARDO_TYPES = res.register(self.visit(node.left_node, context))
 
         if res.should_return():
             return res
@@ -265,11 +288,11 @@ class Interpreter:
         
         elif node.op_tok.matches(TT_KEYWORD, 'o'):
             result, error = left.ored_by(right)
-
-        if error:
-            return res.failure(error)
         
-        return res.success(result.set_pos(node.pos_start, node.pos_end).set_context(context))
+        if result is not None:
+            return res.success(result.set_pos(node.pos_start, node.pos_end).set_context(context))
+        
+        return res.failure(error)
 
     def visit_UnaryOpNode(self, node: UnaryOpNode, context: Context) -> RTResult:
         """
@@ -296,10 +319,11 @@ class Interpreter:
         elif node.op_tok.matches(TT_KEYWORD, 'truchar'):
             number, error = number.notted()
 
-        if error:
-            return res.failure(error)
         
-        return res.success(number.set_pos(node.pos_start, node.pos_end).set_context(context))
+        if number is not None:
+            return res.success(number.set_pos(node.pos_start, node.pos_end).set_context(context))
+        
+        return res.failure(error)
     
     def visit_SiNode(self, node: SiNode, context: Context) -> RTResult:
         """
@@ -381,15 +405,24 @@ class Interpreter:
         else:
             step_value = Numero(1)
 
+        if not isinstance(start_value, Numero) or not isinstance(end_value, Numero) or not isinstance(step_value, Numero):
+            return res.failure(InvalidTypeBardo(
+                node.pos_start,
+                node.pos_end,
+                "Los valores de inicio, fin y paso deben ser números",
+                context
+            ))
+
         i = start_value.value
 
-        if step_value.value >= 0:
-            condition = lambda: i < end_value.value
-        else:
-            condition = lambda: i > end_value.value
+        def check_condition():
+            return i < end_value.value if step_value.value >= 0 else i > end_value.value
+
+        condition = check_condition
 
         while condition():
-            context.symbol_table.set(node.var_name_tok.value, Numero(i))
+            if context.symbol_table is not None:
+                context.symbol_table.set(node.var_name_tok.value, Numero(i))
             i += step_value.value
 
             value = res.register(self.visit(node.body_node, context))
@@ -488,7 +521,8 @@ class Interpreter:
         for arg_value in node.arg_name_toks.values():
             if arg_value:
                 evaluated_value = res.register(self.visit(arg_value, context))
-                if res.should_return(): return res
+                if res.should_return(): 
+                    return res
                 arg_values.append(evaluated_value)
             else:
                 arg_values.append(None)
@@ -496,7 +530,7 @@ class Interpreter:
         func_value = Laburo(func_name, body_node, arg_names, arg_values, node.should_auto_return).set_pos(node.pos_start, node.pos_end)
         func_value.is_method = node.is_method
 
-        if not node.is_method:
+        if not node.is_method and func_name is not None and context.symbol_table is not None:
             context.symbol_table.set(func_name, func_value)
         
         return res.success(func_value)
@@ -530,7 +564,7 @@ class Interpreter:
         # Process parent class, if any.
         if node.parent_class:
             parent_class_name = node.parent_class.value
-            parent_class = context.symbol_table.get(parent_class_name)
+            parent_class = context.symbol_table.get(parent_class_name) if context.symbol_table else None
             if not parent_class and context.modules:
                 parent_class = context.get_module(parent_class_name)
                 if not parent_class:
@@ -579,7 +613,8 @@ class Interpreter:
         
         # Create the cheto definition
         cheto_value = Cheto(class_name, methods, context, parent_class).set_pos(node.pos_start, node.pos_end)
-        context.symbol_table.set(class_name, cheto_value)
+        if context.symbol_table is not None:
+            context.symbol_table.set(class_name, cheto_value)
 
         return res.success(cheto_value)
     
@@ -603,17 +638,28 @@ class Interpreter:
         res = RTResult()
         args = []
 
+        from .lunfardo_types.laburo import BaseLaburo
+        
         value_to_call = res.register(self.visit(node.node_to_call, context))
+        if not isinstance(value_to_call, BaseLaburo):
+            return res.failure(InvalidTypeBardo(
+                node.pos_start,
+                node.pos_end,
+                f"{value_to_call} no existe o no es un laburo o curro que se pueda llamar",
+                context
+            ))
+        
         if res.should_return():
             return res
         
         value_to_call = value_to_call.copy().set_pos(node.pos_start, node.pos_end)
 
-        # Check for recursion
+        
         function_name = None
         if hasattr(value_to_call, 'name'):
-            function_name = value_to_call.name
+            function_name = getattr(value_to_call, 'name', None)
 
+        # Check for recursion
         if function_name == self._current_function_name:
             self._recursion_depth += 1
             if self._recursion_depth > self._max_recursion_depth:
@@ -632,9 +678,9 @@ class Interpreter:
         # Store the current function name before execution
         previous_function_name = self._current_function_name
         if hasattr(value_to_call, 'name'):
-            self._current_function_name = value_to_call.name
+            self._current_function_name = getattr(value_to_call, 'name', None)
 
-        # Add the call to the call stack, mostly for debugging purposes (chusmea)
+        # Add the call to the call stack, mostly for debugging purposes (see src/chusma.py)
         self.call_stack.append(value_to_call)
         
         return_value = res.register(value_to_call.execute(args, context, self))
@@ -682,13 +728,13 @@ class Interpreter:
 
         # Evaluate arguments
         args = []
-        for arg_node in node.arg_nodes:
+        for arg_node in (node.arg_nodes or []):
             arg_value = res.register(self.visit(arg_node, context))
             if res.should_return():
                 return res
             args.append(arg_value)
 
-        current_value = context.symbol_table.get(base_object_name)
+        current_value = context.symbol_table.get(base_object_name) if context.symbol_table else None
         if not current_value:
             return res.failure(UndefinedVarBardo(
                 node.pos_start,
@@ -702,7 +748,7 @@ class Interpreter:
         for access_token in access_chain:
             if isinstance(current_value, ChetoInstance):
                 var_name = access_token.value
-                current_value = current_value.get_instance_var(var_name)
+                current_value = current_value.get_instance_var(var_name, self)
                 if current_value is None:
                     return res.failure(AttributeBardo(
                         node.pos_start,
@@ -759,7 +805,7 @@ class Interpreter:
         res = RTResult()
 
         class_name = node.class_name_tok.value
-        class_value = context.symbol_table.get(class_name)
+        class_value = context.symbol_table.get(class_name) if context.symbol_table else None
 
         if not class_value:
             return res.failure(UndefinedVarBardo(
@@ -777,7 +823,7 @@ class Interpreter:
         
         # Evaluate arguments
         args = []
-        for arg_node in node.arg_nodes:
+        for arg_node in (node.arg_nodes or []):
             arg_value = res.register(self.visit(arg_node, context))
             if res.should_return():
                 return res
@@ -816,7 +862,7 @@ class Interpreter:
         object_name = node.object_tok.value
         var_name = node.var_name_tok.value
 
-        object_value = context.symbol_table.get(object_name)
+        object_value = context.symbol_table.get(object_name) if context.symbol_table else None
         if not object_value:
             return res.failure(UndefinedVarBardo(
                 node.pos_start,
@@ -834,7 +880,8 @@ class Interpreter:
             ))
 
         value = res.register(self.visit(node.value_node, context))
-        if res.should_return(): return res
+        if res.should_return(): 
+            return res
 
         object_value.set_instance_var(var_name, value)
         return res.success(value)
@@ -862,7 +909,7 @@ class Interpreter:
         base_object_name = node.object_tok.value
         access_chain = node.access_chain
 
-        current_value = context.symbol_table.get(base_object_name)
+        current_value = context.symbol_table.get(base_object_name) if context.symbol_table else None
         if not current_value:
             return res.failure(UndefinedVarBardo(
                 node.pos_start,
@@ -874,7 +921,7 @@ class Interpreter:
         for access_token in access_chain:
             if isinstance(current_value, ChetoInstance):
                 var_name = access_token.value
-                current_value = current_value.get_instance_var(var_name)
+                current_value = current_value.get_instance_var(var_name, self)
                 if current_value is None:
                     return res.failure(AttributeBardo(
                         node.pos_start,
@@ -902,7 +949,7 @@ class Interpreter:
         access_chain = node.access_chain.copy()
         var_to_assign = access_chain.pop().value
 
-        current_value = context.symbol_table.get(base_object_name)
+        current_value = context.symbol_table.get(base_object_name) if context.symbol_table else None
         if not current_value:
             return res.failure(UndefinedVarBardo(
                 node.pos_start,
@@ -914,7 +961,7 @@ class Interpreter:
         for access_token in access_chain:
             if isinstance(current_value, ChetoInstance):
                 var_name = access_token.value
-                current_value = current_value.get_instance_var(var_name)
+                current_value = current_value.get_instance_var(var_name, self)
                 if current_value is None:
                     return res.failure(UndefinedVarBardo(
                         node.pos_start,
@@ -1104,22 +1151,42 @@ class Interpreter:
                 context
             ))
         
-        ejecutar_func = context.symbol_table.get("ejecutar").set_pos(node.pos_start, node.pos_end)
+        if context.symbol_table is None:
+            return res.failure(UndefinedVarBardo(
+                node.pos_start,
+                node.pos_end,
+                'La variable no está definida',
+                context
+            ))
+        
+        ejecutar_func = context.symbol_table.get("ejecutar")
+        if ejecutar_func is None:
+            return res.failure(UndefinedVarBardo(
+                node.pos_start,
+                node.pos_end,
+                "'ejecutar' no está definido",
+                context
+            ))
+        
+        ejecutar_func = ejecutar_func.set_pos(node.pos_start, node.pos_end)
         
         module = res.register(self.visit_ChamuyoNode(ChamuyoNode(node.module_node.var_name_tok), context))
         if res.should_return():
             return res
         
-        module.value += ".lunf"
+        from .lunfardo_types import Chamuyo
+        if isinstance(module, Chamuyo):
+            module.value += ".lunf"
         import_value = res.register(ejecutar_func.execute([module], context, self))
         if res.should_return():
             return res
         
         if module_name in BUILTINS:
             # Delegate library-specific handling.
-            lib_result = Interpreter.handle_library_import(module_name, node, import_value.context, context)
-            if lib_result.error:
-                return res.failure(lib_result.error)
+            if import_value.context is not None:
+                lib_result = Interpreter.handle_library_import(module_name, node, import_value.context, context)
+                if lib_result.error:
+                    return res.failure(lib_result.error)
         
         context.add_module({module_name: import_value})
         
@@ -1173,11 +1240,12 @@ class Interpreter:
             return res
         
         bardo_name = node.bardo_name_tok.value
+        msg_str = getattr(bardo_msg, 'value', str(bardo_msg))
         return res.failure(
             AVAILABLE_BARDOS[bardo_name](
                 node.pos_start,
                 node.pos_end,
-                f"{bardo_msg.value}",
+                msg_str,
                 context
             )
         )

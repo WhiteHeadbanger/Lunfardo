@@ -1,6 +1,5 @@
-from src.lunfardo_types import Boloodean, Numero, Nada, Chamuyo, Coso, Mataburros, Curro, Laburo, Cheto
+from src.lunfardo_types import Boloodean, Numero, Coso, Mataburros, Curro, Laburo, Cheto
 from src.lunfardo_types import LUNFARDO_TYPES, VALUE_TYPES
-from .op_registry import operators
 
 def eq_operator(left: LUNFARDO_TYPES, right: LUNFARDO_TYPES) -> tuple[Boloodean, None]:
     if isinstance(left, VALUE_TYPES) and isinstance(right, VALUE_TYPES):
