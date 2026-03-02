@@ -17,6 +17,13 @@ def numero_div_numero(left: Numero, right: Numero) -> tuple[None, ZeroDivisionBa
         )
     return Numero(left.value / right.value).set_context(left.context), None
 
+def numero_intdiv_numero(left: Numero, right: Numero) -> tuple[None, ZeroDivisionBardo] | tuple[Numero, None]:
+    if right.value == 0:
+        return None, ZeroDivisionBardo(
+            right.pos_start, right.pos_end, "Division por cero", right.context
+        )
+    return Numero(left.value // right.value).set_context(left.context), None
+
 def numero_mod_numero(left: Numero, right: Numero) -> tuple[None, ZeroDivisionBardo] | tuple[Numero, None]:
     if right.value == 0:
         return None, ZeroDivisionBardo(

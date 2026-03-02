@@ -99,6 +99,18 @@ class Value(ABC):
         """
         return self.operators.dispatch("/", self, other, self.context)
     
+    def int_divided_by(self, other: "Value") -> Tuple[Optional["Value"], Optional[RTError]]:
+        """
+        Perform integer division with another value.
+
+        Args:
+            other: The value to divide this one by.
+
+        Returns:
+            A tuple containing the result and any error that occurred.
+        """
+        return self.operators.dispatch("//", self, other, self.context)
+    
     def modulo_by(self, other: "Value") -> Tuple[Optional["Value"], Optional[RTError]]:
         """
         Perform modulo operation with another value.

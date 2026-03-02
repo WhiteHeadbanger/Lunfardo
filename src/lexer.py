@@ -86,8 +86,7 @@ class Lexer:
                 self.advance()
             
             elif self.current_char == '/':
-                tokens.append(Token(TT_DIV, pos_start = self.pos))
-                self.advance()
+                tokens.append(self.make_div_or_intdiv())
             
             elif self.current_char == '^':
                 tokens.append(Token(TT_POW, pos_start = self.pos))
@@ -329,6 +328,23 @@ class Lexer:
         if self.current_char == '>':
             self.advance()
             tok_type = TT_ARROW
+
+        return Token(tok_type, pos_start = pos_start, pos_end = self.pos)
+    
+    def make_div_or_intdiv(self) -> Token:
+        """
+        Parse and create a division or integer division token.
+
+        Returns:
+            Token: A DIV or INTDIV token
+        """
+        tok_type = TT_DIV
+        pos_start = self.pos.copy()
+        self.advance()
+
+        if self.current_char == '/':
+            self.advance()
+            tok_type = TT_INTDIV
 
         return Token(tok_type, pos_start = pos_start, pos_end = self.pos)
 

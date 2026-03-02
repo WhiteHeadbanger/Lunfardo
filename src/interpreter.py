@@ -1,10 +1,10 @@
 from .rtresult import RTResult
 from .constants.tokens import (
-    TT_PLUS, TT_MINUS, TT_MUL, TT_DIV, TT_MOD, TT_POW,
+    TT_PLUS, TT_MINUS, TT_MUL, TT_DIV, TT_INTDIV,TT_MOD, TT_POW,
     TT_EE, TT_NE, TT_LT, TT_GT, TT_LTE, TT_GTE,
     TT_KEYWORD
 )
-from .lunfardo_types import Numero, Nada, Curro
+from .lunfardo_types import Numero, Nada
 from .errors.errors import RTError, MaxRecursionBardo, UndefinedVarBardo, InvalidTypeBardo, AttributeBardo
 from .context import Context
 from .nodes import (
@@ -258,6 +258,9 @@ class Interpreter:
         
         elif node.op_tok.type == TT_DIV:
             result, error = left.divided_by(right)
+
+        elif node.op_tok.type == TT_INTDIV:
+            result, error = left.int_divided_by(right)
         
         elif node.op_tok.type == TT_MOD:
             result, error = left.modulo_by(right)

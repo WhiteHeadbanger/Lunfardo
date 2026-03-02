@@ -585,7 +585,7 @@ class Parser:
         Returns:
             ParseResult: The result of parsing the term.
         """
-        return self.bin_op(self.factor, (TT_MUL, TT_DIV, TT_MOD))
+        return self.bin_op(self.factor, (TT_MUL, TT_DIV, TT_INTDIV, TT_MOD))
 
     # MARK: term | comp_expr
     def comp_expr(self) -> "ParseResult":
