@@ -140,3 +140,53 @@ def test_interpreter_expresion_mataburros(lunfardo_instance: Lunfardo):
     assert result.elements[0].count == 2
     assert result.elements[0].get_value(Chamuyo("a")).value == 1
     assert result.elements[0].get_value(Chamuyo("b")).value == 2
+
+def test_interpreter_definicion_llamada_cheto(lunfardo_instance: Lunfardo):
+    code = '''
+    cheto mi_cheto
+        laburo arranque(mi, a, b)
+            poneleque mi.a = a
+            poneleque mi.b = b
+        chau
+        laburo suma(mi)
+            devolver mi.a + mi.b
+        chau
+    chau
+    
+    poneleque cheto_instancia = nuevo mi_cheto(3.5, 4)
+    cheto_instancia.suma()
+    '''
+    result, error, interp = lunfardo_instance.execute("<test>", code, interpreter_cls = InterpreterTester)
+    assert error is None
+    assert result.elements[-1].value == 7.5
+
+def test_interpreter_cheto_access_chain(lunfardo_instance: Lunfardo):
+    code = '''
+    cheto cheto_A
+        laburo arranque(mi, a, b)
+            poneleque mi.a = a
+            poneleque mi.b = b
+        chau
+        laburo suma(mi)
+            devolver mi.a + mi.b
+        chau
+    chau
+
+    cheto cheto_B
+        laburo arranque(mi, a, b)
+            poneleque mi.cheto_a = nuevo cheto_A(a, b)
+        chau
+    chau
+
+    cheto cheto_C
+        laburo arranque(mi, a, b)
+            poneleque mi.cheto_b = nuevo cheto_B(a, b)
+        chau
+    chau
+    
+    poneleque cheto_instancia = nuevo cheto_C(3, 4)
+    cheto_instancia.cheto_b.cheto_a.suma()
+    '''
+    result, error, interp = lunfardo_instance.execute("<test>", code, interpreter_cls = InterpreterTester)
+    assert error is None
+    assert result.elements[-1].value == 7
