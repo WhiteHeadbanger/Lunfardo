@@ -842,7 +842,7 @@ class Curro(BaseLaburo):
                     )
                 )
 
-        from lunfardo import Lunfardo
+        from src.lunfardo import Lunfardo
 
         result, error = Lunfardo().execute(file_path, script, str(current_dir), parent_context=exec_ctx)
 
