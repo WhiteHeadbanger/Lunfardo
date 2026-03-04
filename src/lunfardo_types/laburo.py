@@ -844,7 +844,7 @@ class Curro(BaseLaburo):
 
         from src.lunfardo import Lunfardo
 
-        result, error = Lunfardo().execute(file_path, script, str(current_dir), parent_context=exec_ctx)
+        result, error, _ = Lunfardo().execute(file_path, script, str(current_dir), parent_context=exec_ctx)
 
         if error:
             return RTResult().failure(
