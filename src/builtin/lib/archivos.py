@@ -118,7 +118,7 @@ class Archivo:
             result = self.current_id - 1
             return result, None
         except Exception as e:
-            return None, handle_error(e)
+            return result, handle_error(e)
 
     def read(self, file_id: int) -> tuple[str | None, Error | None]:
         """
