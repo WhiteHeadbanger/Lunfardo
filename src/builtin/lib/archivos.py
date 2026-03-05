@@ -120,12 +120,12 @@ class Archivo:
         except Exception as e:
             return None, handle_error(e)
 
+    def read(self, file_id: int) -> tuple[str | None, Error | None]:
         """
         Read the entire contents of an open file.
 
         The file must have been previously opened with `open()`.
 
-    def read(self, file_id) -> tuple[str | None, Error | None]:
         Parameters
         ----------
         file_id
@@ -145,13 +145,13 @@ class Archivo:
         except Exception as e:
             return result, handle_error(e)
 
+    def write(self, file_id: int, content: str) -> tuple[None, Error | None]:
         """
         Write text content to an open file.
 
         The behavior depends on the mode used when opening the file
         (e.g. overwrite or append).
 
-    def write(self, file_id, content: str) -> tuple[None, Error | None]:
         Parameters
         ----------
         file_id
@@ -171,7 +171,7 @@ class Archivo:
         except Exception as e:
             return None, handle_error(e)
 
-    def close(self, file_id) -> tuple[None, Error | None]:
+    def close(self, file_id: int) -> tuple[None, Error | None]:
         """
         Close an open file and remove it from the runtime registry.
 
@@ -196,7 +196,7 @@ class Archivo:
         except Exception as e:
             return None, handle_error(e)
         
-def open_adapter(facade, path, mode='r', encoding='utf-8') -> RTResult:
+def open_adapter(facade: Archivo, path: str, mode: str = 'r', encoding: str = 'utf-8') -> RTResult:
     """
     Adapter that exposes `Archivo.open()` to the Lunfardo runtime.
 
@@ -220,7 +220,7 @@ def open_adapter(facade, path, mode='r', encoding='utf-8') -> RTResult:
         Coso([file_value, error_value])
     )
 
-def read_adapter(facade, file_id) -> RTResult:
+def read_adapter(facade: Archivo, file_id: int) -> RTResult:
     """
     Adapter exposing `Archivo.read()` to the Lunfardo runtime.
 
@@ -241,7 +241,7 @@ def read_adapter(facade, file_id) -> RTResult:
         Coso([content_value, error_value])
     )
 
-def write_adapter(facade, file_id, content) -> RTResult:
+def write_adapter(facade: Archivo, file_id: int, content: str) -> RTResult:
     """
     Adapter exposing `Archivo.write()` to the Lunfardo runtime.
 
@@ -260,7 +260,7 @@ def write_adapter(facade, file_id, content) -> RTResult:
         Coso([Nada.nada, error_value])
     )
 
-def close_adapter(facade, file_id) -> RTResult:
+def close_adapter(facade: Archivo, file_id: int) -> RTResult:
     """
     Adapter exposing `Archivo.close()` to the Lunfardo runtime.
 
