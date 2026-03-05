@@ -1,0 +1,70 @@
+laburo bardos(error)
+    si error == "archivo_no_encontrado" entonces
+        bardea archivo_no_encontrado -> ""
+    osi error == "bardo_de_permiso" entonces
+        bardea bardo_de_permiso -> ""
+    osi error == "es_un_directorio" entonces
+        bardea es_un_directorio -> ""
+    osi error == "bardo_de_valor" entonces
+        bardea bardo_de_valor -> ""
+    osi error == "bardo_de_tipo" entonces
+        bardea bardo_de_tipo -> ""
+    osi error == "bardo_unicode_decode" entonces
+        bardea bardo_unicode_decode -> ""
+    osi error == "bardo_unicode_enconde" entonces
+        bardea bardo_unicode_enconde -> ""
+    osi error == "bardo_de_io" entonces
+        bardea bardo_de_io -> ""
+    sino
+        bardea bardo_de_sistema -> ""
+    chau
+chau
+
+laburo abrir_archivo(ruta, modo = "r", codificacion = "utf-8")
+    poneleque retorno = open(ruta, modo, codificacion)
+    poneleque resultado = retorno / 0
+    poneleque error = retorno / 1
+
+    si error == nada entonces
+        devolver resultado
+    sino
+        bardos(error)
+    chau
+    
+chau
+
+laburo leer_archivo(archivo_id)
+    poneleque retorno = read(archivo_id)
+    poneleque resultado = retorno / 0
+    poneleque error = retorno / 1
+
+    si error == nada entonces
+        devolver resultado
+    sino
+        bardos(error)
+    chau
+chau
+
+laburo escribir_archivo(archivo_id, contenido)
+    poneleque retorno = write(archivo_id, contenido)
+    poneleque resultado = retorno / 0
+    poneleque error = retorno / 1
+
+    si error == nada entonces
+        devolver resultado
+    sino
+        bardos(error)
+    chau
+chau
+
+laburo cerrar_archivo(archivo_id)
+    poneleque retorno = close(archivo_id)
+    poneleque resultado = retorno / 0
+    poneleque error = retorno / 1
+
+    si error == nada entonces
+        devolver resultado
+    sino
+        bardos(error)
+    chau
+chau

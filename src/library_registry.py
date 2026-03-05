@@ -97,6 +97,35 @@ def init_lacompu(module_context, node, context):
     
     return res.success(Nada.nada)
 
+def init_archivos(module_context, node, context):
+    res = RTResult()
+
+    try:
+        from src.builtin.lib.archivos import (
+            Archivo, open_adapter, read_adapter, write_adapter, close_adapter
+        )
+
+        wrapper_instance = Archivo()
+        from src.lunfardo_types import Curro
+        archivos_functions = {
+            "open": lambda exec_ctx: open_adapter(wrapper_instance, exec_ctx.symbol_table.get("ruta").value, exec_ctx.symbol_table.get("modo").value, exec_ctx.symbol_table.get("codificacion").value),
+            "read": lambda exec_ctx: read_adapter(wrapper_instance, exec_ctx.symbol_table.get("archivo_id").value),
+            "write": lambda exec_ctx: write_adapter(wrapper_instance, exec_ctx.symbol_table.get("archivo_id").value, exec_ctx.symbol_table.get("contenido").value),
+            "close": lambda exec_ctx: close_adapter(wrapper_instance, exec_ctx.symbol_table.get("archivo_id").value)
+        }
+
+        for name, func in archivos_functions.items():
+            curro_instance = Curro(name, func)
+            module_context.symbol_table.set(name, curro_instance)
+    
+    except ImportError as e:
+        return res.failure(RTError(node.pos_start, node.pos_end, f"Bardo al importar la librería 'archivos': {str(e)}", context))
+    except AttributeError:
+        return res.failure(RTError(node.pos_start, node.pos_end, "Bardo en la librería 'archivos'", context))
+    
+    return res.success(Nada.nada)
+
 
 register_library_handler("gualichos", init_gualichos)
 register_library_handler("lacompu", init_lacompu)
+register_library_handler("archivos", init_archivos)
