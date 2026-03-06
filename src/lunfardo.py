@@ -121,7 +121,7 @@ class Lunfardo:
             try:
                 text = input(f"{default_color}Lunfardo > ")
             except KeyboardInterrupt:
-                print("\nExiting REPL.")
+                print("\nSaliendo del REPL. ¡Hasta luego!")
                 break
 
             if text.strip() == "":
