@@ -644,16 +644,16 @@ class Interpreter:
         from .lunfardo_types.laburo import Curro, Laburo
         
         value_to_call = res.register(self.visit(node.node_to_call, context))
-        if not isinstance(value_to_call, BaseLaburo):
+        if res.should_return():
+            return res
+        
+        """ if not isinstance(value_to_call, (Curro, Laburo)):
             return res.failure(InvalidTypeBardo(
                 node.pos_start,
                 node.pos_end,
                 f"{value_to_call} no existe o no es un laburo o curro que se pueda llamar",
                 context
-            ))
-        
-        if res.should_return():
-            return res
+            )) """
         
         value_to_call = value_to_call.copy().set_pos(node.pos_start, node.pos_end)
 
