@@ -100,7 +100,7 @@ class Interpreter:
         Returns:
             RTResult: A runtime result containing the Chamuyo value.
         """
-        from .lunfardo_types import Chamuyo
+        from src.lunfardo_types import Chamuyo
         
         return RTResult().success(
             Chamuyo(node.tok.value).set_context(context).set_pos(node.pos_start, node.pos_end)
@@ -641,7 +641,7 @@ class Interpreter:
         res = RTResult()
         args = []
 
-        from .lunfardo_types.laburo import BaseLaburo
+        from .lunfardo_types.laburo import Curro, Laburo
         
         value_to_call = res.register(self.visit(node.node_to_call, context))
         if not isinstance(value_to_call, BaseLaburo):
@@ -720,8 +720,8 @@ class Interpreter:
             - The object itself is passed as the first argument to the method.
             - All other arguments are evaluated in the current context before being passed to the method.
         """
-        from .lunfardo_types import Chamuyo
-        from .lunfardo_types.cheto import ChetoInstance
+        from src.lunfardo_types import Chamuyo
+        from src.lunfardo_types.cheto import ChetoInstance
 
         res = RTResult()
 
@@ -1177,7 +1177,7 @@ class Interpreter:
         if res.should_return():
             return res
         
-        from .lunfardo_types import Chamuyo
+        from src.lunfardo_types import Chamuyo
         if isinstance(module, Chamuyo):
             module.value += ".lunf"
         import_value = res.register(ejecutar_func.execute([module], context, self))
@@ -1214,7 +1214,7 @@ class Interpreter:
     
     def visit_BardeaNode(self, node: BardeaNode, context: Context) -> RTResult:
         res = RTResult()
-        from errors import (
+        from src.errors import (
             InvalidTypeBardo,
             MaxRecursionBardo,
             AttributeBardo,

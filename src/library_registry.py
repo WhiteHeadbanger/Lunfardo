@@ -14,7 +14,7 @@ def get_library_handler(lib_name: str):
 def init_gualichos(module_context, node, context):
     res = RTResult()
     try:
-        from builtin.lib.gualichos import (
+        from src.builtin.lib.gualichos import (
             Gualichos, addstr_adapter, getch_adapter, clear_adapter, 
             quit_adapter, border_adapter, getkey_adapter, getstr_adapter, 
             echo_adapter, refresh_adapter, erase_adapter, addch_adapter,
@@ -22,7 +22,7 @@ def init_gualichos(module_context, node, context):
             cbreak_adapter, keypad_adapter, getmaxyx_adapter, nocbreak_adapter
         )
         wrapper_instance = Gualichos()
-        from lunfardo_types import Curro
+        from src.lunfardo_types import Curro
         gualichos_functions = {
             "noecho": lambda exec_ctx: noecho_adapter(wrapper_instance),
             "cbreak": lambda exec_ctx: cbreak_adapter(wrapper_instance),
@@ -58,7 +58,7 @@ def init_lacompu(module_context, node, context):
     res = RTResult()
 
     try:
-        from builtin.lib.lacompu import (
+        from src.builtin.lib.lacompu import (
             LaCompu, chdir_adapter, getcwd_adapter, getenv_adapter, listdir_adapter,
             mkdir_adapter, makedirs_adapter, remove_adapter, rmdir_adapter, rename_adapter,
             system_adapter, name_adapter, environ_adapter, sep_adapter, pathsep_adapter,
@@ -66,7 +66,7 @@ def init_lacompu(module_context, node, context):
         )
 
         wrapper_instance = LaCompu()
-        from lunfardo_types import Curro
+        from src.lunfardo_types import Curro
         la_compu_functions = {
             "chdir": lambda exec_ctx: chdir_adapter(wrapper_instance, exec_ctx.symbol_table.get("ruta").value),
             "getcwd": lambda exec_ctx: getcwd_adapter(wrapper_instance),
