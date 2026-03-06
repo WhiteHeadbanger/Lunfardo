@@ -2,7 +2,6 @@ from __future__ import annotations
 from .value import Value
 from .boloodean import Boloodean
 from src.rtresult import RTResult
-#from src.interpreter import Interpreter
 from src.symbol_table import SymbolTable
 from src.context import Context
 from src.errors import RTError, InvalidTypeBardo
