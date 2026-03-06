@@ -88,6 +88,26 @@ class Archivo:
         self.open_files: dict[int, IO[Any]] = {}
         self.current_id: int = 0
 
+    def _get_file(self, file_id: int) -> tuple[IO[Any] | None, Error | None]:
+        """
+        Retrieve an open file handle from the internal registry.
+
+        Parameters
+        ----------
+        file_id
+            Identifier returned by `open()`.
+
+        Returns
+        -------
+        tuple
+            `(file, None)` if the file exists and is open,
+            `(None, Error.BARDO_DE_VALOR)` if the identifier is not valid.
+        """
+        file = self.open_files.get(file_id)
+        if file is None:
+            return None, Error.BARDO_DE_VALOR
+        return file, None
+
     def open(self, path: str, mode: str = 'r', encoding: str = 'utf-8') -> tuple[int | None, Error | None]:
         """
         Open a file and register it in the runtime file table.
@@ -137,13 +157,14 @@ class Archivo:
             `(content, None)` on success where `content` is a string containing the
             full file contents, or `(None, Error)` if the read operation fails.
         """
-        result = None
+        file, err = self._get_file(file_id)
+        if err:
+            return None, err
+
         try:
-            archivo = self.open_files[file_id]
-            result = archivo.read()
-            return result, None
+            return file.read(), None
         except Exception as e:
-            return result, handle_error(e)
+            return None, handle_error(e)
 
     def write(self, file_id: int, content: str) -> tuple[None, Error | None]:
         """
@@ -164,9 +185,12 @@ class Archivo:
         tuple
             `(None, None)` on success or `(None, Error)` if the write fails.
         """
+        file, err = self._get_file(file_id)
+        if err:
+            return None, err
+
         try:
-            archivo = self.open_files[file_id]
-            archivo.write(content)
+            file.write(content)
             return None, None
         except Exception as e:
             return None, handle_error(e)
@@ -188,9 +212,12 @@ class Archivo:
         tuple
             `(None, None)` on success or `(None, Error)` if closing fails.
         """
+        file, err = self._get_file(file_id)
+        if err:
+            return None, err
+
         try:
-            archivo = self.open_files[file_id]
-            archivo.close()
+            file.close()
             del self.open_files[file_id]
             return None, None
         except Exception as e:
