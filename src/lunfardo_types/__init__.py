@@ -1,13 +1,13 @@
 from typing import Union
 
-from .numero import Numero
-from .boloodean import Boloodean
-from .nada import Nada
-from .laburo import Laburo, Curro
-from .chamuyo import Chamuyo
-from .coso import Coso
-from .mataburros import Mataburros
-from .cheto import Cheto
+from src.lunfardo_types.numero import Numero
+from src.lunfardo_types.boloodean import Boloodean
+from src.lunfardo_types.nada import Nada
+from src.lunfardo_types.laburo import Laburo, Curro
+from src.lunfardo_types.chamuyo import Chamuyo
+from src.lunfardo_types.coso import Coso
+from src.lunfardo_types.mataburros import Mataburros
+from src.lunfardo_types.cheto import Cheto
 
 LUNFARDO_TYPES = Union[Numero, Boloodean, Nada, Laburo, Curro, Chamuyo, Coso, Mataburros, Cheto]
 VALUE_TYPES = Union[Numero, Boloodean, Nada, Chamuyo]

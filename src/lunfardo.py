@@ -8,12 +8,12 @@ import sys
 from pathlib import Path
 from typing import Tuple
 from os import getcwd
-from .lexer import Lexer
-from .lunfardo_parser import Parser
-from .lunfardo_types import Curro, Boloodean, Nada
-from .interpreter import Interpreter
-from .symbol_table import SymbolTable
-from .context import Context
+from src.lexer import Lexer
+from src.lunfardo_parser import Parser
+from src.lunfardo_types import Curro, Boloodean, Nada
+from src.interpreter import Interpreter
+from src.symbol_table import SymbolTable
+from src.context import Context
 
 class Lunfardo:
 
@@ -121,7 +121,7 @@ class Lunfardo:
             try:
                 text = input(f"{default_color}Lunfardo > ")
             except KeyboardInterrupt:
-                print("\nExiting REPL.")
+                print("\nSaliendo del REPL. ¡Hasta luego!")
                 break
 
             if text.strip() == "":

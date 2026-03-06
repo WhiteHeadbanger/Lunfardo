@@ -1,7 +1,7 @@
-from .context import Context
-from .interpreter import Interpreter
-from .lunfardo_types import Chamuyo, Curro
-from .rtresult import RTResult
+from src.context import Context
+from src.interpreter import Interpreter
+from src.lunfardo_types import Chamuyo, Curro
+from src.rtresult import RTResult
 
 class Chusma:
     TITLE = "Chusmeando"

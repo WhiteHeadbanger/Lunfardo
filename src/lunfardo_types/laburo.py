@@ -2,7 +2,6 @@ from __future__ import annotations
 from .value import Value
 from .boloodean import Boloodean
 from src.rtresult import RTResult
-#from src.interpreter import Interpreter
 from src.symbol_table import SymbolTable
 from src.context import Context
 from src.errors import RTError, InvalidTypeBardo
@@ -260,7 +259,7 @@ class Curro(BaseLaburo):
     #########################################
 
     def exec_chamu(self, exec_ctx: Context) -> RTResult:
-        from . import Chamuyo, Numero, Coso, Nada
+        from src.lunfardo_types import Chamuyo, Numero, Coso, Nada
         from errors import InvalidTypeBardo
 
         value = exec_ctx.symbol_table.get("value") if exec_ctx and exec_ctx.symbol_table else None
@@ -299,7 +298,7 @@ class Curro(BaseLaburo):
     exec_chamu.arg_names = ["value"]
 
     def exec_num(self, exec_ctx: Context) -> RTResult:
-        from . import Chamuyo, Numero, Nada
+        from src.lunfardo_types import Chamuyo, Numero, Nada
         from errors import InvalidTypeBardo, InvalidValueBardo
 
         value = exec_ctx.symbol_table.get("value") if exec_ctx and exec_ctx.symbol_table else None
@@ -366,7 +365,7 @@ class Curro(BaseLaburo):
     exec_matear.arg_names = ["value"]
 
     def exec_morfar(self, exec_ctx: Context) -> RTResult:
-        from . import Chamuyo
+        from src.lunfardo_types import Chamuyo
         from lunfardo_types import Nada
 
         _prefix = exec_ctx.symbol_table.get("value") if exec_ctx and exec_ctx.symbol_table else None
@@ -624,7 +623,7 @@ class Curro(BaseLaburo):
     exec_extender.arg_names = ["listA", "listB"]
 
     def exec_agarra_de(self, exec_ctx: Context) -> RTResult:
-        from . import Chamuyo, Numero, Mataburros, Nada
+        from src.lunfardo_types import Chamuyo, Numero, Mataburros, Nada
         from errors import InvalidTypeBardo
 
         dict_ = exec_ctx.symbol_table.get("dict") if exec_ctx and exec_ctx.symbol_table else None
@@ -659,7 +658,7 @@ class Curro(BaseLaburo):
     exec_agarra_de.arg_names = ["dict", "key"]
 
     def exec_metele_en(self, exec_ctx: Context) -> RTResult:
-        from . import Chamuyo, Numero, Mataburros, Nada
+        from src.lunfardo_types import Chamuyo, Numero, Mataburros, Nada
         from errors import InvalidTypeBardo
 
         dict_ = exec_ctx.symbol_table.get("dict") if exec_ctx and exec_ctx.symbol_table else None
@@ -692,7 +691,7 @@ class Curro(BaseLaburo):
     exec_metele_en.arg_names = ["dict", "key", "value"]
 
     def exec_borra_de(self, exec_ctx: Context) -> RTResult:
-        from . import Chamuyo, Numero, Mataburros, Nada
+        from src.lunfardo_types import Chamuyo, Numero, Mataburros, Nada
         from errors import InvalidTypeBardo, InvalidKeyBardo
 
         dict_ = exec_ctx.symbol_table.get("dict") if exec_ctx and exec_ctx.symbol_table else None
@@ -734,7 +733,7 @@ class Curro(BaseLaburo):
     exec_borra_de.arg_names = ["dict", "key"]
 
     def exec_existe_clave(self, exec_ctx: Context) -> RTResult:
-        from . import Chamuyo, Numero, Mataburros, Nada, Boloodean
+        from src.lunfardo_types import Chamuyo, Numero, Mataburros, Nada, Boloodean
         from errors import InvalidTypeBardo
 
         dict_ = exec_ctx.symbol_table.get("dict") if exec_ctx and exec_ctx.symbol_table else None
@@ -797,7 +796,7 @@ class Curro(BaseLaburo):
     exec_longitud.arg_names = ["arg"]
 
     def exec_ejecutar(self, exec_ctx: Context) -> RTResult:
-        from . import Chamuyo
+        from src.lunfardo_types import Chamuyo
         from errors import InvalidTypeBardo, FileNotFoundBardo
 
         fn = exec_ctx.symbol_table.get("fn") if exec_ctx and exec_ctx.symbol_table else None
@@ -842,9 +841,9 @@ class Curro(BaseLaburo):
                     )
                 )
 
-        from lunfardo import Lunfardo
+        from src.lunfardo import Lunfardo
 
-        result, error = Lunfardo().execute(file_path, script, str(current_dir), parent_context=exec_ctx)
+        result, error, _ = Lunfardo().execute(file_path, script, str(current_dir), parent_context=exec_ctx)
 
         if error:
             return RTResult().failure(
@@ -888,7 +887,7 @@ class Curro(BaseLaburo):
     exec_contexto_global.arg_names = ['local']
 
     def exec_asciiAchamu(self, exec_ctx: Context) -> RTResult:
-        from . import Chamuyo, Numero
+        from src.lunfardo_types import Chamuyo, Numero
         from errors import InvalidTypeBardo
 
         code = exec_ctx.symbol_table.get("ascii_code") if exec_ctx and exec_ctx.symbol_table else None

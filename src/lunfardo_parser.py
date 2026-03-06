@@ -1923,7 +1923,13 @@ class Parser:
             'division_por_cero',
             'bardo_de_clave',
             'bardo_de_indice',
-            'archivo_no_encontrado'
+            'archivo_no_encontrado',
+            'bardo_de_permiso',
+            'es_un_directorio',
+            'bardo_unicode_decode',
+            'bardo_unicode_enconde',
+            'bardo_de_io',
+            'bardo_de_sistema'
         )):
             return res.failure(
                 InvalidSyntaxBardo(
@@ -2002,7 +2008,14 @@ class Parser:
             'bardo_de_tipo',
             'bardo_de_indice',
             'bardo_de_clave',
-            'bardo_de_valor'
+            'bardo_de_valor',
+            'bardo_de_permiso',
+            'es_un_directorio',
+            'bardo_unicode_decode',
+            'bardo_unicode_enconde',
+            'bardo_de_io',
+            'bardo_de_sistema',
+            'archivo_no_encontrado'
         )):
             return res.failure(
                 InvalidSyntaxBardo(
