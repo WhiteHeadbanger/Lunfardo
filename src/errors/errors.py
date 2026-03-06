@@ -134,3 +134,45 @@ class FileNotFoundBardo(RTError):
         super().__init__(pos_start, pos_end, f"Uy que rompimo! No pudimos abrir el archivo '{details}'\n El archivo no existe.", context)
         self.error_name = "[Archivo no encontrado]"
         self.name = "archivo_no_encontrado"
+
+class PermissionDeniedBardo(RTError):
+
+    def __init__(self, pos_start, pos_end, details, context) -> None:
+        super().__init__(pos_start, pos_end, f"Primero preocupate de poner bien los permisos así no perdemos tiempo, sabés? {details}", context)
+        self.error_name = "[Bardo de permiso]"
+        self.name = "bardo_de_permiso"
+
+class IsADirectoryBardo(RTError):
+
+    def __init__(self, pos_start, pos_end, details, context) -> None:
+        super().__init__(pos_start, pos_end, f"Es un directorio capo, sabés la diferencia? {details}", context)
+        self.error_name = "[Es un directorio]"
+        self.name = "es_un_directorio"
+
+class UnicodeDecodeBardo(RTError):
+
+    def __init__(self, pos_start, pos_end, details, context) -> None:
+        super().__init__(pos_start, pos_end, f"Empezá a aprender plomería {details}", context)
+        self.error_name = "[Bardo de decodificación unicode]"
+        self.name = "bardo_unicode_decode"
+
+class UnicodeEncodeBardo(RTError):
+
+    def __init__(self, pos_start, pos_end, details, context) -> None:
+        super().__init__(pos_start, pos_end, f"Evidentemente la IA lo tiene bastante fácil para dominar el mercado de programación {details}", context)
+        self.error_name = "[Bardo de encodificación unicode]"
+        self.name = "bardo_unicode_encode"
+
+class IOBardo(RTError):
+
+    def __init__(self, pos_start, pos_end, details, context) -> None:
+        super().__init__(pos_start, pos_end, f"Vos más que bardos tenés problemitas... {details}", context)
+        self.error_name = "[Bardo de I/O]"
+        self.name = "bardo_de_io"
+
+class OSBardo(RTError):
+
+    def __init__(self, pos_start, pos_end, details, context) -> None:
+        super().__init__(pos_start, pos_end, f"Sos tonto o usás Windows? {details}", context)
+        self.error_name = "[Bardo de sistema]"
+        self.name = "bardo_de_sistema"

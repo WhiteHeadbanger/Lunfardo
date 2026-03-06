@@ -1223,7 +1223,13 @@ class Interpreter:
             ZeroDivisionBardo,
             InvalidKeyBardo,
             InvalidIndexBardo,
-            FileNotFoundBardo
+            FileNotFoundBardo,
+            PermissionDeniedBardo,
+            IsADirectoryBardo,
+            UnicodeDecodeBardo,
+            UnicodeEncodeBardo,
+            IOBardo,
+            OSBardo
         )
 
         AVAILABLE_BARDOS = {
@@ -1235,7 +1241,13 @@ class Interpreter:
             'division_por_cero': ZeroDivisionBardo,
             'bardo_de_clave': InvalidKeyBardo,
             'bardo_de_indice': InvalidIndexBardo,
-            'archivo_no_encontrado': FileNotFoundBardo
+            'archivo_no_encontrado': FileNotFoundBardo,
+            'bardo_de_permiso': PermissionDeniedBardo,
+            'es_un_directorio': IsADirectoryBardo,
+            'bardo_unicode_decode': UnicodeDecodeBardo,
+            'bardo_unicode_encode': UnicodeEncodeBardo,
+            'bardo_de_io': IOBardo,
+            'bardo_de_sistema': OSBardo
         }
         
         bardo_msg = res.register(self.visit(node.bardo_msg_node, context))
