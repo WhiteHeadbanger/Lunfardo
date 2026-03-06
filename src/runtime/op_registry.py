@@ -15,7 +15,7 @@ class OperatorRegistry:
                 pos_start=left.pos_start,
                 pos_end=right.pos_end,
                 details=f"Operación '{op}' no soportada entre "
-                f"{left} y {right}",
+                f"{type(left).__name__} y {type(right).__name__}",
                 context=ctx,
             )
         
