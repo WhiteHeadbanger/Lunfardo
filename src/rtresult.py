@@ -63,3 +63,12 @@ class RTResult:
             or self.loop_should_continue
             or self.loop_should_break
         )
+    
+    def __str__(self) -> str:
+        return (
+            f"value={self.value}, "
+            f"error={self.error}, "
+            f"func_return_value={self.func_return_value}, "
+            f"loop_should_continue={self.loop_should_continue}, "
+            f"loop_should_break={self.loop_should_break}"
+        )
