@@ -201,3 +201,11 @@ def test_interpreter_cheto_access_chain(lunfardo_instance: Lunfardo):
     result, error, interp = lunfardo_instance.execute("<test>", code, interpreter_cls = InterpreterTester)
     assert error is None
     assert interp.return_values[-1].func_return_value.value == 7
+
+def test_interpreter_path_resolution(lunfardo_instance: Lunfardo):
+    import os
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    result, error, interp = lunfardo_instance.execute_file(f"{current_dir}/path_resolution.lunf", _debug=True, _interp=InterpreterTester)
+    assert error is None
+    assert interp.return_values[0].func_return_value.value == 'test'
+    assert interp.return_values[-1].func_return_value.value == 'Separador: \\'
