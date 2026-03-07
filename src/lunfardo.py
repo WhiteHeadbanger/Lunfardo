@@ -100,14 +100,19 @@ class Lunfardo:
 
         return result.value, result.error, interpreter
 
-    def execute_file(self, script_path: str) -> None:
+    def execute_file(self, script_path: str, _debug: bool = False, _interp: type[Interpreter] | None = None) -> None | Tuple:
         """Execute a Lunfardo file."""
         try:
             with open(script_path, "r", encoding="utf-8") as f:
                 code = f.read()
             file_path = Path(script_path)
-            _, error, _ = self.execute(fn=file_path, text=code, cwd=file_path.parent)
-
+            
+            if _debug and _interp:
+                result, error, interpreter = self.execute(fn=file_path, text=code, cwd=file_path.parent, interpreter_cls=_interp)
+                return result, error, interpreter
+            
+            result, error, interpreter = self.execute(fn=file_path, text=code, cwd=file_path.parent)
+               
             if error:
                 print(error.as_string())
 

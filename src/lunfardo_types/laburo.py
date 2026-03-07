@@ -822,11 +822,8 @@ class Curro(BaseLaburo):
             with open(file_path, "r", encoding='utf-8') as f:
                 script = f.read()
         except FileNotFoundError:
-            parent_dir = current_dir
-            while parent_dir.name != 'src':
-                parent_dir = parent_dir.parent
-            
-            file_path = parent_dir / 'builtin' / fn
+            current_dir = Path(os.path.dirname(os.path.abspath(__file__))).parent
+            file_path = current_dir / 'builtin' / fn
 
             try:
                 with open(file_path, "r", encoding='utf-8') as f:

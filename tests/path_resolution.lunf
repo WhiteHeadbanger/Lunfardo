@@ -1,0 +1,5 @@
+dame lacompu
+dame path_resolution_same_dir
+
+matear(test())
+devolver "Separador: " + separador()
