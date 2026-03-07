@@ -9,11 +9,17 @@ class InterpreterTester(Interpreter):
 
     def __init__(self):
         super().__init__()
-        self.captured_result = None
+        self.captured_results = None
+        self.return_values = []
 
     def visit(self, node, context):
         result = super().visit(node, context)
-        self.captured_result = result
+        self.captured_results = result
+        return result
+    
+    def visit_DevolverNode(self, node, context):
+        result = super().visit_DevolverNode(node, context)
+        self.return_values.append(result)
         return result
 
     
@@ -84,7 +90,7 @@ def test_interpreter_si_declaracion(lunfardo_instance: Lunfardo):
     '''
     result, error, interp = lunfardo_instance.execute("<test>", code, interpreter_cls = InterpreterTester)
     assert error is None
-    assert interp.captured_result.func_return_value.value == 1
+    assert interp.return_values[-1].func_return_value.value == 1
 
 def test_interpreter_si_sino_declaracion(lunfardo_instance: Lunfardo):
     code = '''
@@ -96,7 +102,7 @@ def test_interpreter_si_sino_declaracion(lunfardo_instance: Lunfardo):
     '''
     result, error, interp = lunfardo_instance.execute("<test>", code, interpreter_cls = InterpreterTester)
     assert error is None
-    assert interp.captured_result.func_return_value.value == 2
+    assert interp.return_values[-1].func_return_value.value == 2
 
 def test_interpreter_bucle_para(lunfardo_instance: Lunfardo):
     code = '''
@@ -163,7 +169,7 @@ def test_interpreter_definicion_llamada_cheto(lunfardo_instance: Lunfardo):
     '''
     result, error, interp = lunfardo_instance.execute("<test>", code, interpreter_cls = InterpreterTester)
     assert error is None
-    assert result.elements[-1].value == 7.5
+    assert interp.return_values[-1].func_return_value.value == 7.5
 
 def test_interpreter_cheto_access_chain(lunfardo_instance: Lunfardo):
     code = '''
@@ -194,4 +200,4 @@ def test_interpreter_cheto_access_chain(lunfardo_instance: Lunfardo):
     '''
     result, error, interp = lunfardo_instance.execute("<test>", code, interpreter_cls = InterpreterTester)
     assert error is None
-    assert result.elements[-1].value == 7
+    assert interp.return_values[-1].func_return_value.value == 7
