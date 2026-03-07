@@ -1861,9 +1861,6 @@ class Parser:
         if res.error:
             return res
 
-        res.register_advance()
-        self.advance()
-
         return res.success(DameNode(import_module_node))
     
     def try_expr(self) -> "ParseResult":
